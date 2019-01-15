@@ -27,6 +27,7 @@ public class Board {
 		}
 		pass = 0;
 		pastBoardStates = new Color[dim*dim][dim*dim];
+		pastBoardStates[0] = fields; //is dit nodig? board gaat toch nooit meer leeg zijn
 	}
 	
 	
@@ -176,10 +177,37 @@ public class Board {
     	
     }
 
+    /***
+     * 
+     * @return true if this set causes the board to obtain the same state as previously
+     */
+    public boolean checkPreviousBoardState(int set, Color c) {
+    	int diff = 0;
+        Color[] nieuw = new Color[dim*dim];		//dan maak je een array die het board na de zet simuleert
+        nieuw = fields;
+        nieuw[set] = c;
+        //System.out.println("VORHER "+pastBoardStates[0]); //HIER MOET JE VERDER
+      //  pastBoardStates[0] = fields; // en checkt of het board dan hetzelfde zou zijn als //DIT MOET ANDERS
+        //System.out.println("NACHHER "+pastBoardStates[0]);
+        for (Color[] col:pastBoardStates) {				// een van de vorige boardposities
+        	for (int j = 0; j < dim*dim; j++) {
+        		if (col[j] != nieuw[j]) {
+        			diff++;
+        		}
+        	}
+        }
+    	if (diff > 0) {
+    		return false;
+    	} else {
+    		return true;
+    	}	
+    	
+    	
+    }
     
     /**
      * Sets the content of field i to the color c.
-     * Checks whether this is a valid move and therefore sets the move only if valid
+     * Checks whether this is a valid move and therefore sets the move only if valid //should not validate here MODEL CLASS!!
      * Otherwise, it lets the user know that this is an invalid set
      * 
      * Possible to take stones away here when set was a capture
@@ -190,27 +218,9 @@ public class Board {
      *            the color to be placed
      */
     public void setField(int i, Color c) {
-    	if (this.isField(i) && this.isEmptyField(i)) { // als ik weet dat het generally een geldige zet is
-        	int diff = 0;
-        	Color[] nieuw = new Color[dim*dim];		//dan maak je een array die het board na de zet simuleert
-        	nieuw = fields;
-        	nieuw[i] = c;
-        	System.out.println("VORHER "+pastBoardStates[0]);
-        	pastBoardStates[0] = fields; // en checkt of het board dan hetzelfde zou zijn als
-        	System.out.println("NACHHER "+pastBoardStates[0]);
-        	for (Color[] col:pastBoardStates) {				// een van de vorige boardposities
-        		for (int j = 0; j < dim*dim; j++) {
-        			if (col[j] != nieuw[j]) {
-        				diff++;
-        			}
-        		}
-        	}
-    		if (diff > 0) {
-    			fields[i] = c;
-    		} else {
-    			System.out.println("This is an invalid move, previous board position is recreated");
-    		}	
-    	}
+    	fields[i] = c;
+    	pastBoardStates[pastBoardStates.length-1] = fields;
+    	
     }
     		//if (isCaptured) {
     		// haal de stenen weg die weg moeten
@@ -247,8 +257,6 @@ public class Board {
      */
     public boolean isCaptured(Color[] col) {
     	Board b = deepCopy();
-    	
-    	
     	return false;
     }
     
@@ -267,15 +275,6 @@ public class Board {
      */
     public Color[] getFields() {
     	return fields;
-    }
-    
-    /***
-     * Check whether recent move recreated previous game situation
-     * @return true when immediate game state before was recreated, otherwise false
-     */
-    public boolean recreate(Board prevBoard) {
-    	// compare with current board (gameStatus/fields), if the same return true
-    	return false;
     }
     
    

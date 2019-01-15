@@ -23,7 +23,7 @@ public class HumanPlayer extends Player {
 		String prompt = "> " + getName() + " (" + getColor().toString() + ")"
 	               + ", what is your choice? (Enter the index of any free field or enter -1 to pass)";
 	      int choice = readInt(prompt);
-	      boolean valid = board.isField(choice) && board.isEmptyField(choice);
+	      boolean valid = board.isField(choice) && board.isEmptyField(choice) && !board.checkPreviousBoardState(choice, getColor());
 	      while (!valid && choice != -1) {
 	    	  System.out.println("ERROR: field " + choice
 	                   + " is no valid choice.");
