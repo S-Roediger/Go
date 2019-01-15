@@ -11,6 +11,7 @@ public class Board {
 	private Color[] fields;
 	private int dim; 
 	private int pass;
+	private Color[][] pastBoardStates;
 	
 	
 // --------------------- Constructor ---------------- //
@@ -25,6 +26,7 @@ public class Board {
 			fields[i] = Color.EMPTY;
 		}
 		pass = 0;
+		pastBoardStates = new Color[dim*dim][dim*dim];
 	}
 	
 	
@@ -177,15 +179,37 @@ public class Board {
     
     /**
      * Sets the content of field i to the color c.
-     *
+     * Checks whether this is a valid move and therefore sets the move only if valid
+     * Otherwise, it lets the user know that this is an invalid set
+     * 
+     * Possible to take stones away here when set was a capture
+     * 
      * @param i
      *            the field number
      * @param c
      *            the color to be placed
      */
     public void setField(int i, Color c) {
-    	if (this.isField(i) && this.isEmptyField(i)) {
-    		fields[i] = c;
+    	if (this.isField(i) && this.isEmptyField(i)) { // als ik weet dat het generally een geldige zet is
+        	int diff = 0;
+        	Color[] nieuw = new Color[dim*dim];		//dan maak je een array die het board na de zet simuleert
+        	nieuw = fields;
+        	nieuw[i] = c;
+        	System.out.println("VORHER "+pastBoardStates[0]);
+        	pastBoardStates[0] = fields; // en checkt of het board dan hetzelfde zou zijn als
+        	System.out.println("NACHHER "+pastBoardStates[0]);
+        	for (Color[] col:pastBoardStates) {				// een van de vorige boardposities
+        		for (int j = 0; j < dim*dim; j++) {
+        			if (col[j] != nieuw[j]) {
+        				diff++;
+        			}
+        		}
+        	}
+    		if (diff > 0) {
+    			fields[i] = c;
+    		} else {
+    			System.out.println("This is an invalid move, previous board position is recreated");
+    		}	
     	}
     }
     		//if (isCaptured) {
@@ -221,7 +245,7 @@ public class Board {
      * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
      * @return
      */
-    public boolean isCaptured() {
+    public boolean isCaptured(Color[] col) {
     	Board b = deepCopy();
     	
     	
