@@ -29,8 +29,14 @@ public class Game {
 	public Game(Board board, Player s0, Player s1) {
 		this.board = board;
 		players = new Player[2];
-		players[0] = s0;
-		players[1] = s1;
+		if (s0.getColor().equals(Color.BLACK)) { //hiermee loop je in de problemen zodra je meer players hebt
+			players[0] = s0;
+			players[1] = s1;
+		} else {
+			players[0] = s1;
+			players[1] = s0;
+		}
+		
 		current = 0;
 		pass = 0;
 		

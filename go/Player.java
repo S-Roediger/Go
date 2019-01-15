@@ -38,6 +38,8 @@ public abstract class Player {
         	board.increasePass();
         	System.out.println("\r " + getName() + " has passed." + "\r");
         }
+        // moet je hier de regels kwijt over wanneer een stap valid is?
+        
         board.setField(keuze, getColor());
 	}
 	

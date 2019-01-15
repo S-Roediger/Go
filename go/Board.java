@@ -7,7 +7,7 @@ public class Board {
  * Board maakt TUI
  */
 	
-	private Color[] prevGameStatus;
+	//private Color[] prevGameStatus;
 	private Color[] fields;
 	private int dim; 
 	private int pass;
@@ -179,7 +179,7 @@ public class Board {
      * Sets the content of field i to the color c.
      *
      * @param i
-     *            the field number (see NUMBERING)
+     *            the field number
      * @param c
      *            the color to be placed
      */
@@ -187,8 +187,15 @@ public class Board {
     	if (this.isField(i) && this.isEmptyField(i)) {
     		fields[i] = c;
     	}
-   
     }
+    		//if (isCaptured) {
+    		// haal de stenen weg die weg moeten
+    		//}
+    		
+    		
+    	
+   
+    
 
     /**
      * Sets the content of the field represented by the (row,col) pair to the
@@ -208,14 +215,22 @@ public class Board {
     
     /***
      * checks whether recent move ends in capture
+     * A stone or solidly connected group of stones of 
+     * one color is captured and removed from the board 
+     * when all the intersections directly adjacent to it 
+     * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
      * @return
      */
     public boolean isCaptured() {
+    	Board b = deepCopy();
+    	
+    	
     	return false;
     }
     
     /***
      * Calculates the score at the end of the game
+     * Wit krijgt + 0.5 punten voor nadeel
      * @return
      */
     public int[] score() {
@@ -223,10 +238,18 @@ public class Board {
     }
     
     /***
-     * Check whether recent move recreated previous game situation (immediately before)
-     * @return false immediate game state before was not recreated, otherwise return true
+     * 
+     * @return fields
      */
-    public boolean didRecreate(Board prevBoard) {
+    public Color[] getFields() {
+    	return fields;
+    }
+    
+    /***
+     * Check whether recent move recreated previous game situation
+     * @return true when immediate game state before was recreated, otherwise false
+     */
+    public boolean recreate(Board prevBoard) {
     	// compare with current board (gameStatus/fields), if the same return true
     	return false;
     }
