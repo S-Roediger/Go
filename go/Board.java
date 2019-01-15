@@ -7,63 +7,85 @@ public class Board {
  * Board maakt TUI
  */
 	
-	private Color fields[];
-	private int dim; // how do we get dimensions? input from server client
+	private Color[] prevGameStatus;
+	private Color[] fields;
+	private int dim; 
+	private int pass;
+	
 	
 // --------------------- Constructor ---------------- //
 	
 	/***
-	 * Creates empty board
+	 * Creates empty board with given dimensions
 	 */
 	public Board(int dim) {
 		this.dim = dim;
-		// initializeer het board met fields[] TODO
+		fields = new Color[dim*dim];
+		for (int i = 0; i < dim*dim; i++) {
+			fields[i] = Color.EMPTY;
+		}
+		pass = 0;
 	}
 	
 	
 	
 // --------------------- Commands & Queries ------------------- //
+	/***
+	 * 
+	 * @return counter for amounts of times player passed
+	 */
+	public int getPass() {
+		return pass;
+	}
+	
+	/***
+	 * Method to increase pass
+	 */
+	public void increasePass() {
+		pass++;
+	}
+	
 	
 	/***
 	 * Creates a deepCopy from the current board
 	 * @return deepCopy of board
 	 */
 	public Board deepCopy() {
-		//TODO
-		return null;
+		Board b = new Board(dim);
+		for (int i = 0; i < dim*dim; i++) {
+			b.setField(i, fields[i]);
+		}
+		return b;
 	}
 	
 	
 	public int index(int row, int col) {
-		//TODO
-		return 0;
+		return dim*row+col;
 	}
 	
     /**
      * Returns true if ix is a valid index of a field on the board.
-     * @return true if 0 <= index < DIM*DIM
+     * @return true if 0 <= index < dim * dim
      */
     public boolean isField(int index) {
-    	return index >= 0 && index < DIM * DIM;
-    	//TODO
+    	return index >= 0 && index < dim * dim;
     }
     
     /**
      * Returns true of the (row,col) pair refers to a valid field on the board.
      *
-     * @return true if 0 <= row < DIM && 0 <= col < DIM
+     * @return true if 0 <= row < dim && 0 <= col < dim
      */
     public boolean isField(int row, int col) {
-        return row >= 0 && row < DIM && col >= 0 && col < DIM;
-      //TODO
+        return row >= 0 && row < dim && col >= 0 && col < dim;
     }
     
     /**
      * Returns the content of the field i.
      *
      * @param i
-     *            the number of the field (see NUMBERING)
-     * @return the mark on the field
+     *            the number of the field (see NUMBERING) //maybe I am not using this..
+     * @return the color on the field
      */
 
     public Color getField(int i) {
@@ -71,7 +93,6 @@ public class Board {
     		return fields[i];
     	}
         return null;
-      //TODO
     }
     
     /**
@@ -81,14 +102,13 @@ public class Board {
      *            the row of the field
      * @param col
      *            the column of the field
-     * @return the mark on the field
+     * @return the color on the field
      */
     public Color getField(int row, int col) {
     	if (isField(row, col)) {
     		return getField(index(row, col));
     	}
         return null;
-      //TODO
     }
     
     /**
@@ -103,7 +123,6 @@ public class Board {
     		return fields[i] == Color.EMPTY;
     	}
         return false;
-      //TODO
     }
 	
     /**
@@ -120,8 +139,8 @@ public class Board {
     		return fields[index(row, col)] == Color.EMPTY;
     	}
         return false;
-      //TODO
     }
+    
     
     /**
      * Returns true if the game is over. The game is over when there is a winner
@@ -130,8 +149,10 @@ public class Board {
      * @return true if the game is over
      */
     public boolean gameOver() {
+        if (pass > 1) {
+        	return true;
+        }
         return false;
-      //TODO
     }
     
     public boolean hasWinner() {
@@ -143,29 +164,30 @@ public class Board {
 
     /**
      * Empties all fields of this board (i.e., let them refer to the value
-     * Mark.EMPTY).
+     * Color.EMPTY).
      */
     public void reset() {
-    	for (int i = 0; i < DIM * DIM; i++) {
-    		fields[i] = Color.EMPTY;
-    	}
-    	//TODO
+    	for (int i = 0; i < dim*dim; i++) {
+			fields[i] = Color.EMPTY;
+		}
+    	pass = 0;
+    	
     }
 
     
     /**
-     * Sets the content of field i to the mark m.
+     * Sets the content of field i to the color c.
      *
      * @param i
      *            the field number (see NUMBERING)
-     * @param m
-     *            the mark to be placed
+     * @param c
+     *            the color to be placed
      */
     public void setField(int i, Color c) {
     	if (this.isField(i) && this.isEmptyField(i)) {
     		fields[i] = c;
     	}
-    	//TODO
+   
     }
 
     /**
@@ -176,19 +198,47 @@ public class Board {
      *            the field's row
      * @param col
      *            the field's column
-     * @param m
-     *            the mark to be placed
+     * @param c
+     *            the color to be placed
      */
     public void setField(int row, int col, Color c) {
     	this.setField(index(row, col), c);
     }
+    
+    
+    /***
+     * checks whether recent move ends in capture
+     * @return
+     */
+    public boolean isCaptured() {
+    	return false;
+    }
+    
+    /***
+     * Calculates the score at the end of the game
+     * @return
+     */
+    public int[] score() {
+    	return null;
+    }
+    
+    /***
+     * Check whether recent move recreated previous game situation (immediately before)
+     * @return false immediate game state before was not recreated, otherwise return true
+     */
+    public boolean didRecreate(Board prevBoard) {
+    	// compare with current board (gameStatus/fields), if the same return true
+    	return false;
+    }
+    
+   
+    
 // ------------------------ TUI ---------------------- //	
 	
-    public static final int DIM = 3;
-    private static final String[] NUMBERING = {" 0 | 1 | 2 ", "---+---+---",
-        " 3 | 4 | 5 ", "---+---+---", " 6 | 7 | 8 "};
-    private static final String LINE = NUMBERING[1];
-    private static final String DELIM = "     ";
+    //private static final String[] NUMBERING = {" 0 | 1 | 2 ", "---+---+---",
+   //     " 3 | 4 | 5 ", "---+---+---", " 6 | 7 | 8 "};
+    //private static final String LINE = NUMBERING[82];
+    private static final String DELIM = "     \r";
 	
     /**
      * Returns a String representation of this board. In addition to the current
@@ -197,21 +247,23 @@ public class Board {
      * @return the game situation as String
      */
 	
-    public String toString() { //TODO
+    public String toString() { 
         String s = "";
-        for (int i = 0; i < DIM; i++) {
+        for (int i = 0; i < dim; i++) {
             String row = "";
-            for (int j = 0; j < DIM; j++) {
-                row = row + " " + getField(i, j).toString() + " ";
-                if (j < DIM - 1) {
+            for (int j = 0; j < dim; j++) {
+                row = row + " " + getField(i, j).toString() + " " + index(i,j);
+                if (j < dim - 1) {
                     row = row + "|";
                 }
             }
-            s = s + row + DELIM + NUMBERING[i * 2];
-            if (i < DIM - 1) {
-                s = s + "\n" + LINE + DELIM + NUMBERING[i * 2 + 1] + "\n";
-            }
+            s = s + row + DELIM; //+ NUMBERING[i * 2];
+           // if (i < dim - 1) {
+             //   s = s + "\n" + LINE + DELIM + NUMBERING[i * 2 + 1] + "\n";
+            //}
         }
+        
+        
         return s;
     }	
 	

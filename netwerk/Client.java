@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import go.Board;
 import go.Color;
 import view.TUI;
 
@@ -88,6 +89,11 @@ public class Client extends Thread{
 					
 					//Maak hier een nieuw game aan met currentGameState dingen
 					
+					//houd currentBoard and previous board
+					
+					//heb je nog een game of maak je dat hier volledig?
+					
+					Board prevBoard;
 				}
 				
 				

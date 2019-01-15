@@ -8,6 +8,9 @@ public abstract class Player {
 	
 	private String name;
 	private Color color;
+
+	
+	//wat moet je met de stenen aan
 	
 	// ------ Constructor ----------- //
 	
@@ -31,8 +34,11 @@ public abstract class Player {
 	
 	public void makeMove(Board board) {
         int keuze = determineMove(board);
+        if (keuze == -1) {
+        	board.increasePass();
+        	System.out.println("\r " + getName() + " has passed." + "\r");
+        }
         board.setField(keuze, getColor());
-        //TODO
 	}
 	
 }

@@ -1,14 +1,16 @@
 package view;
 
+import go.Board;
+
 public class TUI {
 
 	public String showMenu() {
-		return "SET_CONFIG /r" + "ANDERE COMMANDS /r";
+		return "SET_CONFIG /r" + "ANDERE COMMANDS /r" + "Start Game /r";
 	}
 	
 	
-	public String showGame() {
-		return "";
+	public void showGame(Board board) {
+		System.out.println("\r" + board.toString() + "\r");
 	}
 	
 	

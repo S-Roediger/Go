@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+// black makes first move, so player one always has to has black as color 
+
+
 public class Server {
     private static final String USAGE
             = "usage: " + Server.class.getName() + " <port>";
