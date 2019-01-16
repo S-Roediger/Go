@@ -1,5 +1,7 @@
 package go;
 
+import java.util.ArrayList;
+
 public class Board {
 /***
  * Model class, keep log of game changes, rules
@@ -12,6 +14,7 @@ public class Board {
 	private int dim; 
 	private int pass;
 	private Color[][] pastBoardStates;
+	private int nrNeigh = 0;
 	
 	
 // --------------------- Constructor ---------------- //
@@ -251,32 +254,25 @@ public class Board {
      * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
      * @return
      */
-    public boolean isCaptured(int i) { //hoe doe je dat met connected group of stones?
+    public boolean isCaptured(int i, Color c) { //hoe doe je dat met connected group of stones?
     	Color[] checkNeighbours = getNeighbours(i);
-    	int cW = 0;
-    	int cB = 0;
-    	
+    	int occupied = 0;
+    	int edges = 0;
     	//getOther() .. capture only when all adjacent intersections are occupied by opponent
     	
     	for (int k = 0; k < checkNeighbours.length; k++) { //simpel capture: one stone is captured
-    		//if (checkNeighbours)
+    		if (checkNeighbours[k].equals(Color.getOther(c))) {
+    			occupied++;
+    		} else if (checkNeighbours[k].equals(Color.OFF)) {
+    			edges++;
+    		}
+    	}
+    	if (occupied >= 4-edges) {
+    		return true;
     	}
     	return false;
     }
     
-    /***
-     * checks whether a certain intersection has neighbours
-     * @param i - intersection that is checked
-     * @return true if hasNeighbours, otherwise false
-     */
-  /*  public boolean hasNeighbour(int i) {
-    	if (i > dim && i % dim != 0 && i % dim != dim-1) { //index is not at the edge of playing field
-    		
-    	} else if (i > dim && i % dim == 0 || i % dim == dim - 1) {
-    		
-    	}
-    	return false;
-    } */
     
     /***
      * Returns an array with all neighbours, 
@@ -287,41 +283,47 @@ public class Board {
      */
     public Color[] getNeighbours(int i) {
     	Color[] n = new Color[4]; //making new array for neighbours
-	   	
+	   	nrNeigh = 0;
 	   	if (i % dim != 0) { //i is not at the left edge
 	   		n[0] = getField(i-1);
+	   		nrNeigh++;
 	   	} else {
 	   		n[0] = Color.OFF;
 	   	}
 	   	
 	   	if (i > dim-1) { //i is not at the upper edge
 	   		n[1] = getField(i-dim);
+	   		nrNeigh++;
 	   	} else {
 	   		n[1] = Color.OFF;
 	   	}
 	   	
 	   	if (i % dim != dim-1) { //i is not at the right edge
 	   		n[2] = getField(i+1);
+	   		nrNeigh++;
 	   	} else {
 	   		n[2] = Color.OFF;
 	   	}
 	   	
 	   	if (i < (dim*dim)-dim-1) { //i is not at the bottom edge
 	   		n[3] = getField(i+dim);
+	   		nrNeigh++;
 	   	} else {
 	   		n[3] = Color.OFF;
 	   	}
-	   	
 	   	return n;
     }
     
     /***
-     * Removes stone from given index
+     * Removes stones from given index
      * After method execution this field will be Color.EMPTY again
      * @param i
      */
-    public void remove(int i) {
-    	fields[i] = Color.EMPTY;
+    public void remove(ArrayList<Integer> i) {
+    	for (int k = 0; k < i.size(); k++) {
+    		fields[k] = Color.EMPTY;
+    	}
+    	
     }
     
     /***
@@ -329,7 +331,7 @@ public class Board {
      * Wit krijgt + 0.5 punten voor nadeel
      * @return
      */
-    public int[] score() {
+    public int[] score() { //TODO
     	return null;
     }
     

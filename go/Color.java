@@ -19,5 +19,12 @@ public enum Color {
 			
 	}
 	
+	public static Color getOther(Color c) {
+		if (c.equals(Color.BLACK)) {
+			return Color.WHITE;
+		}
+		return Color.BLACK;
+	}
+	
 	//Do I need a getOther() method here?
 }

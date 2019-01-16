@@ -1,5 +1,6 @@
 package go;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import view.TUI;
@@ -67,8 +68,8 @@ public class Game {
 	
 	/***
 	 * game loop:
-	 * updates view and makes move of players
-	 * checks rules and acts accordingly
+	 * updates view, enforces rules and makes move of players
+	 * 
 	 */
 	public void play() {
 		int choice = 0;
@@ -78,20 +79,34 @@ public class Game {
 			//check rules!
 			choice = players[current].determineMove(); //get player choices
 			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
-				System.out.println("ERROR: field " + choice + " is no valid choice.");
+				System.out.println("ERROR: field " + choice + " is no valid choice."); //loop to ask again in case of faulty input
 				choice = players[current].determineMove();
 				}		
 			if (choice == -1) { 				// enforce pass rule
 				board.increasePass();
 				System.out.println("\r " + players[current].getName() + " has passed." + "\r");
 			} else {
-				players[current].makeMove(board, choice);	
+				players[current].makeMove(board, choice);
+				checkForCapture(players[current].getColor());
+				
 			}
 			current = (current + 3) % 2;
 			
 		}
 		System.out.println("\r" + "The game is over." + "\r");
 		//printResult()?
+	}
+	
+	public void checkForCapture(Color c) {
+		ArrayList<Integer> r = new ArrayList<Integer>();
+		for (int i = 0; i < board.getFields().length; i++) {
+			if (board.isCaptured(i, c)) {
+				r.add(i);
+				System.out.println(c + " is captured at intersection " + i);
+			}
+		}
+		board.remove(r);
+		
 	}
 	
 	public void printResult() {
