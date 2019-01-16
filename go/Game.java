@@ -28,7 +28,7 @@ public class Game {
 	public Game(int dim, Player s0, Player s1) {
 		this.board = new Board(dim);
 		players = new Player[2];
-		if (s0.getColor().equals(Color.BLACK)) { //hiermee loop je in de problemen als 
+		if (s0.getColor().equals(Color.BLACK)) { //enforces rule that black starts
 			players[0] = s0;
 			players[1] = s1;
 		} else {
@@ -71,10 +71,24 @@ public class Game {
 	 * checks rules and acts accordingly
 	 */
 	public void play() {
+		int choice = 0;
 		while(!board.gameOver()) {
 			tui.showGame(board);
-			players[current].makeMove(board);
+	
+			//check rules!
+			choice = players[current].determineMove(); //get player choices
+			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
+				System.out.println("ERROR: field " + choice + " is no valid choice.");
+				choice = players[current].determineMove();
+				}		
+			if (choice == -1) { 				// enforce pass rule
+				board.increasePass();
+				System.out.println("\r " + players[current].getName() + " has passed." + "\r");
+			} else {
+				players[current].makeMove(board, choice);	
+			}
 			current = (current + 3) % 2;
+			
 		}
 		System.out.println("\r" + "The game is over." + "\r");
 		//printResult()?

@@ -19,17 +19,17 @@ public class HumanPlayer extends Player {
 	 * @return the player's chosen field
 	 */
 	@Override
-	public int determineMove(Board board) {
+	public int determineMove() { //Board board
 		String prompt = "> " + getName() + " (" + getColor().toString() + ")"
 	               + ", what is your choice? (Enter the index of any free field or enter -1 to pass)";
 	      int choice = readInt(prompt);
-	      boolean valid = board.isField(choice) && board.isEmptyField(choice) && !board.checkPreviousBoardState(choice, getColor());
-	      while (!valid && choice != -1) {
-	    	  System.out.println("ERROR: field " + choice
-	                   + " is no valid choice.");
-	    	  choice = readInt(prompt);
-	    	  valid = board.isField(choice) && board.isEmptyField(choice) && !board.checkPreviousBoardState(choice, getColor());   	
-	       }
+	     // boolean valid = board.isField(choice) && board.isEmptyField(choice) && !board.checkPreviousBoardState(choice, getColor());
+	     // while (!board.isValidMove(choice) && choice != -1) {
+	    	//  System.out.println("ERROR: field " + choice
+	          //         + " is no valid choice.");
+	    	 // choice = readInt(prompt);
+	    	 // valid = board.isField(choice) && board.isEmptyField(choice) && !board.checkPreviousBoardState(choice, getColor());   	
+	       //}
 	     return choice;  
 	}
 	

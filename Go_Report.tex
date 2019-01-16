@@ -23,23 +23,27 @@ The board does only keep track of the current board state. It does not enforce r
 
 \subsubsection{Game}
 
-All rules should be enforced in the game. The game uses the board to keep track of the game process.
+All rules should be enforced in the game. The game uses the board to keep track of the game process. In this way, in a later state the rules can also easily be changed when another game might be played.
 
 
 
-\n
+\r
 Rules the game should enforce
 \begin{enumerate} 
 
-	\item Pass  Stopping the game when both players passed
+	\item Pass - Stopping the game when both players passed
 	\item Black makes the first move
-	\item configurable size (could also be done in the board, but we want the board to not worry about sizes)
+	\item Configurable size (could also be done in the board, but we want the board to not worry about sizes)
+	\item Checks whether move would recreate past boardState
+	\item 
 
 \end{enumerate}
 
 \subsubsection{Player}
 
-The player 
+The player knows when a move generally is valid (isField and isValid), since these rules are unlikely to change, but whether the move would recreate a previous boardState is checked in the game, since this rule could be changed in future games.
+
+ does not know anything about the current gameState?
 
 
 

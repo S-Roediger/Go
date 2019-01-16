@@ -30,20 +30,13 @@ public abstract class Player {
 	}
 	
 	
-	public abstract int determineMove(Board board);
+	public abstract int determineMove(); 
 	
-	public void makeMove(Board board) {
-        int keuze = determineMove(board);
-        if (keuze == -1) {
-        	board.increasePass();
-        	System.out.println("\r " + getName() + " has passed." + "\r");
-        } else {
-        // moet je hier de regels kwijt over wanneer een stap valid is?
+	public void makeMove(Board board, int choice) {
+        board.setField(choice, getColor());
+       // Color[] c = board.getNeighbours(choice);
+       // System.out.println("List of Neighbours for last set (left, up, right, down): " + c[0] + " " + c[1] + " " + c[2] + " " + c[3]);
         
-        board.setField(keuze, getColor());
-        Color[] c = board.getNeighbours(keuze);
-        System.out.println("List of Neighbours for last set (left, up, right, down): " + c[0] + " " + c[1] + " " + c[2] + " " + c[3]);
-        }
 	}
 	
 }

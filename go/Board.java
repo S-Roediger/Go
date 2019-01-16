@@ -341,6 +341,19 @@ public class Board {
     	return fields;
     }
     
+    /***
+     * 
+     * @param choice
+     * @return true when valid, otherwise false
+     */
+    public boolean isValidMove(int choice, Color c) {
+    	if (choice == -1) {
+    		return true;
+    	} else {
+    		return isField(choice) && isEmptyField(choice) && !checkPreviousBoardState(choice, c);
+    	}
+    	
+    }
    
     
 // ------------------------ TUI ---------------------- //	
