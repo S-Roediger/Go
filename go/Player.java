@@ -41,6 +41,8 @@ public abstract class Player {
         // moet je hier de regels kwijt over wanneer een stap valid is?
         
         board.setField(keuze, getColor());
+        Color[] c = board.getNeigbours(keuze);
+        System.out.println("List of Neighbours for last set (left, up, right, down): " + c[0] + " " + c[1] + " " + c[2] + " " + c[3]);
         }
 	}
 	

@@ -53,13 +53,13 @@ public class Board {
 	 * Creates a deepCopy from the current board
 	 * @return deepCopy of board
 	 */
-	/*public Board deepCopy() {
+	public Board deepCopy() {
 		Board b = new Board(dim);
 		for (int i = 0; i < dim*dim; i++) {
 			b.setField(i, fields[i]);
 		}
 		return b;
-	} */
+	} 
 	
 	
 	public int index(int row, int col) {
@@ -148,13 +148,6 @@ public class Board {
         return false;
     }
     
-    public boolean hasWinner() {
-    	return false;
-    	//TODO
-    }
-    
-    
-
     /**
      * Empties all fields of this board (i.e., let them refer to the value
      * Color.EMPTY).
@@ -258,9 +251,58 @@ public class Board {
      * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
      * @return
      */
-    public boolean isCaptured(Color[] col) {
+    public boolean isCaptured(int i) {
     	
     	return false;
+    }
+    
+    /***
+     * checks whether a certain intersection has neighbours
+     * @param i - intersection that is checked
+     * @return true if hasNeighbours, otherwise false
+     */
+  /*  public boolean hasNeighbour(int i) {
+    	if (i > dim && i % dim != 0 && i % dim != dim-1) { //index is not at the edge of playing field
+    		
+    	} else if (i > dim && i % dim == 0 || i % dim == dim - 1) {
+    		
+    	}
+    	return false;
+    } */
+    
+    /***
+     * returns an array with all neighbours, in the following order: left, above, right, down
+     * @param i
+     * @return array with colors of all adjacent intersections
+     */
+    public Color[] getNeigbours(int i) {
+    	Color[] n = new Color[4]; //making new array for neighbours
+	   	
+	   	if (i % dim != 0) { //is is not at the left edge
+	   		n[0] = getField(i-1);
+	   	} else {
+	   		n[0] = Color.OFF;
+	   	}
+	   	
+	   	if (i > dim-1) { //i is not at the upper edge
+	   		n[1] = getField(i-dim);
+	   	} else {
+	   		n[1] = Color.OFF;
+	   	}
+	   	
+	   	if (i % dim != dim-1) { //is is not at the right edge
+	   		n[2] = getField(i+1);
+	   	} else {
+	   		n[2] = Color.OFF;
+	   	}
+	   	
+	   	if (i < (dim*dim)-dim-1) { //i is not at the bottom edge
+	   		n[3] = getField(i+dim);
+	   	} else {
+	   		n[3] = Color.OFF;
+	   	}
+	   	
+	   	return n;
     }
     
     /***

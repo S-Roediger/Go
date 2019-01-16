@@ -2,7 +2,7 @@ package go;
 
 public enum Color {
 	
-	BLACK, WHITE, EMPTY;
+	BLACK, WHITE, EMPTY, OFF; //OFF is 'off the playing field', needed for getNeighbours() in board
 	
 	public static Color getColor(int i) {
 		

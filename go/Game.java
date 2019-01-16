@@ -29,7 +29,7 @@ public class Game {
 	public Game(Board board, Player s0, Player s1) {
 		this.board = board;
 		players = new Player[2];
-		if (s0.getColor().equals(Color.BLACK)) { //hiermee loop je in de problemen zodra je meer players hebt
+		if (s0.getColor().equals(Color.BLACK)) { //hiermee loop je in de problemen als 
 			players[0] = s0;
 			players[1] = s1;
 		} else {
