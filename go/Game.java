@@ -25,8 +25,8 @@ public class Game {
 	 * @param s0
 	 * @param s1
 	 */
-	public Game(Board board, Player s0, Player s1) {
-		this.board = board;
+	public Game(int dim, Player s0, Player s1) {
+		this.board = new Board(dim);
 		players = new Player[2];
 		if (s0.getColor().equals(Color.BLACK)) { //hiermee loop je in de problemen als 
 			players[0] = s0;
