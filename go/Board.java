@@ -251,8 +251,16 @@ public class Board {
      * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
      * @return
      */
-    public boolean isCaptured(int i) {
+    public boolean isCaptured(int i) { //hoe doe je dat met connected group of stones?
+    	Color[] checkNeighbours = getNeighbours(i);
+    	int cW = 0;
+    	int cB = 0;
     	
+    	//getOther() .. capture only when all adjacent intersections are occupied by opponent
+    	
+    	for (int k = 0; k < checkNeighbours.length; k++) { //simpel capture: one stone is captured
+    		//if (checkNeighbours)
+    	}
     	return false;
     }
     
@@ -271,14 +279,16 @@ public class Board {
     } */
     
     /***
-     * returns an array with all neighbours, in the following order: left, above, right, down
+     * Returns an array with all neighbours, 
+     * when the given index is at the board edge and therefore has no direct neighbour in one of the directions,
+     * the Color OFF is returned in the array
      * @param i
-     * @return array with colors of all adjacent intersections
+     * @return array with colors of all adjacent intersections in the following order: left, above, right, down
      */
-    public Color[] getNeigbours(int i) {
+    public Color[] getNeighbours(int i) {
     	Color[] n = new Color[4]; //making new array for neighbours
 	   	
-	   	if (i % dim != 0) { //is is not at the left edge
+	   	if (i % dim != 0) { //i is not at the left edge
 	   		n[0] = getField(i-1);
 	   	} else {
 	   		n[0] = Color.OFF;
@@ -290,7 +300,7 @@ public class Board {
 	   		n[1] = Color.OFF;
 	   	}
 	   	
-	   	if (i % dim != dim-1) { //is is not at the right edge
+	   	if (i % dim != dim-1) { //i is not at the right edge
 	   		n[2] = getField(i+1);
 	   	} else {
 	   		n[2] = Color.OFF;
@@ -303,6 +313,15 @@ public class Board {
 	   	}
 	   	
 	   	return n;
+    }
+    
+    /***
+     * Removes stone from given index
+     * After method execution this field will be Color.EMPTY again
+     * @param i
+     */
+    public void remove(int i) {
+    	fields[i] = Color.EMPTY;
     }
     
     /***

@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Go Report}
+\date{January 2019}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{graphics}
+
+
+\begin{document}
+\author{Sarah Roediger - NU Lichting 4} 
+\maketitle
+
+\section{Design Choices}
+
+\subsection{Hierarchy - Model Classes}
+
+\subsubsection{Board}
+
+The board does only keep track of the current board state. It does not enforce rules or validates any moves.
+
+\subsubsection{Game}
+
+All rules should be enforced in the game. The game uses the board to keep track of the game process.
+
+
+
+\n
+Rules the game should enforce
+\begin{enumerate} 
+
+	\item Pass  Stopping the game when both players passed
+	\item Black makes the first move
+	\item configurable size (could also be done in the board, but we want the board to not worry about sizes)
+
+\end{enumerate}
+
+\subsubsection{Player}
+
+The player 
+
+
+
+\section{Things to still keep in mind}
+
+\begin{enumerate}
+
+	\item Exceptions 
+	\item tests
+	\item hierarchieen
+
+\end{enumerate}
+
+
+
+\end{document}

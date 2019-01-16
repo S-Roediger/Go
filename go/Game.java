@@ -14,7 +14,6 @@ public class Game {
 	private TUI tui = new TUI();
 	private int current;
 	private boolean again = true;
-	private int pass;
 	
 	
 	// ----------- Constructor ---------------- //
@@ -38,7 +37,6 @@ public class Game {
 		}
 		
 		current = 0;
-		pass = 0;
 		
 	}
 	
