@@ -27,7 +27,7 @@ public class Board {
 		}
 		pass = 0;
 		pastBoardStates = new Color[dim*dim][dim*dim];
-		pastBoardStates[0] = fields; //is dit nodig? board gaat toch nooit meer leeg zijn
+		pastBoardStates[0] = fields; 
 	}
 	
 	
@@ -53,13 +53,13 @@ public class Board {
 	 * Creates a deepCopy from the current board
 	 * @return deepCopy of board
 	 */
-	public Board deepCopy() {
+	/*public Board deepCopy() {
 		Board b = new Board(dim);
 		for (int i = 0; i < dim*dim; i++) {
 			b.setField(i, fields[i]);
 		}
 		return b;
-	}
+	} */
 	
 	
 	public int index(int row, int col) {
@@ -92,10 +92,7 @@ public class Board {
      */
 
     public Color getField(int i) {
-    	if (isField(i)) {
-    		return fields[i];
-    	}
-        return null;
+    	return fields[i];
     }
     
     /**
@@ -108,10 +105,8 @@ public class Board {
      * @return the color on the field
      */
     public Color getField(int row, int col) {
-    	if (isField(row, col)) {
-    		return getField(index(row, col));
-    	}
-        return null;
+    	return getField(index(row, col));
+    	
     }
     
     /**
@@ -122,10 +117,7 @@ public class Board {
      * @return true if the field is empty
      */
     public boolean isEmptyField(int i) {
-    	if (isField(i)) {
-    		return fields[i] == Color.EMPTY;
-    	}
-        return false;
+    	return fields[i] == Color.EMPTY;
     }
 	
     /**
@@ -138,10 +130,8 @@ public class Board {
      * @return true if the field is empty
      */
     public boolean isEmptyField(int row, int col) {
-    	if (isField(row, col)) {
-    		return fields[index(row, col)] == Color.EMPTY;
-    	}
-        return false;
+    	return fields[index(row, col)] == Color.EMPTY;
+    
     }
     
     
@@ -183,26 +173,36 @@ public class Board {
      */
     public boolean checkPreviousBoardState(int set, Color c) {
     	int diff = 0;
-        Color[] nieuw = new Color[dim*dim];		//dan maak je een array die het board na de zet simuleert
-        nieuw = fields;
+    	int diffAll = 0;
+        Color[] nieuw = new Color[dim*dim];		// maak een array die het board na de zet simuleert
+        
+        for (int k = 0; k < fields.length; k++) {
+        	nieuw[k] = fields[k];
+        }
+        
+       // nieuw = fields; this results in a deep copy EVIL!
         nieuw[set] = c;
-        //System.out.println("VORHER "+pastBoardStates[0]); //HIER MOET JE VERDER
-      //  pastBoardStates[0] = fields; // en checkt of het board dan hetzelfde zou zijn als //DIT MOET ANDERS
-        //System.out.println("NACHHER "+pastBoardStates[0]);
-        for (Color[] col:pastBoardStates) {				// een van de vorige boardposities
+       
+       // en check of het board dan hetzelfde zou zijn als //
+        
+        for (Color[] col:pastBoardStates) {	//loop door alle past boardstates
+        	diff = 0;
         	for (int j = 0; j < dim*dim; j++) {
-        		if (col[j] != nieuw[j]) {
+        		if (col[j] != nieuw[j]) {			//vergelijk alle elementen in oudeBoardStatex met alle elementen in nieuw
         			diff++;
         		}
         	}
+        	if (diff > 0) { //als er differences zijn gevonden
+        		diffAll++;
+        	} else {
+        		return true; //als er geen gevonden zijn, geef meteen true terug
+        	}
         }
-    	if (diff > 0) {
-    		return false;
-    	} else {
-    		return true;
-    	}	
-    	
-    	
+        	if (diffAll >= pastBoardStates.length) { //check of alle pastBoardStates were different from nieuw
+        		return false;
+        	} else {
+        		return true;
+        	}
     }
     
     /**
@@ -219,7 +219,10 @@ public class Board {
      */
     public void setField(int i, Color c) {
     	fields[i] = c;
-    	pastBoardStates[pastBoardStates.length-1] = fields;
+    	for (int k = 0; k < dim*dim; k++) {
+    		pastBoardStates[pastBoardStates.length-1][k] = fields[k];
+    	}
+    	
     	
     }
     		//if (isCaptured) {
@@ -256,7 +259,7 @@ public class Board {
      * @return
      */
     public boolean isCaptured(Color[] col) {
-    	Board b = deepCopy();
+    	
     	return false;
     }
     

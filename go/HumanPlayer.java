@@ -28,7 +28,7 @@ public class HumanPlayer extends Player {
 	    	  System.out.println("ERROR: field " + choice
 	                   + " is no valid choice.");
 	    	  choice = readInt(prompt);
-	    	  valid = board.isField(choice) && board.isEmptyField(choice);   	
+	    	  valid = board.isField(choice) && board.isEmptyField(choice) && !board.checkPreviousBoardState(choice, getColor());   	
 	       }
 	     return choice;  
 	}
