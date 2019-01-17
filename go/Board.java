@@ -247,7 +247,7 @@ public class Board {
     
     
     /***
-     * checks whether recent move ends in capture
+     * checks whether a stone on field i is captured
      * A stone or solidly connected group of stones of 
      * one color is captured and removed from the board 
      * when all the intersections directly adjacent to it 
@@ -255,6 +255,7 @@ public class Board {
      * @return
      */
     public boolean isCaptured(int i, Color c) { //hoe doe je dat met connected group of stones?
+    	
     	Color[] checkNeighbours = getNeighbours(i);
     	int occupied = 0;
     	int edges = 0;
@@ -263,7 +264,7 @@ public class Board {
     	for (int k = 0; k < checkNeighbours.length; k++) { //simpel capture: one stone is captured
     		if (checkNeighbours[k].equals(Color.getOther(c))) {
     			occupied++;
-    		} else if (checkNeighbours[k].equals(Color.OFF)) {
+    		} else if (checkNeighbours[k].equals(Color.OFF)) { //check for edges with Color.OFF
     			edges++;
     		}
     	}
@@ -321,7 +322,7 @@ public class Board {
      */
     public void remove(ArrayList<Integer> i) {
     	for (int k = 0; k < i.size(); k++) {
-    		fields[k] = Color.EMPTY;
+    		fields[i.get(k)] = Color.EMPTY;
     	}
     	
     }

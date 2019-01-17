@@ -87,7 +87,9 @@ public class Game {
 				System.out.println("\r " + players[current].getName() + " has passed." + "\r");
 			} else {
 				players[current].makeMove(board, choice);
-				checkForCapture(players[current].getColor());
+				handleCapture(Color.getOther(players[current].getColor())); // je checkt eerst of jouw move een ander heeft gecaptured
+				//handleCapture(players[current].getColor());		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
+				
 				
 			}
 			current = (current + 3) % 2;
@@ -97,15 +99,18 @@ public class Game {
 		//printResult()?
 	}
 	
-	public void checkForCapture(Color c) {
+	public void handleCapture(Color c) {
 		ArrayList<Integer> r = new ArrayList<Integer>();
-		for (int i = 0; i < board.getFields().length; i++) {
-			if (board.isCaptured(i, c)) {
-				r.add(i);
-				System.out.println(c + " is captured at intersection " + i);
+		for (int i = 0; i < board.getFields().length; i++) { //check of er een capture is: loop alle fields van het board af
+			if (board.getField(i).equals(c)) { //check of het field wat je bekijkt de kleur heeft voor die je wilt checken
+				if (board.isCaptured(i, c)) {
+					r.add(i);
+					System.out.println(c + " is captured at intersection " + i);
+				}
 			}
+		
 		}
-		board.remove(r);
+		board.remove(r); //remove de captured stenen
 		
 	}
 	
