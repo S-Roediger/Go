@@ -14,7 +14,6 @@ public class Board {
 	private int dim; 
 	private int pass;
 	private Color[][] pastBoardStates;
-	private int nrNeigh = 0;
 	
 	
 // --------------------- Constructor ---------------- //
@@ -268,7 +267,7 @@ public class Board {
     			edges++;
     		}
     	}
-    	if (occupied >= 4-edges) {
+    	if (occupied == 4-edges) {
     		return true;
     	}
     	return false;
@@ -284,31 +283,31 @@ public class Board {
      */
     public Color[] getNeighbours(int i) {
     	Color[] n = new Color[4]; //making new array for neighbours
-	   	nrNeigh = 0;
+	   	
 	   	if (i % dim != 0) { //i is not at the left edge
 	   		n[0] = getField(i-1);
-	   		nrNeigh++;
+	   		
 	   	} else {
 	   		n[0] = Color.OFF;
 	   	}
 	   	
 	   	if (i > dim-1) { //i is not at the upper edge
 	   		n[1] = getField(i-dim);
-	   		nrNeigh++;
+	   		
 	   	} else {
 	   		n[1] = Color.OFF;
 	   	}
 	   	
 	   	if (i % dim != dim-1) { //i is not at the right edge
 	   		n[2] = getField(i+1);
-	   		nrNeigh++;
+	   		
 	   	} else {
 	   		n[2] = Color.OFF;
 	   	}
 	   	
 	   	if (i < (dim*dim)-dim-1) { //i is not at the bottom edge
 	   		n[3] = getField(i+dim);
-	   		nrNeigh++;
+	   		
 	   	} else {
 	   		n[3] = Color.OFF;
 	   	}
