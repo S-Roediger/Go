@@ -103,7 +103,8 @@ public class Game {
 		ArrayList<Integer> r = new ArrayList<Integer>();
 		for (int i = 0; i < board.getFields().length; i++) { //check of er een capture is: loop alle fields van het board af
 			if (board.getField(i).equals(c)) { //check of het field wat je bekijkt de kleur heeft voor die je wilt checken
-				if (board.isCaptured(i, c)) {
+				board.setAmountGroupMembers(board.getNrGroupMembers(i, c));
+				if (board.isCaptured(i, c, board.getNrGroupMembers(i, c))) {
 					r.add(i);
 					System.out.println(c + " is captured at intersection " + i);
 				}
@@ -129,5 +130,13 @@ public class Game {
         return answer.equals(yes);
     }
 	
+	
+	/***
+	 * Returns the board so that I can manipulate it in the BoardTest class
+	 * @return board of current game
+	 */
+	public Board getBoard() {
+		return this.board;
+	}
 	
 }

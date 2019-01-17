@@ -14,6 +14,7 @@ public class Board {
 	private int dim; 
 	private int pass;
 	private Color[][] pastBoardStates;
+	private int groupMembers;
 	
 	
 // --------------------- Constructor ---------------- //
@@ -253,24 +254,97 @@ public class Board {
      * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
      * @return
      */
-    public boolean isCaptured(int i, Color c) { //hoe doe je dat met connected group of stones?
-    	
-    	Color[] checkNeighbours = getNeighbours(i);
+    public boolean isCaptured(int index, Color c, int neighb) { 
+    	Color[] checkNeighbours = getNeighbours(index);
     	int occupied = 0;
     	int edges = 0;
-    	//getOther() .. capture only when all adjacent intersections are occupied by opponent
+    //	groupMembers = getNrGroupMembers(index, c); //create stop condition for recursion
+    	
+    	
+    	
     	
     	for (int k = 0; k < checkNeighbours.length; k++) { //simpel capture: one stone is captured
     		if (checkNeighbours[k].equals(Color.getOther(c))) {
     			occupied++;
     		} else if (checkNeighbours[k].equals(Color.OFF)) { //check for edges with Color.OFF
     			edges++;
+    		} 
+    	}
+    	
+    	
+    	if (occupied == 4-edges-neighb) {
+    		if (groupMembersAreCaptured(index, c)) { //check of groupmembers gecaptured zijn
+    			return true;
     		}
     	}
-    	if (occupied == 4-edges) {
-    		return true;
-    	}
     	return false;
+    }
+    
+    /***
+     * checks whether all groupmembers are captured
+     * @param i
+     * @param c
+     * @return
+     */
+    public boolean groupMembersAreCaptured(int i, Color c) {
+    	
+    	int members = getNrGroupMembers(i,c);
+    	
+    	if (groupMembers > 0) { //stop conditie
+    		
+	    	int captured = 0;
+	    	
+	    	
+	    	if (isCaptured(i-1, c, getNrGroupMembers(i-1, c))) { //check of links gecaptured is
+	    		captured++;
+	    	}
+	    	
+	    	if (isCaptured(i-dim, c, getNrGroupMembers(i-dim, c))) { //check of boven gecaptured is
+	    		captured++;
+	    	}
+	    	
+	    	if (isCaptured(i+1, c, getNrGroupMembers(i+1, c))) { //check of rechts gecaptured is
+	    		captured++;
+	    	}
+	    	
+	    	if (isCaptured(i+dim, c, getNrGroupMembers(i+dim, c))) { //check of beneden gecaptured is
+	    		captured++;
+	    	}
+	    	
+	    	groupMembers--;
+	    	
+	    	if (members == captured) {
+	    		return true;
+	    	}
+	    	return false;
+    	}
+    	
+    	return true; //als een steen geen groep heeft
+    }
+    
+    /***
+     * checks whether stone belongs to a group
+     * @param i
+     * @param c
+     * @return
+     */
+    public int getNrGroupMembers(int i, Color c) {
+    	Color[] checkNeighbours = getNeighbours(i);
+    	int group = 0;
+     	for (int k = 0; k < checkNeighbours.length; k++) { //loop to find amount of groupmembers
+    		if (checkNeighbours[k].equals(c)) {
+    			group++;
+    		}
+     	}
+    	return group;
+    }
+    
+    /***
+     * returns field groupmembers
+     * @return
+     */
+    public void setAmountGroupMembers(int i) { //to be able to create stop condition for check whether neighbours are captured outside of method body isCapture() && groupMembersAreCaptured
+    	groupMembers = i;
     }
     
     
