@@ -31,6 +31,7 @@ class BoardTest {
 		
 	}
 	
+	//neighbours testen en kleuren testen
 	
 	@Before
 	void setUpSimpleBoard() throws Exception {

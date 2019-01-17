@@ -100,18 +100,22 @@ public class Game {
 	}
 	
 	public void handleCapture(Color c) {
-		ArrayList<Integer> r = new ArrayList<Integer>();
+		ArrayList<ArrayList<Integer>> groepen = new ArrayList<>();
 		for (int i = 0; i < board.getFields().length; i++) { //check of er een capture is: loop alle fields van het board af
 			if (board.getField(i).equals(c)) { //check of het field wat je bekijkt de kleur heeft voor die je wilt checken
-				board.setAmountGroupMembers(board.getNrGroupMembers(i, c));
-				if (board.isCaptured(i, c, board.getNrGroupMembers(i, c))) {
-					r.add(i);
-					System.out.println(c + " is captured at intersection " + i);
-				}
+				ArrayList<Integer> r = new ArrayList<Integer>();
+				board.getGroup(i, c, r);
+				groepen.add(r);
+			//	if (board.isCaptured(i, c, board.getNrGroupMembers(i, c))) {
+			//		r.add(i);
+			//		System.out.println(c + " is captured at intersection " + i);
+			//	}
 			}
+			
 		
 		}
-		board.remove(r); //remove de captured stenen
+		System.out.println("This should the group for " + c +": "+groepen);
+		//board.remove(r); //remove the captured stone
 		
 	}
 	

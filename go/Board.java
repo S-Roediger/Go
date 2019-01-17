@@ -1,6 +1,10 @@
 package go;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class Board {
 /***
@@ -247,104 +251,73 @@ public class Board {
     
     
     /***
-     * checks whether a stone on field i is captured
-     * A stone or solidly connected group of stones of 
-     * one color is captured and removed from the board 
-     * when all the intersections directly adjacent to it 
-     * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
+     * First searches for all same COLOR stones and then determines what the borders are
+     * @param i
+     * @param c
      * @return
      */
-    public boolean isCaptured(int index, Color c, int neighb) { 
-    	Color[] checkNeighbours = getNeighbours(index);
-    	int occupied = 0;
-    	int edges = 0;
-    //	groupMembers = getNrGroupMembers(index, c); //create stop condition for recursion
+    public boolean isCaptured(int i, Color c) {
     	
     	
     	
-    	
-    	for (int k = 0; k < checkNeighbours.length; k++) { //simpel capture: one stone is captured
-    		if (checkNeighbours[k].equals(Color.getOther(c))) {
-    			occupied++;
-    		} else if (checkNeighbours[k].equals(Color.OFF)) { //check for edges with Color.OFF
-    			edges++;
-    		} 
-    	}
-    	
-    	
-    	if (occupied == 4-edges-neighb) {
-    		if (groupMembersAreCaptured(index, c)) { //check of groupmembers gecaptured zijn
-    			return true;
-    		}
-    	}
     	return false;
     }
     
+    
+    
     /***
-     * checks whether all groupmembers are captured
+     * Finds a connected group of same colored stones and puts in a list containing the indexes of all stones in the group
      * @param i
      * @param c
      * @return
      */
-    public boolean groupMembersAreCaptured(int i, Color c) {
+    public void getGroup(int i, Color c, ArrayList<Integer> group) {
     	
-    	int members = getNrGroupMembers(i,c);
-    	
-    	if (groupMembers > 0) { //stop conditie
-    		
-	    	int captured = 0;
-	    	
-	    	
-	    	if (isCaptured(i-1, c, getNrGroupMembers(i-1, c))) { //check of links gecaptured is
-	    		captured++;
-	    	}
-	    	
-	    	if (isCaptured(i-dim, c, getNrGroupMembers(i-dim, c))) { //check of boven gecaptured is
-	    		captured++;
-	    	}
-	    	
-	    	if (isCaptured(i+1, c, getNrGroupMembers(i+1, c))) { //check of rechts gecaptured is
-	    		captured++;
-	    	}
-	    	
-	    	if (isCaptured(i+dim, c, getNrGroupMembers(i+dim, c))) { //check of beneden gecaptured is
-	    		captured++;
-	    	}
-	    	
-	    	groupMembers--;
-	    	
-	    	if (members == captured) {
-	    		return true;
-	    	}
-	    	return false;
+    	if (group.size() == 1) {
+    		return;
     	}
     	
-    	return true; //als een steen geen groep heeft
-    }
-    
-    /***
-     * checks whether stone belongs to a group
-     * @param i
-     * @param c
-     * @return
-     */
-    public int getNrGroupMembers(int i, Color c) {
-    	Color[] checkNeighbours = getNeighbours(i);
-    	int group = 0;
-     	for (int k = 0; k < checkNeighbours.length; k++) { //loop to find amount of groupmembers
-    		if (checkNeighbours[k].equals(c)) {
-    			group++;
+    	if (group.size() > 1) {
+    		if (group.get(group.size()-2) == i || group.get(group.size()-1) == i) { // ditte 
+    			return;
     		}
-     	}
-    	return group;
+    	}
+    	
+    	
+    	
+    	if (!group.contains(i)) {
+    		group.add(i);
+    	}
+    	
+    	Map<Color, Integer> n = getNeighbours(i);
+    	
+    	Set<Color> s = n.keySet();
+    	
+    	for (Color co:s) {
+    		if (co.equals(c)) {
+    			if (!group.contains(n.get(co))) {
+    				group.add(n.get(co));
+    				
+    			}
+    			
+    			
+    		}
+    	}
+    	//for (int index = 0; index == added; index++) {
+    		getGroup(group.get(group.size()-1), c, group);
+    	//}		
+    	
+    	
+    	
+    	
+    	//return group;
     }
     
-    /***
-     * returns field groupmembers
-     * @return
-     */
-    public void setAmountGroupMembers(int i) { //to be able to create stop condition for check whether neighbours are captured outside of method body isCapture() && groupMembersAreCaptured
-    	groupMembers = i;
+
+    
+    public ArrayList<ArrayList<Integer>> mergeFields(ArrayList<ArrayList<Integer>> n) {
+    	// als een lijst dezelfde elementen contained dan mogen ze gemerged worden
+    	return null;
     }
     
     
@@ -355,35 +328,35 @@ public class Board {
      * @param i
      * @return array with colors of all adjacent intersections in the following order: left, above, right, down
      */
-    public Color[] getNeighbours(int i) {
-    	Color[] n = new Color[4]; //making new array for neighbours
+    public Map<Color, Integer> getNeighbours(int i) {
+    	Map<Color, Integer> n = new HashMap<Color, Integer>(); //making new array for neighbours
 	   	
 	   	if (i % dim != 0) { //i is not at the left edge
-	   		n[0] = getField(i-1);
+	   		n.put(getField(i-1), i-1);
 	   		
 	   	} else {
-	   		n[0] = Color.OFF;
+	   		n.put(Color.OFF, i-1);
 	   	}
 	   	
 	   	if (i > dim-1) { //i is not at the upper edge
-	   		n[1] = getField(i-dim);
+	   		n.put(getField(i-dim), i-dim);
 	   		
 	   	} else {
-	   		n[1] = Color.OFF;
+	   		n.put(Color.OFF, i-dim);
 	   	}
 	   	
 	   	if (i % dim != dim-1) { //i is not at the right edge
-	   		n[2] = getField(i+1);
+	   		n.put(getField(i+1), i+1);
 	   		
 	   	} else {
-	   		n[2] = Color.OFF;
+	   		n.put(Color.OFF, i+1);
 	   	}
 	   	
 	   	if (i < (dim*dim)-dim-1) { //i is not at the bottom edge
-	   		n[3] = getField(i+dim);
+	   		n.put(getField(i+dim), i+dim);
 	   		
 	   	} else {
-	   		n[3] = Color.OFF;
+	   		n.put(Color.OFF, i+dim);
 	   	}
 	   	return n;
     }
