@@ -282,6 +282,9 @@ public class Board {
      */
     public boolean isCaptured(Color c, ArrayList<Integer> group) { 
     	
+    	
+    	this.checkedStonesGetGroup.clear(); //als je gaat kijken of je gevonden groep gecaptured is of niet, dan kan je de hulplijst voor getGroup resetten
+    	
     	if (group.size() == 0) { //als er geen steen is, heeft deze ook geen freeIntersections en kan ook niet gecaptured worden
     		return false;
     	}
@@ -303,12 +306,8 @@ public class Board {
     }
     
     
-    /***
-     * Temp functie to test getGroup
-     */
-    public void resetCheckedStones() {
-    	this.checkedStonesGetGroup.clear();
-    }
+
+    
     
     
     /***
@@ -328,22 +327,31 @@ public class Board {
     	if (!group.contains(i)) {
     		group.add(i);
     		this.checkedStonesGetGroup.add(i);
+    		System.out.println("Added: "+i);
     	}
+    	
+    	
 
     	
     	this.updateCurrentNeighbours(i);
     	
     	for (int j = 0; j < this.currentNeighColor.size(); j++) {
+    		System.out.println("Color: "+this.currentNeighColor);
+    		System.out.println("Index: "+this.currentNeighIndex);
     		if (this.currentNeighColor.get(j).equals(c)) {
     			if (!group.contains(this.currentNeighIndex.get(j))) {
-    				group.add(this.currentNeighIndex.get(j));
     				//this.checkedStonesGetGroup.add(this.currentNeighIndex.get(j));
     				getGroup(this.currentNeighIndex.get(j), c, group);
+    				this.updateCurrentNeighbours(i); //hier moeten eigenlijk functies van gemaakt worden
+    				System.out.println("Dit is i: "+i);
+    				System.out.println("current n: "+ this.currentNeighIndex);
     			}
     		}
     	}
     	
     }
+    //functie voor index
+    //functie voor kleuren om uit elkaar te trekken
     
 
     /***

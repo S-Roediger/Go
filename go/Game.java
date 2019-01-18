@@ -90,7 +90,7 @@ public class Game {
 			} else {
 				players[current].makeMove(board, choice);
 				handleCapture(Color.getOther(players[current].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
-				//handleCapture(players[current].getColor());		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
+				handleCapture(players[current].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
 				
 				
 			}
@@ -123,14 +123,18 @@ public class Game {
 			
 			ArrayList<Integer> r = new ArrayList<Integer>();
 			board.getGroup(fieldsToBeChecked.get(i), c, r);
-			board.resetCheckedStones();
 			groepen.add(r);
 				
 		}
-		if (board.isCaptured(c, board.mergeFields(groepen))) {
-			board.remove(board.mergeFields(groepen));
-			System.out.println(c+" was captured! The following fields are removed "+board.mergeFields(groepen));
+		
+		for (ArrayList<Integer> a:groepen) {
+			if (board.isCaptured(c, a)) {
+				board.remove(a);
+				System.out.println(c+" was captured! The following fields are removed "+a);
+			}
 		}
+		
+		
 		
 		
 	//	for (int i = 0; i < board.getFields().length; i++) { //check of er een capture is: loop alle fields van het board af
@@ -147,7 +151,7 @@ public class Game {
 			
 		
 		//}
-		System.out.println("This should be the group for " + c +": "+board.mergeFields(groepen));
+		System.out.println("This should be the group for " + c +": "+groepen);
 		//board.remove(r); //remove the captured stone
 		
 	}
