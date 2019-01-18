@@ -273,16 +273,33 @@ public class Board {
     
     
     /***
-     * Determines whether one stone is captured
-     * @param i
-     * @param c
+     * checks whether a stone on field i is captured
+     * A stone or solidly connected group of stones of 
+     * one color is captured and removed from the board 
+     * when all the intersections directly adjacent to it 
+     * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
      * @return
      */
-    public boolean isCaptured(int i, Color c) {
+    public boolean isCaptured(Color c, ArrayList<Integer> group) { 
     	
+    	if (group.size() == 0) { //als er geen steen is, heeft deze ook geen freeIntersections en kan ook niet gecaptured worden
+    		return false;
+    	}
     	
+    	int freeIntersections = 0;
     	
-    	return false;
+    	for (int i = 0; i < group.size(); i++) {
+    		this.updateCurrentNeighbours(group.get(i));
+    		for (Color co:currentNeighColor) {
+    			if (co.equals(Color.EMPTY)) {
+    				freeIntersections++;
+    			}
+    		}
+    	}
+    	if (freeIntersections > 0) {
+    		return false;
+    	}
+    	return true;
     }
     
     
@@ -302,31 +319,17 @@ public class Board {
      */
     public void getGroup(int i, Color c, ArrayList<Integer> group) {
     	
-    	/*
-    	if (group.size() == 1) {
-    		return;
-    	}
-    	
-    	if (group.size() > 1) {
-    		if (group.get(group.size()-2) == i || group.get(group.size()-1) == i) { // ditte 
-    			return;
-    		}
-    	}*/
     	
     	if (this.checkedStonesGetGroup.contains(i)) {
     		return;
     	}
-    	
-    	
+ 
     	
     	if (!group.contains(i)) {
     		group.add(i);
     		this.checkedStonesGetGroup.add(i);
     	}
-    	
-    	//Map<Color, Integer> n = getNeighbours(i);
-    	
-    	//Set<Color> s = n.keySet();
+
     	
     	this.updateCurrentNeighbours(i);
     	
@@ -340,25 +343,6 @@ public class Board {
     		}
     	}
     	
-    	
-    	/*for (Color co:s) {
-    		if (co.equals(c)) {
-    			if (!group.contains(n.get(co))) {
-    				group.add(n.get(co));
-    				
-    			}
-    			
-    			
-    		}
-    	}*/
-    	//for (int index = 0; index == added; index++) {
-    		//getGroup(group.get(group.size()-1), c, group);
-    	//}		
-    	
-    	
-    	
-    	
-    	//return group;
     }
     
 
@@ -369,8 +353,6 @@ public class Board {
      * @return
      */
     public ArrayList<Integer> mergeFields(ArrayList<ArrayList<Integer>> n) { //werkt niet   ArrayList<ArrayList<Integer>>
-    	
-    	ArrayList<ArrayList<Integer>> merged = new ArrayList<>();
     	
     	HashSet<Integer> first = new HashSet<>();
     	

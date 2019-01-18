@@ -109,36 +109,27 @@ public class Game {
 		ArrayList<ArrayList<Integer>> groepen = new ArrayList<>();
 		ArrayList<Integer> fieldsToBeChecked = new ArrayList<Integer>();
 		
-/*		Map<Color, Integer> neighLastSet = board.getNeighbours(lastSet);
-		
-		
-		Set<Color> colorsNeigh = neighLastSet.keySet();
-		
-		for (Color co:colorsNeigh) {
-			if (co.equals(c)) {
-				fieldsToBeChecked.add(neighLastSet.get(co));
-			}
-		} */
-		
 		// ----- nieuwe opzet op basis van nieuwe manier van neigh fixen ---
 		
 		board.updateCurrentNeighbours(lastSet);
-		ArrayList<Color> neighColors = board.getCurrentNeighColor();
-		ArrayList<Integer> neighIndexes = board.getCurrentNeighIndex();
 		
-		for (int j = 0; j < neighColors.size(); j++) {
-			if (neighColors.get(j).equals(c)) {
-				fieldsToBeChecked.add(neighIndexes.get(j));
+		for (int j = 0; j < board.getCurrentNeighColor().size(); j++) {	// krijg de buren van je laatste zet
+			if (board.getCurrentNeighColor().get(j).equals(c)) {	//kijk of die de kleur van je opponent hebben
+				fieldsToBeChecked.add(board.getCurrentNeighIndex().get(j));	//voeg de index van de stenen van je opponent toe
 			}
 		}	
 		
-		for (int i = 0; i < fieldsToBeChecked.size(); i++) {
-			if (board.getField(fieldsToBeChecked.get(i)).equals(c)) { //check of het field wat je bekijkt de kleur heeft voor die je wilt checken
-				ArrayList<Integer> r = new ArrayList<Integer>();
-				board.getGroup(fieldsToBeChecked.get(i), c, r);
-				board.resetCheckedStones();
-				groepen.add(r);
-			}
+		for (int i = 0; i < fieldsToBeChecked.size(); i++) { //vind de groepen voor de fieldsToBeChecked
+			
+			ArrayList<Integer> r = new ArrayList<Integer>();
+			board.getGroup(fieldsToBeChecked.get(i), c, r);
+			board.resetCheckedStones();
+			groepen.add(r);
+				
+		}
+		if (board.isCaptured(c, board.mergeFields(groepen))) {
+			board.remove(board.mergeFields(groepen));
+			System.out.println(c+" was captured! The following fields are removed "+board.mergeFields(groepen));
 		}
 		
 		
