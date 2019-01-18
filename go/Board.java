@@ -3,6 +3,7 @@ package go;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,9 @@ public class Board {
 	private int pass;
 	private Color[][] pastBoardStates;
 	private int groupMembers;
+	private ArrayList<Color> currentNeighColor;
+	private ArrayList<Integer> currentNeighIndex;
+	private ArrayList<Integer> checkedStonesGetGroup;
 	
 	
 // --------------------- Constructor ---------------- //
@@ -35,6 +39,9 @@ public class Board {
 		pass = 0;
 		pastBoardStates = new Color[dim*dim][dim*dim];
 		pastBoardStates[0] = fields; 
+		currentNeighColor = new ArrayList<Color>();
+		currentNeighIndex = new ArrayList<Integer>();
+		checkedStonesGetGroup = new ArrayList<Integer>();
 	}
 	
 	
@@ -55,6 +62,21 @@ public class Board {
 		pass++;
 	}
 	
+	/***
+	 * 
+	 * @return currentNeighColor
+	 */
+	public ArrayList<Color> getCurrentNeighColor() {
+		return currentNeighColor;
+	}
+	
+	/***
+	 * 
+	 * @return currentNeighIndex
+	 */
+	public ArrayList<Integer> getCurrentNeighIndex() {
+		return currentNeighIndex;
+	}
 	
 	/***
 	 * Creates a deepCopy from the current board
@@ -251,7 +273,7 @@ public class Board {
     
     
     /***
-     * First searches for all same COLOR stones and then determines what the borders are
+     * Determines whether one stone is captured
      * @param i
      * @param c
      * @return
@@ -264,6 +286,13 @@ public class Board {
     }
     
     
+    /***
+     * Temp functie to test getGroup
+     */
+    public void resetCheckedStones() {
+    	this.checkedStonesGetGroup.clear();
+    }
+    
     
     /***
      * Finds a connected group of same colored stones and puts in a list containing the indexes of all stones in the group
@@ -273,6 +302,7 @@ public class Board {
      */
     public void getGroup(int i, Color c, ArrayList<Integer> group) {
     	
+    	/*
     	if (group.size() == 1) {
     		return;
     	}
@@ -281,19 +311,37 @@ public class Board {
     		if (group.get(group.size()-2) == i || group.get(group.size()-1) == i) { // ditte 
     			return;
     		}
+    	}*/
+    	
+    	if (this.checkedStonesGetGroup.contains(i)) {
+    		return;
     	}
     	
     	
     	
     	if (!group.contains(i)) {
     		group.add(i);
+    		this.checkedStonesGetGroup.add(i);
     	}
     	
-    	Map<Color, Integer> n = getNeighbours(i);
+    	//Map<Color, Integer> n = getNeighbours(i);
     	
-    	Set<Color> s = n.keySet();
+    	//Set<Color> s = n.keySet();
     	
-    	for (Color co:s) {
+    	this.updateCurrentNeighbours(i);
+    	
+    	for (int j = 0; j < this.currentNeighColor.size(); j++) {
+    		if (this.currentNeighColor.get(j).equals(c)) {
+    			if (!group.contains(this.currentNeighIndex.get(j))) {
+    				group.add(this.currentNeighIndex.get(j));
+    				//this.checkedStonesGetGroup.add(this.currentNeighIndex.get(j));
+    				getGroup(this.currentNeighIndex.get(j), c, group);
+    			}
+    		}
+    	}
+    	
+    	
+    	/*for (Color co:s) {
     		if (co.equals(c)) {
     			if (!group.contains(n.get(co))) {
     				group.add(n.get(co));
@@ -302,9 +350,9 @@ public class Board {
     			
     			
     		}
-    	}
+    	}*/
     	//for (int index = 0; index == added; index++) {
-    		getGroup(group.get(group.size()-1), c, group);
+    		//getGroup(group.get(group.size()-1), c, group);
     	//}		
     	
     	
@@ -314,10 +362,37 @@ public class Board {
     }
     
 
-    
-    public ArrayList<ArrayList<Integer>> mergeFields(ArrayList<ArrayList<Integer>> n) {
-    	// als een lijst dezelfde elementen contained dan mogen ze gemerged worden
-    	return null;
+    /***
+     * Nu geeft deze functie een array terug van een groep die die detecteerd, hij checkt niet of er twee groepen gevonden zijn,
+     * maar dit is geen probleem als je alleen maar buren van de laatst gezette steen checkt in game en niet het hele board opnieuw checkt
+     * @param n
+     * @return
+     */
+    public ArrayList<Integer> mergeFields(ArrayList<ArrayList<Integer>> n) { //werkt niet   ArrayList<ArrayList<Integer>>
+    	
+    	ArrayList<ArrayList<Integer>> merged = new ArrayList<>();
+    	
+    	HashSet<Integer> first = new HashSet<>();
+    	
+    	ArrayList<Integer> firstArray = new ArrayList<Integer>();
+    	
+    	for (int i = 0; i < n.size(); i++) { //first: voeg alles bij elkaar in een set to delete duplicates
+    		for (int k = 0; k < n.get(i).size(); k++) {
+    			first.add(n.get(i).get(k));
+    		}
+    	}
+    	
+    	
+    	//check whether all stones are connected or multiple groups have been detected - TODO
+    	for (Integer h:first) {
+    		firstArray.add(h);
+    	}
+    //	for (int j = 0; j < firstArray.size(); j++) {
+    //		firstArray.get(j) 
+    //		if ()
+    //	}
+    	
+    	return firstArray;
     }
     
     
@@ -328,38 +403,77 @@ public class Board {
      * @param i
      * @return array with colors of all adjacent intersections in the following order: left, above, right, down
      */
-    public Map<Color, Integer> getNeighbours(int i) {
-    	Map<Color, Integer> n = new HashMap<Color, Integer>(); //making new array for neighbours
+    public void updateCurrentNeighbours(int i) {
+    	//Map<Color, Integer> n = new HashMap<Color, Integer>(); //making new array for neighbours
+    	
+    	//int size = this.currentNeighColor.size();
+    	
+    	currentNeighColor.clear();
+    	currentNeighIndex.clear();
+    	
+    //	for (int j = 0; j < this.currentNeighIndex.size(); j++) { //reset both lists
+    //		this.currentNeighColor.remove(j);
+    //		this.currentNeighIndex.remove(j);
+    //	}
+    	
 	   	
 	   	if (i % dim != 0) { //i is not at the left edge
-	   		n.put(getField(i-1), i-1);
+	   		//n.put(getField(i-1), i-1);
+	   		this.currentNeighColor.add(getField(i-1));
+	   		this.currentNeighIndex.add(i-1);
 	   		
 	   	} else {
-	   		n.put(Color.OFF, i-1);
+	   		//n.put(Color.OFF, i-1);
+	   		this.currentNeighColor.add(Color.OFF);
+	   		this.currentNeighIndex.add(i-1);
 	   	}
 	   	
 	   	if (i > dim-1) { //i is not at the upper edge
-	   		n.put(getField(i-dim), i-dim);
+	   	//	n.put(getField(i-dim), i-dim);
+	   		this.currentNeighColor.add(getField(i-dim));
+	   		this.currentNeighIndex.add(i-dim);
 	   		
 	   	} else {
-	   		n.put(Color.OFF, i-dim);
+	   	//	n.put(Color.OFF, i-dim);
+	   		this.currentNeighColor.add(Color.OFF);
+	   		this.currentNeighIndex.add(i-dim);
 	   	}
 	   	
 	   	if (i % dim != dim-1) { //i is not at the right edge
-	   		n.put(getField(i+1), i+1);
+	   		//n.put(getField(i+1), i+1);
+	   		this.currentNeighColor.add(getField(i+1));
+	   		this.currentNeighIndex.add(i+1);
 	   		
 	   	} else {
-	   		n.put(Color.OFF, i+1);
+	   		//n.put(Color.OFF, i+1);
+	   		this.currentNeighColor.add(Color.OFF);
+	   		this.currentNeighIndex.add(i+1);
 	   	}
 	   	
 	   	if (i < (dim*dim)-dim-1) { //i is not at the bottom edge
-	   		n.put(getField(i+dim), i+dim);
+	   		//n.put(getField(i+dim), i+dim);
+	   		this.currentNeighColor.add(getField(i+dim));
+	   		this.currentNeighIndex.add(i+dim);
 	   		
 	   	} else {
-	   		n.put(Color.OFF, i+dim);
+	   		//n.put(Color.OFF, i+dim);
+	   		this.currentNeighColor.add(Color.OFF);
+	   		this.currentNeighIndex.add(i+dim);
 	   	}
-	   	return n;
+	   //	return n;
     }
+    
+    
+    /***
+     * 
+     * @param n
+     * @return
+     */
+    public Map<Color, Integer> getGroupNeighbours(ArrayList<Integer> n) {
+    	
+    	return null;
+    }
+    
     
     /***
      * Removes stones from given index

@@ -1,7 +1,9 @@
 package go;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import view.TUI;
 
@@ -87,7 +89,7 @@ public class Game {
 				System.out.println("\r " + players[current].getName() + " has passed." + "\r");
 			} else {
 				players[current].makeMove(board, choice);
-				handleCapture(Color.getOther(players[current].getColor())); // je checkt eerst of jouw move een ander heeft gecaptured
+				handleCapture(Color.getOther(players[current].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
 				//handleCapture(players[current].getColor());		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
 				
 				
@@ -99,22 +101,62 @@ public class Game {
 		//printResult()?
 	}
 	
-	public void handleCapture(Color c) {
+	public void handleCapture(Color c, int lastSet) {
+		
+		
+		// bekijk alleen alle neigbours van de laatste zet, anders wordt het computationally misschien te zwaar
+		
 		ArrayList<ArrayList<Integer>> groepen = new ArrayList<>();
-		for (int i = 0; i < board.getFields().length; i++) { //check of er een capture is: loop alle fields van het board af
-			if (board.getField(i).equals(c)) { //check of het field wat je bekijkt de kleur heeft voor die je wilt checken
+		ArrayList<Integer> fieldsToBeChecked = new ArrayList<Integer>();
+		
+/*		Map<Color, Integer> neighLastSet = board.getNeighbours(lastSet);
+		
+		
+		Set<Color> colorsNeigh = neighLastSet.keySet();
+		
+		for (Color co:colorsNeigh) {
+			if (co.equals(c)) {
+				fieldsToBeChecked.add(neighLastSet.get(co));
+			}
+		} */
+		
+		// ----- nieuwe opzet op basis van nieuwe manier van neigh fixen ---
+		
+		board.updateCurrentNeighbours(lastSet);
+		ArrayList<Color> neighColors = board.getCurrentNeighColor();
+		ArrayList<Integer> neighIndexes = board.getCurrentNeighIndex();
+		
+		for (int j = 0; j < neighColors.size(); j++) {
+			if (neighColors.get(j).equals(c)) {
+				fieldsToBeChecked.add(neighIndexes.get(j));
+			}
+		}	
+		
+		for (int i = 0; i < fieldsToBeChecked.size(); i++) {
+			if (board.getField(fieldsToBeChecked.get(i)).equals(c)) { //check of het field wat je bekijkt de kleur heeft voor die je wilt checken
 				ArrayList<Integer> r = new ArrayList<Integer>();
-				board.getGroup(i, c, r);
+				board.getGroup(fieldsToBeChecked.get(i), c, r);
+				board.resetCheckedStones();
 				groepen.add(r);
+			}
+		}
+		
+		
+	//	for (int i = 0; i < board.getFields().length; i++) { //check of er een capture is: loop alle fields van het board af
+	//		if (board.getField(i).equals(c)) { //check of het field wat je bekijkt de kleur heeft voor die je wilt checken
+	//			ArrayList<Integer> r = new ArrayList<Integer>();
+	//			board.getGroup(i, c, r);
+	//			groepen.add(r);
+				
 			//	if (board.isCaptured(i, c, board.getNrGroupMembers(i, c))) {
 			//		r.add(i);
 			//		System.out.println(c + " is captured at intersection " + i);
 			//	}
-			}
+			//}
 			
 		
-		}
-		System.out.println("This should the group for " + c +": "+groepen);
+		//}
+		System.out.println("This should be the group for " + c +": "+board.mergeFields(groepen));
 		//board.remove(r); //remove the captured stone
 		
 	}
