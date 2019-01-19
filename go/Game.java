@@ -91,14 +91,13 @@ public class Game {
 				players[current].makeMove(board, choice);
 				handleCapture(Color.getOther(players[current].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
 				handleCapture(players[current].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
-				
-				
+				board.resetPass();
 			}
 			current = (current + 3) % 2;
 			
 		}
 		System.out.println("\r" + "The game is over." + "\r");
-		//printResult()?
+		printResult();
 	}
 	
 	public void handleCapture(Color c, int lastSet) {
@@ -128,7 +127,7 @@ public class Game {
 		}
 		
 		for (ArrayList<Integer> a:groepen) {
-			if (board.isCaptured(c, a)) {
+			if (board.isCaptured(Color.EMPTY, a)) {
 				board.remove(a);
 				System.out.println(c+" was captured! The following fields are removed "+a);
 			}
@@ -157,7 +156,13 @@ public class Game {
 	}
 	
 	public void printResult() {
-		//print something
+		int[] score = board.getScore();
+		System.out.println("Black has the following amount of points: "+score[0] +"\r" + "White has the following amount of points: "+ score[1]);
+		if (score[0] > score[1]) {
+			System.out.println("Black has won!");
+		} else {
+			System.out.println("White has won!");
+		}
 	}
 	
 	private boolean readBoolean(String prompt, String yes, String no) {

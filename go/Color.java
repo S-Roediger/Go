@@ -23,8 +23,14 @@ public enum Color {
 		if (c.equals(Color.BLACK)) {
 			return Color.WHITE;
 		}
-		return Color.BLACK;
+		
+		if (c.equals(Color.WHITE)) {
+			return Color.BLACK;
+		}
+		
+		if (c.equals(Color.EMPTY)) {
+			return Color.EMPTY;
+		}
+		return null;
 	}
-	
-	//Do I need a getOther() method here?
 }
