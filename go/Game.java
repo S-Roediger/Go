@@ -91,15 +91,31 @@ public class Game {
 				players[current].makeMove(board, choice);
 				handleCapture(Color.getOther(players[current].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
 				handleCapture(players[current].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
-				
-				
+				handleSuicide(players[current].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
+				board.resetPass();
 			}
 			current = (current + 3) % 2;
 			
 		}
 		System.out.println("\r" + "The game is over." + "\r");
-		//printResult()?
+		printResult();
 	}
+	
+	/***
+	 * Handles suicide
+	 * @param c
+	 * @param lastSet
+	 */
+	public void handleSuicide(Color c, int lastSet) {
+		ArrayList<Integer> suicide = new ArrayList<Integer>();
+		suicide.add(lastSet);
+		if (board.isCaptured(Color.getOther(players[current].getColor()), suicide)) {
+			board.remove(suicide);
+			System.out.println(c+" has commited suicide on field " + lastSet);
+		}
+		
+	}
+	
 	
 	public void handleCapture(Color c, int lastSet) {
 		
@@ -128,36 +144,23 @@ public class Game {
 		}
 		
 		for (ArrayList<Integer> a:groepen) {
-			if (board.isCaptured(c, a)) {
+			if (board.isCaptured(Color.EMPTY, a)) {
 				board.remove(a);
 				System.out.println(c+" was captured! The following fields are removed "+a);
 			}
 		}
-		
-		
-		
-		
-	//	for (int i = 0; i < board.getFields().length; i++) { //check of er een capture is: loop alle fields van het board af
-	//		if (board.getField(i).equals(c)) { //check of het field wat je bekijkt de kleur heeft voor die je wilt checken
-	//			ArrayList<Integer> r = new ArrayList<Integer>();
-	//			board.getGroup(i, c, r);
-	//			groepen.add(r);
-				
-			//	if (board.isCaptured(i, c, board.getNrGroupMembers(i, c))) {
-			//		r.add(i);
-			//		System.out.println(c + " is captured at intersection " + i);
-			//	}
-			//}
-			
-		
-		//}
-		System.out.println("This should be the group for " + c +": "+groepen);
-		//board.remove(r); //remove the captured stone
-		
 	}
 	
 	public void printResult() {
-		//print something
+		double[] score = board.getScore();
+		System.out.println("Black has the following amount of points: "+score[0] +"\r" + "White has the following amount of points: "+ score[1]);
+		if (score[0] > score[1]) {
+			System.out.println("Black has won!");
+		} else if (score[0] < score[1]) {
+			System.out.println("White has won!");
+		} else if (score[0] == score[1]) {
+			System.out.println("There is a draw! Both players win!");
+		}
 	}
 	
 	private boolean readBoolean(String prompt, String yes, String no) {

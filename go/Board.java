@@ -62,6 +62,13 @@ public class Board {
 	}
 	
 	/***
+	 * Method to reset int pass
+	 */
+	public void resetPass() {
+		pass = 0;
+	}
+	
+	/***
 	 * Creates a deepCopy from the current board
 	 * @return deepCopy of board
 	 */
@@ -251,6 +258,8 @@ public class Board {
      * one color is captured and removed from the board 
      * when all the intersections directly adjacent to it 
      * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
+     * @param Color c - Color of the player that potentially captured a group
+     * @param ArrayList<Integer> group - Indexes of potentially captured fields
      * @return
      */
     public boolean isCaptured(Color c, ArrayList<Integer> group) { //TODO translate
@@ -265,16 +274,18 @@ public class Board {
     	int freeIntersections = 0;
     	
     	for (int i = 0; i < group.size(); i++) {
-    		//this.updateCurrentNeighbours(group.get(i));
     		ArrayList<Color> neighColors = getCurrentNeighColor(group.get(i));
     		for (Color co:neighColors) {
-    			if (co.equals(Color.EMPTY)) {
+    			if (co.equals(Color.getOther(c))) { //if one of the borders has the opponent color as neighbour, the area is not captured/owned
+    				return false;
+    			}
+    			if (co.equals(Color.EMPTY)) { //GAAT DIT GOED?? TODO
     				freeIntersections++;
     			}
     		}
     	}
-    	if (freeIntersections > 0) {
-    		return false;
+    	if (freeIntersections >= group.size()*group.size()) { //you need to take this to power of 2 because
+    		return false;									//it needs to be >= otherwise it will go wrong when successful suicide move is done
     	}
     	return true;
     }
@@ -297,19 +308,12 @@ public class Board {
     	if (!group.contains(i)) {
     		group.add(i);
     		this.checkedStonesGetGroup.add(i);
-    		System.out.println("Added: "+i);
     	}
     	
     	for (int j = 0; j < this.getCurrentNeighColor(i).size(); j++) {
-    		System.out.println("Color: "+this.currentNeighColor);
-    		System.out.println("Index: "+this.currentNeighIndex);
     		if (this.getCurrentNeighColor(i).get(j).equals(c)) {
-    			if (!group.contains(this.getCurrentNeighIndex(i).get(j))) {
-    				
+    			if (!group.contains(this.getCurrentNeighIndex(i).get(j))) {		
     				getGroup(this.getCurrentNeighIndex(i).get(j), c, group);
-    				
-    				System.out.println("Dit is i: "+i);
-    				System.out.println("current n: "+ this.currentNeighIndex);
     			}
     		}
     	}
@@ -404,15 +408,54 @@ public class Board {
      * White gets bonus points in the amount of 0.5 points for being second player
      * @return an int array containing the final score of both players
      */
-    public int[] score() { //TODO
+    public double[] getScore() { //TODO
     	//needs to be called after (&before) getGroups() is called, to make sure list is reset for next call
     	this.checkedStonesGetGroup.clear();
+    	double[] score = new double[2];
+    	double scoreWhite = 0;
+    	double scoreBlack = 0;
+    	ArrayList<Integer> checkFields = new ArrayList<>();
+    	
+    	for (int i = 0; i < fields.length; i++) { //get an array containing all indexes of the board
+    		checkFields.add(i);
+    		if (fields[i].equals(Color.BLACK)) { //add a point to black score for every black stone
+    			scoreBlack++;
+    			System.out.println("I just assigned a point to black for a stone on field : "+i);
+    		}
+    		if (fields[i].equals(Color.WHITE)) { // add a point to white 
+    			scoreWhite++;
+    			System.out.println("I just assigned a point to white for a stone on field : "+i);
+    		}
+    	}
+    	
+    	for (int j = 0; j < fields.length; j++) {
+    		ArrayList<Integer> group = new ArrayList<>();
+    		if (checkFields.contains(j) && fields[j].equals(Color.EMPTY)) {
+    			getGroup(j, Color.EMPTY, group); //find empty groups
+    			
+    			System.out.println("This group is currently checked "+group);
+    			System.out.println("This group is captured by white: "+isCaptured(Color.WHITE, group));
+    			System.out.println("This group is captured by black: "+isCaptured(Color.BLACK, group));
+    			if (isCaptured(Color.WHITE, group)) { 	//if white "captured"/owned this area
+    				scoreWhite+= group.size();	//assign one point per owned field to white
+    				System.out.println("I just assigned this amount of points to white: "+group.size());
+    			} else if (isCaptured(Color.BLACK, group)) {	//if it was owned by black
+    				scoreBlack+= group.size();	//assign points to black
+    				System.out.println("I just assigned this amount of points to black: "+group.size());
+    			}
+    			
+    			for (int k = 0; k < group.size(); k++) {
+    				checkFields.remove(group.get(k));
+    			}
+    		}
+
+    		
+    	}
     	
     	
-    	
-    	
-    	
-    	return null;
+    	score[0] = scoreBlack;
+    	score[1] = scoreWhite + 0.5;
+    	return score;
     }
     
     /***
@@ -454,19 +497,36 @@ public class Board {
 	
     public String toString() { //TODO
         String s = "";
-        for (int i = 0; i < dim; i++) {
+        for (int k = 0; k < dim + 1; k++) {
+        	s = s + "--------";
+        }
+        s = s + "-" + DELIM;
+        for (int i = 0; i < dim; i++) {	
             String row = "";
             for (int j = 0; j < dim; j++) {
-                row = row + " " + getField(i, j).toString() + " " + index(i,j);
+            	if (index(i,j) < 10) {
+            		row = row + " " + getField(i, j).toString() + "  " + index(i,j);
+            	} else {
+            		row = row + " " + getField(i, j).toString() + " " + index(i,j);
+            	}
+            		
                 if (j < dim - 1) {
                     row = row + "|";
                 }
             }
             s = s + row + DELIM; //+ NUMBERING[i * 2];
+            for (int k = 0; k < dim + 1; k++) {
+            	s = s + "--------";
+            }
+            s = s + "-" + DELIM;
+        }
+        
+            
+            
            // if (i < dim - 1) {
              //   s = s + "\n" + LINE + DELIM + NUMBERING[i * 2 + 1] + "\n";
             //}
-        }
+        
         
         
         return s;
