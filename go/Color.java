@@ -33,4 +33,16 @@ public enum Color {
 		}
 		return null;
 	}
+	
+	@Override
+	public String toString() {
+		if (this.equals(EMPTY)) {
+			return "     ";
+		} else if (this.equals(BLACK)) {
+			return "BLACK";
+		} else if (this.equals(WHITE)) {
+			return "WHITE";
+		}
+		return null;
+	}
 }
