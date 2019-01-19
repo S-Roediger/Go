@@ -284,8 +284,8 @@ public class Board {
     			}
     		}
     	}
-    	if (freeIntersections > group.size()*group.size()) { //TODO Misschien zijn er gevallen dat dit fout gaat?
-    		return false;
+    	if (freeIntersections >= group.size()*group.size()) { //you need to take this to power of 2 because
+    		return false;									//it needs to be >= otherwise it will go wrong when successful suicide move is done
     	}
     	return true;
     }
