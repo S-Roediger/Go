@@ -66,17 +66,17 @@ public class Board {
 	 * 
 	 * @return currentNeighColor
 	 */
-	public ArrayList<Color> getCurrentNeighColor() {
-		return currentNeighColor;
-	}
+//	public ArrayList<Color> getCurrentNeighColor() {
+//		return currentNeighColor;
+//	}
 	
 	/***
 	 * 
 	 * @return currentNeighIndex
 	 */
-	public ArrayList<Integer> getCurrentNeighIndex() {
-		return currentNeighIndex;
-	}
+//	public ArrayList<Integer> getCurrentNeighIndex() {
+//		return currentNeighIndex;
+//	}
 	
 	/***
 	 * Creates a deepCopy from the current board
@@ -282,7 +282,7 @@ public class Board {
      */
     public boolean isCaptured(Color c, ArrayList<Integer> group) { 
     	
-    	
+    	//needs to be called after getGroups() is called, to make sure list is reset for next call
     	this.checkedStonesGetGroup.clear(); //als je gaat kijken of je gevonden groep gecaptured is of niet, dan kan je de hulplijst voor getGroup resetten
     	
     	if (group.size() == 0) { //als er geen steen is, heeft deze ook geen freeIntersections en kan ook niet gecaptured worden
@@ -292,8 +292,9 @@ public class Board {
     	int freeIntersections = 0;
     	
     	for (int i = 0; i < group.size(); i++) {
-    		this.updateCurrentNeighbours(group.get(i));
-    		for (Color co:currentNeighColor) {
+    		//this.updateCurrentNeighbours(group.get(i));
+    		ArrayList<Color> neighColors = getCurrentNeighColor(group.get(i));
+    		for (Color co:neighColors) {
     			if (co.equals(Color.EMPTY)) {
     				freeIntersections++;
     			}
@@ -333,16 +334,16 @@ public class Board {
     	
 
     	
-    	this.updateCurrentNeighbours(i);
+    	//this.updateCurrentNeighbours(i);
     	
-    	for (int j = 0; j < this.currentNeighColor.size(); j++) {
+    	for (int j = 0; j < this.getCurrentNeighColor(i).size(); j++) {
     		System.out.println("Color: "+this.currentNeighColor);
     		System.out.println("Index: "+this.currentNeighIndex);
-    		if (this.currentNeighColor.get(j).equals(c)) {
-    			if (!group.contains(this.currentNeighIndex.get(j))) {
+    		if (this.getCurrentNeighColor(i).get(j).equals(c)) {
+    			if (!group.contains(this.getCurrentNeighIndex(i).get(j))) {
     				//this.checkedStonesGetGroup.add(this.currentNeighIndex.get(j));
-    				getGroup(this.currentNeighIndex.get(j), c, group);
-    				this.updateCurrentNeighbours(i); //hier moeten eigenlijk functies van gemaakt worden
+    				getGroup(this.getCurrentNeighIndex(i).get(j), c, group);
+    				//this.updateCurrentNeighbours(i); //hier moeten eigenlijk functies van gemaakt worden
     				System.out.println("Dit is i: "+i);
     				System.out.println("current n: "+ this.currentNeighIndex);
     			}
@@ -394,76 +395,68 @@ public class Board {
      * @return array with colors of all adjacent intersections in the following order: left, above, right, down
      */
     public void updateCurrentNeighbours(int i) {
-    	//Map<Color, Integer> n = new HashMap<Color, Integer>(); //making new array for neighbours
-    	
-    	//int size = this.currentNeighColor.size();
     	
     	currentNeighColor.clear();
     	currentNeighIndex.clear();
     	
-    //	for (int j = 0; j < this.currentNeighIndex.size(); j++) { //reset both lists
-    //		this.currentNeighColor.remove(j);
-    //		this.currentNeighIndex.remove(j);
-    //	}
-    	
 	   	
 	   	if (i % dim != 0) { //i is not at the left edge
-	   		//n.put(getField(i-1), i-1);
 	   		this.currentNeighColor.add(getField(i-1));
 	   		this.currentNeighIndex.add(i-1);
 	   		
 	   	} else {
-	   		//n.put(Color.OFF, i-1);
 	   		this.currentNeighColor.add(Color.OFF);
 	   		this.currentNeighIndex.add(i-1);
 	   	}
 	   	
 	   	if (i > dim-1) { //i is not at the upper edge
-	   	//	n.put(getField(i-dim), i-dim);
 	   		this.currentNeighColor.add(getField(i-dim));
 	   		this.currentNeighIndex.add(i-dim);
 	   		
 	   	} else {
-	   	//	n.put(Color.OFF, i-dim);
 	   		this.currentNeighColor.add(Color.OFF);
 	   		this.currentNeighIndex.add(i-dim);
 	   	}
 	   	
 	   	if (i % dim != dim-1) { //i is not at the right edge
-	   		//n.put(getField(i+1), i+1);
 	   		this.currentNeighColor.add(getField(i+1));
 	   		this.currentNeighIndex.add(i+1);
 	   		
 	   	} else {
-	   		//n.put(Color.OFF, i+1);
 	   		this.currentNeighColor.add(Color.OFF);
 	   		this.currentNeighIndex.add(i+1);
 	   	}
 	   	
 	   	if (i < (dim*dim)-dim-1) { //i is not at the bottom edge
-	   		//n.put(getField(i+dim), i+dim);
 	   		this.currentNeighColor.add(getField(i+dim));
 	   		this.currentNeighIndex.add(i+dim);
 	   		
 	   	} else {
-	   		//n.put(Color.OFF, i+dim);
 	   		this.currentNeighColor.add(Color.OFF);
 	   		this.currentNeighIndex.add(i+dim);
 	   	}
-	   //	return n;
     }
     
     
     /***
-     * 
-     * @param n
+     * updates and returns currentNeighColors
+     * @param i
      * @return
      */
-    public Map<Color, Integer> getGroupNeighbours(ArrayList<Integer> n) {
-    	
-    	return null;
+    public ArrayList<Color> getCurrentNeighColor(int i) {
+    	this.updateCurrentNeighbours(i);
+    	return this.currentNeighColor;
     }
     
+    /***
+     * updates and returns currentNeighIndex
+     * @param i
+     * @return
+     */
+    public ArrayList<Integer> getCurrentNeighIndex(int i) {
+    	this.updateCurrentNeighbours(i);
+    	return this.currentNeighIndex;
+    }
     
     /***
      * Removes stones from given index

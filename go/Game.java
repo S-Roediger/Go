@@ -111,11 +111,11 @@ public class Game {
 		
 		// ----- nieuwe opzet op basis van nieuwe manier van neigh fixen ---
 		
-		board.updateCurrentNeighbours(lastSet);
+		//board.updateCurrentNeighbours(lastSet);
 		
-		for (int j = 0; j < board.getCurrentNeighColor().size(); j++) {	// krijg de buren van je laatste zet
-			if (board.getCurrentNeighColor().get(j).equals(c)) {	//kijk of die de kleur van je opponent hebben
-				fieldsToBeChecked.add(board.getCurrentNeighIndex().get(j));	//voeg de index van de stenen van je opponent toe
+		for (int j = 0; j < board.getCurrentNeighColor(lastSet).size(); j++) {	// krijg de buren van je laatste zet
+			if (board.getCurrentNeighColor(lastSet).get(j).equals(c)) {	//kijk of die de kleur van je opponent hebben
+				fieldsToBeChecked.add(board.getCurrentNeighIndex(lastSet).get(j));	//voeg de index van de stenen van je opponent toe
 			}
 		}	
 		
