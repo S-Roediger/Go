@@ -1,4 +1,5 @@
 ### LaTeX ###
+.DS_Store
 *.tex
 *.vpp
 *.vpp.*
