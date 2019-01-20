@@ -1,4 +1,7 @@
 ### LaTeX ###
+
+*.vpp
+*.vpp.*
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
