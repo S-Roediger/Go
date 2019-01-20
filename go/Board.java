@@ -46,6 +46,7 @@ public class Board {
 	
 	
 // --------------------- Commands & Queries ------------------- //
+	
 	/***
 	 * 
 	 * @return int counter variable that keeps track of the amount of times that players passed
@@ -497,17 +498,19 @@ public class Board {
 	
     public String toString() { //TODO
         String s = "";
-        for (int k = 0; k < dim + 1; k++) {
-        	s = s + "--------";
+        for (int k = 0; k < dim; k++) {
+        	s = s + "----------";
         }
-        s = s + "-" + DELIM;
+        s = s + DELIM;
         for (int i = 0; i < dim; i++) {	
             String row = "";
             for (int j = 0; j < dim; j++) {
             	if (index(i,j) < 10) {
             		row = row + " " + getField(i, j).toString() + "  " + index(i,j);
-            	} else {
+            	} else if (index(i,j) >= 10 && index(i,j) < 100 ) {
             		row = row + " " + getField(i, j).toString() + " " + index(i,j);
+            	} else {
+            		row = row + " " + getField(i, j).toString() + "" + index(i,j);
             	}
             		
                 if (j < dim - 1) {
@@ -515,10 +518,10 @@ public class Board {
                 }
             }
             s = s + row + DELIM; //+ NUMBERING[i * 2];
-            for (int k = 0; k < dim + 1; k++) {
-            	s = s + "--------";
+            for (int k = 0; k < dim; k++) {
+            	s = s + "----------";
             }
-            s = s + "-" + DELIM;
+            s = s + DELIM;
         }
         
             
