@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import view.GUI;
 import view.TUI;
 
 public class Game {
@@ -17,7 +18,7 @@ public class Game {
 	private TUI tui = new TUI();
 	private int current;
 	private boolean again = true;
-	
+	private GUI gui;
 	
 	// ----------- Constructor ---------------- //
 	
@@ -30,6 +31,7 @@ public class Game {
 	 */
 	public Game(int dim, Player s0, Player s1) {
 		this.board = new Board(dim);
+		gui = new GUI(dim);
 		players = new Player[2];
 		if (s0.getColor().equals(Color.BLACK)) { //enforces rule that black starts
 			players[0] = s0;
@@ -66,6 +68,7 @@ public class Game {
 	public void reset() {
 		board.reset();
 		current = 0;
+		gui.clearBoard();
 	}
 	
 	/***
@@ -79,6 +82,7 @@ public class Game {
 			tui.showGame(board);
 	
 			//check rules!
+			
 			choice = players[current].determineMove(); //get player choices
 			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
 				System.out.println("ERROR: field " + choice + " is no valid choice."); //loop to ask again in case of faulty input
@@ -89,6 +93,8 @@ public class Game {
 				System.out.println("\r " + players[current].getName() + " has passed." + "\r");
 			} else {
 				players[current].makeMove(board, choice);
+				gui.addStone(choice, players[current].getColor());
+				gui.addHintIndicator(choice);
 				handleCapture(Color.getOther(players[current].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
 				handleCapture(players[current].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
 				handleSuicide(players[current].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
@@ -111,6 +117,7 @@ public class Game {
 		suicide.add(lastSet);
 		if (board.isCaptured(Color.getOther(players[current].getColor()), suicide)) {
 			board.remove(suicide);
+			gui.removeStone(suicide);
 			System.out.println(c+" has commited suicide on field " + lastSet);
 		}
 		
@@ -146,6 +153,7 @@ public class Game {
 		for (ArrayList<Integer> a:groepen) {
 			if (board.isCaptured(Color.EMPTY, a)) {
 				board.remove(a);
+				gui.removeStone(a);
 				System.out.println(c+" was captured! The following fields are removed "+a);
 			}
 		}
