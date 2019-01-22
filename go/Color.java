@@ -4,15 +4,32 @@ public enum Color {
 	
 	BLACK, WHITE, EMPTY, OFF; //OFF is 'off the playing field', needed for getNeighbours() in board
 	
+	
+	public static int getNr(Color c) {
+		switch(c) {
+		
+		case BLACK:
+			return 1;
+		case WHITE:
+			return 2;
+		case EMPTY:
+			return 0; //3-9 can be implemented later if you want to extend
+		case OFF:
+			return -99;
+	}
+	
+	return 0;
+	}
+	
 	public static Color getColor(int i) {
 		
 		switch(i) {
 			case 1:
-				return BLACK;
+				return Color.BLACK;
 			case 2:
-				return WHITE;
+				return Color.WHITE;
 			case 0:
-				return EMPTY; //3-9 can be implemented later if you want to extend
+				return Color.EMPTY; //3-9 can be implemented later if you want to extend
 		}
 		
 		return null;

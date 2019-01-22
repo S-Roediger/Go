@@ -56,6 +56,6 @@ public class HumanPlayer extends Player {
             }
         } while (!intRead);
         return value;
-    } 
+    }
 
 }

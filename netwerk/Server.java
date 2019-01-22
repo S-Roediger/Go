@@ -4,15 +4,33 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
+
+import go.Game;
+import go.Player;
+import javafx.util.Pair;
 
 // black makes first move, so player one always has to has black as color 
 
 
 public class Server {
+	
+	// -------------- fields ------------------- //
+	
     private static final String USAGE
             = "usage: " + Server.class.getName() + " <port>";
+    
+    private int port;
+    private List<ClientHandler> threads;
+    private HashMap<Integer, Lobby> gameLobbies; 
+    private int lastGameID;
+    
+    
 
     /** Start een Server-applicatie op. */
     public static void main(String[] args) {
@@ -25,14 +43,18 @@ public class Server {
         server.run();
         
     }
+    
 
 
-    private int port;
-    private List<ClientHandler> threads;
+    // ------------- Constructor ---------------- //
+    
+    
     /** Constructs a new Server object */
     public Server(int portArg) {
     	this.port = portArg;
         this.threads = new ArrayList<ClientHandler>();
+        this.gameLobbies = new HashMap<Integer, Lobby>();
+        this.lastGameID = 0;
     }
     
     /**
@@ -46,26 +68,62 @@ public class Server {
 			ServerSocket ssocket = new ServerSocket(port);
 			while (true) {
 				Socket s = ssocket.accept();
+				
 				ClientHandler ch = new ClientHandler(this, s);
-				ch.announce();
-				ch.start();
 				addHandler(ch);
+				System.out.println("Added handler to threads");
+				ch.addLobbie(joinLobby(ch));
+				System.out.println("Added handler to lobby");
+				//first add handler to threads, then assign/create lobby object and then finally start ch
+				ch.start();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
     }
     
+    
+    /***
+     * Let a clientHandler join a lobby, when there is no lobby with a free spot, create a new one
+     * @param ch - client handler that wants to join a lobby
+     * @return lobby that was joined by ch in order to let ch know which lobby he/she joined
+     */
+    public synchronized Lobby joinLobby(ClientHandler ch) {
+    	boolean joined = false;
+    	Lobby joinedLobby = null;;
+    	Collection<Integer> gameIds = gameLobbies.keySet();
+    	for (int k:gameIds) {
+    		if(!this.gameLobbies.get(k).isFull()) {
+    			joined = this.gameLobbies.get(k).addClient(ch);
+    			joinedLobby = this.gameLobbies.get(k);
+    		}
+    	}
+    	if (!joined) {
+    		Lobby lob = new Lobby(this.generateGameID());
+    		lob.addClient(ch);
+    		this.gameLobbies.put(lob.getGameID(), lob);
+    		joinedLobby = lob;
+    		
+    	}
+    	
+    	return joinedLobby;
+    }
+   
+    
+    public int generateGameID() {
+    	return this.lastGameID++;
+    }
+    
     public void print(String message){
         System.out.println(message);
-    }
+    } 
     
     /**
      * Sends a message using the collection of connected ClientHandlers
      * to all connected Clients.
      * @param msg message that is send
      */
-    public void broadcast(String msg) {
+    public void broadcast(int gameID, String msg) { //TODO DO WE NEED A SERVER BROADCAST? WE WILL NEVER SEND ANYTHING TO ALL PLAYERS IN DIFFERENT GAMES RIGHT?
     	print(msg);
     	for (ClientHandler c:threads) {
         	c.sendMessage(msg);
@@ -87,4 +145,5 @@ public class Server {
     public void removeHandler(ClientHandler handler) {
         threads.remove(handler);
     }
+    
 }

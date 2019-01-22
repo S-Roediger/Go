@@ -40,7 +40,6 @@ public class Game {
 			players[0] = s1;
 			players[1] = s0;
 		}
-		
 		current = 0;
 		
 	}
@@ -80,6 +79,7 @@ public class Game {
 		int choice = 0;
 		while(!board.gameOver()) {
 			tui.showGame(board);
+			//updateGui();
 	
 			//check rules!
 			
@@ -191,4 +191,18 @@ public class Game {
 		return this.board;
 	}
 	
+	/***
+	 * update GUI
+	 */
+	public void updateGui() {
+		gui.clearBoard();
+		for (int i = 0; i < board.getFields().length; i++) {
+			if (board.getFields()[i].equals(Color.WHITE)) {
+				gui.addStone(i, Color.WHITE);
+			} else if (board.getFields()[i].equals(Color.BLACK)) {
+				gui.addStone(i, Color.BLACK);
+			}
+		}
+	
+	}
 }

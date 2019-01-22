@@ -7,11 +7,24 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import go.Color;
+import go.HumanPlayer;
+import go.Player;
+
+
+//hier ook game aanmaken 
+//computerplayer??
+
 public class ClientHandler extends Thread {
     private Server server;
     private BufferedReader in;
     private BufferedWriter out;
     private String clientName;
+    private int dim;
+    private Color c;
+    private int preferredColor = 0;
+    private Lobby lobby;
+    
 
     /**
      * Constructs a ClientHandler object
@@ -22,19 +35,31 @@ public class ClientHandler extends Thread {
         this.server = serverArg;
         in = new BufferedReader(new InputStreamReader(sockArg.getInputStream()));
         out = new BufferedWriter(new OutputStreamWriter(sockArg.getOutputStream()));
-        
     }
 
-    /**
-     * Reads the name of a Client from the input stream and sends 
-     * a broadcast message to the Server to signal that the Client
-     * is participating in the chat. Notice that this method should 
-     * be called immediately after the ClientHandler has been constructed.
-     */
-    public void announce() throws IOException {
-        clientName = in.readLine();
-        server.broadcast("[" + clientName + " has entered]");
+    
+    public void addLobbie(Lobby lobbie) {
+    	this.lobby = lobbie;
     }
+    
+    /***
+     * To communicate dim to server
+     * @return
+     */
+    public int getDim() {
+    	return dim;
+    }
+    
+    public Player getPlayer() {
+    	Player p = new HumanPlayer(clientName, c);
+		return p;
+    	
+    }
+    
+    public String getClientName() {
+    	return clientName;
+    }
+    
 
     /**
      * This method takes care of sending messages from the Client.
@@ -44,11 +69,14 @@ public class ClientHandler extends Thread {
      * the message, the method concludes that the socket connection is
      * broken and shutdown() will be called. 
      */
-    public void run() {
+    public void run() { //reads from client
     	try {
-			String line = in.readLine();
+			this.startProtocol();
+    		String line = in.readLine();
+    		
+    		
 			while (line != null) {
-				server.broadcast(clientName + ": " + line);
+				server.broadcast(lobby.getGameID(), clientName + ": " + line);
 				line = in.readLine();
 			}
 			shutdown();
@@ -56,6 +84,64 @@ public class ClientHandler extends Thread {
 			shutdown();
 		}
       
+    }
+    
+    /***
+     * makes initial connection with client according to protocol
+     * @throws IOException 
+     */
+    public void startProtocol() throws IOException {
+    	String line = in.readLine();
+		String[] answer = readAnswer(line);
+		if (answer.length == 2 && answer[0].equals("HANDSHAKE")) {
+			clientName = answer[1];
+			if(lobby.isLeader(this)) {
+				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
+				handleConfig();
+				String status = lobby.getBoardStatus();
+				String opponent = lobby.getOpponentName(clientName);
+				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+preferredColor+"+"+dim+"+"+status+"+"+opponent);
+			} else {
+				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
+				String status = lobby.getBoardStatus();
+				String opponent = lobby.getOpponentName(clientName);
+				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+preferredColor+"+"+dim+"+"+status+"+"+opponent);
+			}
+		}
+    }
+    
+    /***
+     * handles the config of game with client
+     */
+    public void handleConfig() {
+    	this.sendMessage("REQUEST_CONFIG+Please provide a preferred configuration by entering board size and preferred color (e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE");
+    	try {
+			String[] answer = readAnswer(in.readLine());
+			if (answer.length == 4 && answer[0].equals("SET_CONFIG") && Integer.parseInt(answer[1]) == lobby.getGameID()) {
+				dim = Integer.parseInt(answer[3]);
+				lobby.setDim(dim);
+				
+				if (answer[2].equals("white")) {
+					c = Color.WHITE;
+					preferredColor = 2;
+				} else {
+					c = Color.BLACK;
+					preferredColor = 1;
+				}
+				lobby.setColorFirst(c);
+				
+				//now that you have all information, start game in lobby
+				boolean full = false;
+				while(!full) {
+					full = lobby.isFull();
+				}
+				lobby.startGame();
+				
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
     }
 
     /**
@@ -75,6 +161,12 @@ public class ClientHandler extends Thread {
 		}
 
     }
+    
+    public String[] readAnswer(String s) {
+    	String[] answer = s.split("\\+");
+    	return answer;
+    }
+    
 
     /**
      * This ClientHandler signs off from the Server and subsequently
@@ -83,6 +175,9 @@ public class ClientHandler extends Thread {
      */
     private void shutdown() {
         server.removeHandler(this);
-        server.broadcast("[" + clientName + " has left]");
+        server.broadcast(lobby.getGameID(),"[" + clientName + " has left]");
     }
+    
+    
+    
 }
