@@ -56,6 +56,10 @@ public class ClientHandler extends Thread {
     	
     }
     
+    public String getClientName() {
+    	return clientName;
+    }
+    
 
     /**
      * This method takes care of sending messages from the Client.
@@ -96,12 +100,12 @@ public class ClientHandler extends Thread {
 				handleConfig();
 				String status = lobby.getBoardStatus();
 				String opponent = lobby.getOpponentName(clientName);
-				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+lobby.getColor(clientName)+"+"+dim+"+"+status+"+"+opponent);
+				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+preferredColor+"+"+dim+"+"+status+"+"+opponent);
 			} else {
 				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
 				String status = lobby.getBoardStatus();
 				String opponent = lobby.getOpponentName(clientName);
-				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+lobby.getColor(clientName)+"+"+dim+"+"+status+"+"+opponent);
+				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+preferredColor+"+"+dim+"+"+status+"+"+opponent);
 			}
 		}
     }
@@ -117,7 +121,7 @@ public class ClientHandler extends Thread {
 				dim = Integer.parseInt(answer[3]);
 				lobby.setDim(dim);
 				
-				if (answer[2].equals("WHITE")) {
+				if (answer[2].equals("white")) {
 					c = Color.WHITE;
 					preferredColor = 2;
 				} else {

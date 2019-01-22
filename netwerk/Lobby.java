@@ -14,6 +14,8 @@ public class Lobby {
 	private ArrayList<ClientHandler> handlers;
 	private Color colorFirst;
 	private Game game;
+	private Player p1;
+	private Player p2;
 	
 	//hier moet een spel gestart
 	public Lobby(int gameID) {
@@ -23,8 +25,8 @@ public class Lobby {
 	
 	
 	public void startGame() {
-		Player p1 = new HumanPlayer(handlers.get(0).getName(), colorFirst);
-		Player p2 = new HumanPlayer(handlers.get(1).getName(), Color.getOther(colorFirst));
+		p1 = new HumanPlayer(handlers.get(0).getClientName(), colorFirst);
+		p2 = new HumanPlayer(handlers.get(1).getClientName(), Color.getOther(colorFirst));
 		game = new Game(dim, p1, p2);
 		game.start();
 	}
@@ -98,7 +100,10 @@ public class Lobby {
      * @return
      */
     public Color getColor(String playerName) {
-    	return null;
+    	if (p1.getName().equals(playerName)) {
+    		return p1.getColor();
+    	}
+    	return p2.getColor();
     }
     
 	
