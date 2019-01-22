@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import go.Game;
@@ -17,8 +19,18 @@ import javafx.util.Pair;
 
 
 public class Server {
+	
+	// -------------- fields ------------------- //
+	
     private static final String USAGE
             = "usage: " + Server.class.getName() + " <port>";
+    
+    private int port;
+    private List<ClientHandler> threads;
+    private HashMap<Integer, Lobby> gameLobbies; 
+    private int lastGameID;
+    
+    
 
     /** Start een Server-applicatie op. */
     public static void main(String[] args) {
@@ -31,19 +43,18 @@ public class Server {
         server.run();
         
     }
+    
 
 
-    private int port;
-    private List<ClientHandler> threads;
-    private HashMap<Integer, HashMap<Integer, Game>> games;
-    private int lastGameID = 0;
-    private ArrayList<Integer> gameID;
+    // ------------- Constructor ---------------- //
+    
+    
     /** Constructs a new Server object */
     public Server(int portArg) {
     	this.port = portArg;
         this.threads = new ArrayList<ClientHandler>();
-        this.games = new HashMap<Integer, HashMap<Integer, Game>>();
-        gameID = new ArrayList<>();
+        this.gameLobbies = new HashMap<Integer, Lobby>();
+        this.lastGameID = 0;
     }
     
     /**
@@ -58,58 +69,54 @@ public class Server {
 			while (true) {
 				Socket s = ssocket.accept();
 				
-				ClientHandler ch = null;
-				this.connect(ch, s);
-				ch.start();
+				ClientHandler ch = new ClientHandler(this, s);
 				addHandler(ch);
-				
-				for (Integer i:gameID) {
-					while (!games.get(i).containsKey(2)) {
-						wait();
-					}
-					
-					Game g = new Game(threads.get(i*2).getDim(), threads.get(i*2).getPlayer(), threads.get(i*2+1).getPlayer()); //input for new game, must come from clientServer
-					games.get(i).put(2, g);
-					g.start();
-					
-				}
-				
+				System.out.println("Added handler to threads");
+				ch.addLobbie(joinLobby(ch));
+				System.out.println("Added handler to lobby");
+				//first add handler to threads, then assign/create lobby object and then finally start ch
+				ch.start();
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
     }
     
     
     /***
-     * handles new connections with clientHandler
-     * @throws IOException 
+     * Let a clientHandler join a lobby, when there is no lobby with a free spot, create a new one
+     * @param ch - client handler that wants to join a lobby
+     * @return lobby that was joined by ch in order to let ch know which lobby he/she joined
      */
-    public void connect(ClientHandler ch, Socket s) throws IOException {
-    	if (games.get(lastGameID) != null && games.get(lastGameID).containsKey(2)) { //als er all een gameID is,maar nog geen twee spelers
-			
-			if (games.get(lastGameID).containsKey(0)) { //als er nog geen game gestart is met deze gameID en nog geen speler is toegevoegd
-				ch = new ClientHandler(this, s, lastGameID, true); //is 0 checken dan nog necessary?
-				games.get(lastGameID).put(1, null);
-			} else if (games.get(lastGameID).containsKey(1)) {
-				ch = new ClientHandler(this, s, lastGameID, false);
-				games.get(lastGameID).put(2, null);
-				gameID.add(lastGameID);
-				lastGameID++;
-				notifyAll();
-			}
-		} else {
-			games.put(lastGameID, new HashMap<Integer, Game>());
-			games.get(lastGameID).put(1, null);
-			ch = new ClientHandler(this, s, lastGameID, true);	
-		}
+    public synchronized Lobby joinLobby(ClientHandler ch) {
+    	boolean joined = false;
+    	Lobby joinedLobby = null;;
+    	Collection<Integer> gameIds = gameLobbies.keySet();
+    	for (int k:gameIds) {
+    		if(!this.gameLobbies.get(k).isFull()) {
+    			joined = this.gameLobbies.get(k).addClient(ch);
+    			joinedLobby = this.gameLobbies.get(k);
+    		}
+    	}
+    	if (!joined) {
+    		Lobby lob = new Lobby(this.generateGameID());
+    		lob.addClient(ch);
+    		this.gameLobbies.put(lob.getGameID(), lob);
+    		joinedLobby = lob;
+    		
+    	}
+    	
+    	return joinedLobby;
+    }
+   
+    
+    public int generateGameID() {
+    	return this.lastGameID++;
     }
     
     public void print(String message){
         System.out.println(message);
-    }
+    } 
     
     /**
      * Sends a message using the collection of connected ClientHandlers
@@ -139,13 +146,4 @@ public class Server {
         threads.remove(handler);
     }
     
-    public String getBoardStatus(int gameID) {//TODO
-    
-    	return "";
-    }
-    
-    public String getOpponent(int gameID) {//TODO
-        
-    	return "";
-    }
 }

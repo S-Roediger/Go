@@ -12,7 +12,7 @@ import java.net.UnknownHostException;
 import go.Board;
 import go.Color;
 import go.Game;
-import go.GeneralPlayer;
+import go.HumanPlayer;
 import view.TUI;
 
 public class Client extends Thread{
@@ -94,7 +94,7 @@ public class Client extends Thread{
 					
 					
 					//maak een nieuw game object aan om voor jezelf bij te houden
-					Game g = new Game(boardSize, new GeneralPlayer(clientName, color), new GeneralPlayer(opponent, Color.getOther(color)));
+					Game g = new Game(boardSize, new HumanPlayer(clientName, color), new HumanPlayer(opponent, Color.getOther(color)));
 					
 					
 					serverAntwoord = receiveAnswer(client);

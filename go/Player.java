@@ -28,7 +28,7 @@ public abstract class Player {
 	public Color getColor() {
 		return color;
 	}
-	
+
 	
 	public abstract int determineMove(); 
 	

@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import go.Color;
-import go.GeneralPlayer;
 import go.HumanPlayer;
 import go.Player;
 
@@ -21,10 +20,9 @@ public class ClientHandler extends Thread {
     private BufferedReader in;
     private BufferedWriter out;
     private String clientName;
-    private int gameID;
-    private boolean isLeader;
     private int dim;
     private Color c;
+    private Lobby lobby;
     
 
     /**
@@ -32,16 +30,17 @@ public class ClientHandler extends Thread {
      * Initialises both Data streams.
      */
     //@ requires serverArg != null && sockArg != null;
-    public ClientHandler(Server serverArg, Socket sockArg, int gameID, boolean isLeader) throws IOException {
+    public ClientHandler(Server serverArg, Socket sockArg) throws IOException {
         this.server = serverArg;
         in = new BufferedReader(new InputStreamReader(sockArg.getInputStream()));
         out = new BufferedWriter(new OutputStreamWriter(sockArg.getOutputStream()));
-        this.gameID = gameID;
-        this.isLeader = isLeader;
-        
-        
     }
 
+    
+    public void addLobbie(Lobby lobbie) {
+    	this.lobby = lobbie;
+    }
+    
     /***
      * To communicate dim to server
      * @return
@@ -51,21 +50,11 @@ public class ClientHandler extends Thread {
     }
     
     public Player getPlayer() {
-    	Player p = new GeneralPlayer(clientName, c);
+    	Player p = new HumanPlayer(clientName, c);
 		return p;
     	
     }
     
-    /**
-     * Reads the name of a Client from the input stream and sends 
-     * a broadcast message to the Server to signal that the Client
-     * is participating in the chat. Notice that this method should 
-     * be called immediately after the ClientHandler has been constructed.
-     */
-   // public void announce() throws IOException {
- //       clientName = in.readLine();
- //       server.broadcast("[" + clientName + " has entered]");
- //   }
 
     /**
      * This method takes care of sending messages from the Client.
@@ -77,21 +66,14 @@ public class ClientHandler extends Thread {
      */
     public void run() { //reads from client
     	try {
-			String line = in.readLine();
-			String[] answer = readAnswer(line);
-			if (answer.length == 2 && answer[0].equals("HANDSHAKE")) {
-				clientName = answer[1];
-				if(this.isLeader) {
-					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+gameID+"+"+1);
-					handleConfig();
-				} else {
-					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+gameID+"+"+0);
-				}
-				
-			}
-			
-			
+			this.startProtocol();
+    		String line = in.readLine();
 			while (line != null) {
+				
+				
+				
+				
+				
 				server.broadcast(clientName + ": " + line);
 				line = in.readLine();
 			}
@@ -103,14 +85,33 @@ public class ClientHandler extends Thread {
     }
     
     /***
+     * makes initial connection with client according to protocol
+     * @throws IOException 
+     */
+    public void startProtocol() throws IOException {
+    	String line = in.readLine();
+		String[] answer = readAnswer(line);
+		if (answer.length == 2 && answer[0].equals("HANDSHAKE")) {
+			clientName = answer[1];
+			if(lobby.isLeader(this)) {
+				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
+				handleConfig();
+			} else {
+				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
+			}
+		}
+    }
+    
+    /***
      * handles the config of game with client
      */
     public void handleConfig() {
     	this.sendMessage("REQUEST_CONFIG+Please provide a preferred configuration by entering board size and preferred color (e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE");
     	try {
 			String[] answer = readAnswer(in.readLine());
-			if (answer.length == 4 && answer[0].equals("SET_CONFIG") && Integer.parseInt(answer[1]) == gameID) {
+			if (answer.length == 4 && answer[0].equals("SET_CONFIG") && Integer.parseInt(answer[1]) == lobby.getGameID()) {
 				dim = Integer.parseInt(answer[3]);
+				lobby.setDim(dim);
 				int color = 0;
 				if (answer[2].equals("WHITE")) {
 					c = Color.WHITE;
@@ -119,8 +120,10 @@ public class ClientHandler extends Thread {
 					c = Color.BLACK;
 					color = 1;
 				}
-				String status = server.getBoardStatus(gameID);
-				String opponent = server.getOpponent(gameID);
+				lobby.setColorFirst(c);
+				//wait, dit moet hier helemaal niet volgens mij! :O
+				String status = lobby.getBoardStatus(lobby.getGameID());
+				String opponent = lobby.getOpponentName(lobby.getGameID());
 				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+color+"+"+dim+"+"+status+"+"+opponent);
 			}
 		} catch (IOException e) {
