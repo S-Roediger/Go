@@ -73,12 +73,13 @@ public class ClientHandler extends Thread {
     	try {
 			this.startProtocol();
     		String line = in.readLine();
-    		
-    		
-			while (line != null) {
+    		String[] answer = readAnswer(line);
+    		//hier moet de loop die steeds checkt of player aan de beurt is of niet
+
+  		/*while (line != null) {
 				server.broadcast(lobby.getGameID(), clientName + ": " + line);
 				line = in.readLine();
-			}
+			} */
 			shutdown();
 		} catch (IOException e) {
 			shutdown();
@@ -98,14 +99,17 @@ public class ClientHandler extends Thread {
 			if(lobby.isLeader(this)) {
 				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
 				handleConfig();
-				String status = lobby.getBoardStatus();
+				String status = lobby.getStatus();
 				String opponent = lobby.getOpponentName(clientName);
-				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+preferredColor+"+"+dim+"+"+status+"+"+opponent);
+				c = lobby.getColor(clientName);
+				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(c)+"+"+dim+"+"+status+"+"+opponent);
+				lobby.startGame();
 			} else {
 				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
-				String status = lobby.getBoardStatus();
+				String status = lobby.getStatus();
 				String opponent = lobby.getOpponentName(clientName);
-				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+preferredColor+"+"+dim+"+"+status+"+"+opponent);
+				c = lobby.getColor(clientName);
+				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(c)+"+"+dim+"+"+status+"+"+opponent);
 			}
 		}
     }
@@ -128,14 +132,14 @@ public class ClientHandler extends Thread {
 					c = Color.BLACK;
 					preferredColor = 1;
 				}
-				lobby.setColorFirst(c);
+				lobby.setColor(clientName, c);
 				
 				//now that you have all information, start game in lobby
 				boolean full = false;
 				while(!full) {
 					full = lobby.isFull();
 				}
-				lobby.startGame();
+				//lobby.startGame(); Hier nog geen game?
 				
 			}
 		} catch (IOException e) {

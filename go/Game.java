@@ -53,7 +53,6 @@ public class Game {
 	 */
 	public void start() {
 		while (again) {
-			// do I need to make this with threads? You want to be able to host multiple games? TODO
 			reset();
 			play();
 			again = readBoolean("\r"+"Do you want to play again? (Yes/No)", "Yes", "No");

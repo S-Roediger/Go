@@ -2,8 +2,8 @@ package go;
 
 public class ComputerPlayer extends Player {
 
-	public ComputerPlayer(Color color) {
-		super("Computer Player", color);
+	public ComputerPlayer(String name, Color color) {
+		super(name, color);
 	}
 
 	@Override

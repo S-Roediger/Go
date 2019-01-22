@@ -11,8 +11,10 @@ import java.net.UnknownHostException;
 
 import go.Board;
 import go.Color;
+import go.ComputerPlayer;
 import go.Game;
 import go.HumanPlayer;
+import go.Player;
 import view.TUI;
 
 public class Client extends Thread{
@@ -60,6 +62,7 @@ public class Client extends Thread{
 			int boardSize = 0;
 			String currentGameState;
 			String opponent = null;
+			Player p;
 			
 			//communicatie volgens protocol
 			client.sendMessage("HANDSHAKE+"+args[0]);
@@ -96,6 +99,20 @@ public class Client extends Thread{
 						boardSize = Integer.parseInt(serverAntwoord[3]);
 						currentGameState = serverAntwoord[4]; //$STATUS;$CURRENT_PLAYER;$SCORE;$BOARD
 						opponent = serverAntwoord[5];
+						System.out.println(opponent + " has joined to play with you. \r" +
+								"You will be playing on a "+ boardSize+" by "+boardSize+" board. \r"+
+								"Your color will be " + color +"."+ "\r" +
+								"Now GET READY, because the game is about to start!");
+						
+						userInput = readString("Do you wish to play as computer player? (Yes/No)");
+						if (userInput.equals("Yes")) {
+							p = new ComputerPlayer(clientName, color);
+						} else {
+							p = new HumanPlayer(clientName, color);
+						}
+						
+						
+						
 					}
 					
 					
