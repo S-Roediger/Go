@@ -96,6 +96,9 @@ public class Server {
     		if(!this.gameLobbies.get(k).isFull()) {
     			joined = this.gameLobbies.get(k).addClient(ch);
     			joinedLobby = this.gameLobbies.get(k);
+    			if (this.gameLobbies.get(k).isFull() && this.gameLobbies.get(k).getConfig()) {
+    				this.gameLobbies.get(k).startGame();
+    			}
     		}
     	}
     	if (!joined) {

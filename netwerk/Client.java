@@ -66,9 +66,11 @@ public class Client extends Thread{
 			
 			//communicatie volgens protocol
 			client.sendMessage("HANDSHAKE+"+args[0]);
+			System.out.println("Sent Handshake");
 			String[] serverAntwoord = client.receiveAnswer();
 			System.out.println("Server answered");
 			if (serverAntwoord[0].equals("ACKNOWLEDGE_HANDSHAKE")) {
+				System.out.println("Server acknowledges you!");
 				GAME_ID = Integer.parseInt(serverAntwoord[1]);
 				if (serverAntwoord[2].equals("0")) {
 					isLeader = false;
@@ -92,57 +94,65 @@ public class Client extends Thread{
 					serverAntwoord = client.receiveAnswer();
 				}
 				
-				
+			}	
 				if (serverAntwoord[0].equals("ACKNOWLEDGE_CONFIG")) {
+					System.out.println("In client acknow config aangekomen");
 					if (serverAntwoord[1].equals(client.getClientName())) {
 						color = Color.getColor(Integer.parseInt(serverAntwoord[2]));
 						boardSize = Integer.parseInt(serverAntwoord[3]);
 						currentGameState = serverAntwoord[4]; //$STATUS;$CURRENT_PLAYER;$SCORE;$BOARD
 						opponent = serverAntwoord[5];
-						System.out.println(opponent + " has joined to play with you. \r" +
-								"You will be playing on a "+ boardSize+" by "+boardSize+" board. \r"+
-								"Your color will be " + color +"."+ "\r" +
-								"Now GET READY, because the game is about to start!");
-						
-						userInput = readString("Do you wish to play as computer player? (Yes/No)");
-						if (userInput.equals("Yes")) {
-							p = new ComputerPlayer(clientName, color);
-						} else {
-							p = new HumanPlayer(clientName, color);
-						}
-						
-						
-						
 					}
-					
-					
-					//maak een nieuw game object aan om voor jezelf bij te houden
-					//Game g = new Game(boardSize, new HumanPlayer(clientName, color), new HumanPlayer(opponent, Color.getOther(color)));
-					
-					
-					serverAntwoord = client.receiveAnswer();
-					while (!serverAntwoord[0].equals("GAME_FINISHED")) { 
-						
-						
-						//send move
-						//server acknowledges move + sends game update
-						
-					}
-					
-					
-					System.out.println("I am still alive");
-					//Maak hier een nieuw game aan met currentGameState dingen
-					
-					//houd currentBoard and previous board
-					
-					//heb je nog een game of maak je dat hier volledig?
-					
-					
 				}
 				
 				
+			System.out.println(opponent + " has joined to play with you. \r" +
+					"Your name is " + clientName + "\r" +
+					"You will be playing on a "+ boardSize+" by "+boardSize+" board. \r"+
+					"Your color will be " + color +"."+ "\r" +
+					"Now GET READY, because the game is about to start!");
+						
+			userInput = readString("Do you wish to play as computer player? (Yes/No)");
+			if (userInput.equals("Yes")) {
+				p = new ComputerPlayer(clientName, color);
+				System.out.println("You are playing as computer");
+			} else {
+				p = new HumanPlayer(clientName, color);
+				System.out.println("You are playing as human");
+			}
+						
+						
+						
+					
+					
+			
+			//maak een nieuw game object aan om voor jezelf bij te houden
+			//Game g = new Game(boardSize, new HumanPlayer(clientName, color), new HumanPlayer(opponent, Color.getOther(color)));
+					
+					
+			serverAntwoord = client.receiveAnswer();
+			while (!serverAntwoord[0].equals("GAME_FINISHED")) { 
+				
+				
+				//send move
+				//server acknowledges move + sends game update
 				
 			}
+			
+			
+			System.out.println("I am still alive");
+			//Maak hier een nieuw game aan met currentGameState dingen
+			
+			//houd currentBoard and previous board
+			
+			//heb je nog een game of maak je dat hier volledig?
+			
+			
+				
+				
+				
+				
+			
 			
 			
 			
@@ -257,9 +267,12 @@ public class Client extends Thread{
 		String[] args = new String[20];
 		String a;
 		try {
-			a = in.readLine();
-			args = a.split("\\+");
-			return args;
+			if (in.ready()) {
+				a = in.readLine();
+				args = a.split("\\+");
+				return args;
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

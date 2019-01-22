@@ -29,6 +29,7 @@ public class OnlineGame {
 	 * TODO
 	 */
 	public void start() {
+		lobby.broadcast("The game has started");
 		updateStatus();
 		play();
 	}
@@ -38,6 +39,8 @@ public class OnlineGame {
 	 */
 	public void play() {
 		while (!board.gameOver()) {
+			
+			int[] move = lobby.getMove(current);
 			
 			//getInput from current player
 			//check input

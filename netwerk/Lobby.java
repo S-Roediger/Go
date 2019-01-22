@@ -17,6 +17,9 @@ public class Lobby {
 	private OnlineGame game;
 	private HashMap<String, Integer> players = new HashMap<>();
 	private int[] currentMove;
+	private boolean config = false;
+	Color first;
+	private Color[] colors = new Color[2];
 	
 	//hier moet een spel gestart
 	public Lobby(int gameID) {
@@ -29,7 +32,7 @@ public class Lobby {
 	 */
 	public void startGame() {
 		
-		
+		players.put(handlers.get(1).getClientName(), Color.getNr(colors[1]));
 		game = new OnlineGame(dim, this);
 		game.start();
 	}
@@ -39,6 +42,9 @@ public class Lobby {
 		// the lobby can broadcast all changes to both clients
 	}
 	
+	public boolean getConfig() {
+		return config;
+	}
 	
 	public void setDim(int i) {
 		dim = i;
@@ -51,11 +57,9 @@ public class Lobby {
 	 */
 	public void setColor(String name, Color c) {	
 		players.put(name, Color.getNr(c));
-		if (!handlers.get(0).getClientName().equals(name)) {
-			players.put(handlers.get(0).getClientName(), Color.getNr(Color.getOther(c)));
-		} else {
-			players.put(handlers.get(1).getClientName(), Color.getNr(Color.getOther(c)));
-		}
+		config = true;
+		colors[0] = c;
+		colors[1] = Color.getOther(c);
 	}
 	
 	public int getGameID() {
@@ -92,7 +96,8 @@ public class Lobby {
 	
 	
     public String getStatus() { //$STATUS(PLAYING, WAITING, FINISHED;$CURRENT_PLAYER int color of player that should make move;$BOARD String of fields
-    	return game.getStatus();
+    	//return game.getStatus();
+    	return "";
     }
     
     public String getOpponentName(String playerName) {
@@ -134,8 +139,11 @@ public class Lobby {
      * can be used by game to get current move
      * @return
      */
-    public int[] getCurrentMove() {
+    public int[] getMove(int i) {
     	return currentMove;
     }
 	
+    public Color[] getColors() {
+    	return colors;
+    }
 }

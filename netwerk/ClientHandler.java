@@ -72,15 +72,18 @@ public class ClientHandler extends Thread {
     public void run() { //reads from client
     	try {
 			this.startProtocol();
-    		String line = in.readLine();
-    		String[] answer = readAnswer(line);
+			
+			System.out.println(this.clientName+": The protocol is done now!");
+			
+    		//String line = in.readLine();
+    		//String[] answer = readAnswer(line);
     		//hier moet de loop die steeds checkt of player aan de beurt is of niet
 
   		/*while (line != null) {
 				server.broadcast(lobby.getGameID(), clientName + ": " + line);
 				line = in.readLine();
 			} */
-			shutdown();
+			
 		} catch (IOException e) {
 			shutdown();
 		}
@@ -96,20 +99,23 @@ public class ClientHandler extends Thread {
 		String[] answer = readAnswer(line);
 		if (answer.length == 2 && answer[0].equals("HANDSHAKE")) {
 			clientName = answer[1];
+			
 			if(lobby.isLeader(this)) {
 				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
 				handleConfig();
 				String status = lobby.getStatus();
 				String opponent = lobby.getOpponentName(clientName);
-				c = lobby.getColor(clientName);
-				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(c)+"+"+dim+"+"+status+"+"+opponent);
-				lobby.startGame();
+				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[0])+"+"+dim+"+"+status+"+"+opponent);
+		
 			} else {
 				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
 				String status = lobby.getStatus();
 				String opponent = lobby.getOpponentName(clientName);
-				c = lobby.getColor(clientName);
-				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(c)+"+"+dim+"+"+status+"+"+opponent);
+				while (!lobby.getConfig()) {
+					
+				}
+				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[1])+"+"+dim+"+"+status+"+"+opponent);
+				System.out.println("Ik ben hier aangekomen");
 			}
 		}
     }
