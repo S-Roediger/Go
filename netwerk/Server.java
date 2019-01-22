@@ -123,7 +123,7 @@ public class Server {
      * to all connected Clients.
      * @param msg message that is send
      */
-    public void broadcast(String msg) {
+    public void broadcast(int gameID, String msg) { //TODO DO WE NEED A SERVER BROADCAST? WE WILL NEVER SEND ANYTHING TO ALL PLAYERS IN DIFFERENT GAMES RIGHT?
     	print(msg);
     	for (ClientHandler c:threads) {
         	c.sendMessage(msg);

@@ -22,6 +22,7 @@ public class ClientHandler extends Thread {
     private String clientName;
     private int dim;
     private Color c;
+    private int preferredColor = 0;
     private Lobby lobby;
     
 
@@ -68,13 +69,10 @@ public class ClientHandler extends Thread {
     	try {
 			this.startProtocol();
     		String line = in.readLine();
+    		
+    		
 			while (line != null) {
-				
-				
-				
-				
-				
-				server.broadcast(clientName + ": " + line);
+				server.broadcast(lobby.getGameID(), clientName + ": " + line);
 				line = in.readLine();
 			}
 			shutdown();
@@ -96,8 +94,14 @@ public class ClientHandler extends Thread {
 			if(lobby.isLeader(this)) {
 				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
 				handleConfig();
+				String status = lobby.getBoardStatus();
+				String opponent = lobby.getOpponentName(clientName);
+				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+lobby.getColor(clientName)+"+"+dim+"+"+status+"+"+opponent);
 			} else {
 				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
+				String status = lobby.getBoardStatus();
+				String opponent = lobby.getOpponentName(clientName);
+				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+lobby.getColor(clientName)+"+"+dim+"+"+status+"+"+opponent);
 			}
 		}
     }
@@ -112,19 +116,23 @@ public class ClientHandler extends Thread {
 			if (answer.length == 4 && answer[0].equals("SET_CONFIG") && Integer.parseInt(answer[1]) == lobby.getGameID()) {
 				dim = Integer.parseInt(answer[3]);
 				lobby.setDim(dim);
-				int color = 0;
+				
 				if (answer[2].equals("WHITE")) {
 					c = Color.WHITE;
-					color = 2;
+					preferredColor = 2;
 				} else {
 					c = Color.BLACK;
-					color = 1;
+					preferredColor = 1;
 				}
 				lobby.setColorFirst(c);
-				//wait, dit moet hier helemaal niet volgens mij! :O
-				String status = lobby.getBoardStatus(lobby.getGameID());
-				String opponent = lobby.getOpponentName(lobby.getGameID());
-				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+color+"+"+dim+"+"+status+"+"+opponent);
+				
+				//now that you have all information, start game in lobby
+				boolean full = false;
+				while(!full) {
+					full = lobby.isFull();
+				}
+				lobby.startGame();
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -151,7 +159,7 @@ public class ClientHandler extends Thread {
     }
     
     public String[] readAnswer(String s) {
-    	String[] answer = s.split("+");
+    	String[] answer = s.split("\\+");
     	return answer;
     }
     
@@ -163,7 +171,7 @@ public class ClientHandler extends Thread {
      */
     private void shutdown() {
         server.removeHandler(this);
-        server.broadcast("[" + clientName + " has left]");
+        server.broadcast(lobby.getGameID(),"[" + clientName + " has left]");
     }
     
     

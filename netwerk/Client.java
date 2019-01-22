@@ -63,24 +63,30 @@ public class Client extends Thread{
 			
 			//communicatie volgens protocol
 			client.sendMessage("HANDSHAKE+"+args[0]);
-			String[] serverAntwoord = receiveAnswer(client);
+			String[] serverAntwoord = client.receiveAnswer();
+			System.out.println("Server answered");
 			if (serverAntwoord[0].equals("ACKNOWLEDGE_HANDSHAKE")) {
 				GAME_ID = Integer.parseInt(serverAntwoord[1]);
-				isLeader = Boolean.parseBoolean(serverAntwoord[2]);
+				if (serverAntwoord[2].equals("0")) {
+					isLeader = false;
+				} else {
+					isLeader = true;
+				}
+				//isLeader = Boolean.parseBoolean(serverAntwoord[2]); voor een of ander reden werkt dit niet
 			} else {
 				//TODO wat doen we als we geen bevestiging van de server krijgen? TIMEOUT? In dat geval wil je een error gooien
 			}
 			
 			//next round of communication between client and clienthandler (server)
 			
-			serverAntwoord = receiveAnswer(client);
+			serverAntwoord = client.receiveAnswer();
 			if (isLeader) {
 				if (serverAntwoord[0].equals("REQUEST_CONFIG")) {
 					userInput = readString(serverAntwoord[1]); //vraag naar user input
 					tui.showMenu();
-					userInputSplit = userInput.split("\\s"); //split op whitespace, gaat dit goed? System.out.println("Do you want to let a computer player play for you? (Yes/No)");
+					userInputSplit = userInput.split(" "); //split op whitespace, gaat dit goed? System.out.println("Do you want to let a computer player play for you? (Yes/No)");
 					client.sendMessage("SET_CONFIG+"+GAME_ID+"+"+userInputSplit[0]+"+"+userInputSplit[1]);	
-					serverAntwoord = receiveAnswer(client);
+					serverAntwoord = client.receiveAnswer();
 				}
 				
 				
@@ -94,10 +100,10 @@ public class Client extends Thread{
 					
 					
 					//maak een nieuw game object aan om voor jezelf bij te houden
-					Game g = new Game(boardSize, new HumanPlayer(clientName, color), new HumanPlayer(opponent, Color.getOther(color)));
+					//Game g = new Game(boardSize, new HumanPlayer(clientName, color), new HumanPlayer(opponent, Color.getOther(color)));
 					
 					
-					serverAntwoord = receiveAnswer(client);
+					serverAntwoord = client.receiveAnswer();
 					while (!serverAntwoord[0].equals("GAME_FINISHED")) { 
 						
 						
@@ -230,12 +236,12 @@ public class Client extends Thread{
 	 * This receives arguments and reads from inputstream
 	 * @return
 	 */
-	public static String[] receiveAnswer(Client c) {
+	public String[] receiveAnswer() {
 		String[] args = new String[20];
 		String a;
 		try {
-			a = c.in.readLine();
-			args = a.split("+");
+			a = in.readLine();
+			args = a.split("\\+");
 			return args;
 		} catch (IOException e) {
 			e.printStackTrace();
