@@ -100,23 +100,34 @@ public class ClientHandler extends Thread {
 		if (answer.length == 2 && answer[0].equals("HANDSHAKE")) {
 			clientName = answer[1];
 			
-			if(lobby.isLeader(this)) {
-				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
-				handleConfig();
-				String status = lobby.getStatus();
-				String opponent = lobby.getOpponentName(clientName);
-				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[0])+"+"+dim+"+"+status+"+"+opponent);
-		
-			} else {
-				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
-				String status = lobby.getStatus();
-				String opponent = lobby.getOpponentName(clientName);
-				while (!lobby.getConfig()) {
-					
+			while (!lobby.getGameState().getState().equals("GAMESTART")) {
+				
+			
+			
+				if(lobby.isLeader(this) && lobby.getGameState().getState().equals("CONNECTION+FIRST")) {
+					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
+					handleConfig();
+					lobby.getGameState().changeState("CONNECTION+FIRST");
+					//String status = lobby.getStatus();
+					//String opponent = lobby.getOpponentName(clientName);
+					//this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[0])+"+"+dim+"+"+status+"+"+opponent);
+			
+				} else if (!lobby.isLeader(this) && lobby.getGameState().getState().equals("CONNECTION+SECOND")){
+					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
+					lobby.getGameState().changeState("CONNECTION+SECOND");
+					//String status = lobby.getStatus();
+					//String opponent = lobby.getOpponentName(clientName);
+					//while (!lobby.getConfig()) { //wacht op de config om klaar te zijn 
+						
+					//}
+					//this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[1])+"+"+dim+"+"+status+"+"+opponent);
+					System.out.println("Ik ben hier aangekomen");
 				}
-				this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[1])+"+"+dim+"+"+status+"+"+opponent);
-				System.out.println("Ik ben hier aangekomen");
 			}
+			String status = lobby.getStatus();
+			String opponent = lobby.getOpponentName(clientName);
+			this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[0])+"+"+dim+"+"+status+"+"+opponent);
+			System.out.println("Acknowledge Config");
 		}
     }
     
@@ -129,22 +140,16 @@ public class ClientHandler extends Thread {
 			String[] answer = readAnswer(in.readLine());
 			if (answer.length == 4 && answer[0].equals("SET_CONFIG") && Integer.parseInt(answer[1]) == lobby.getGameID()) {
 				dim = Integer.parseInt(answer[3]);
+				preferredColor = Integer.parseInt(answer[2]);
 				lobby.setDim(dim);
 				
-				if (answer[2].equals("white")) {
-					c = Color.WHITE;
-					preferredColor = 2;
-				} else {
-					c = Color.BLACK;
-					preferredColor = 1;
-				}
-				lobby.setColor(clientName, c);
+				lobby.setColor(clientName, Color.getColor(preferredColor));
 				
 				//now that you have all information, start game in lobby
-				boolean full = false;
-				while(!full) {
-					full = lobby.isFull();
-				}
+				//boolean full = false;
+				//while(!full) {
+				//	full = lobby.isFull();
+				//}
 				//lobby.startGame(); Hier nog geen game?
 				
 			}

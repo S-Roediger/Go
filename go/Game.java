@@ -86,7 +86,7 @@ public class Game {
 			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
 				System.out.println("ERROR: field " + choice + " is no valid choice."); //loop to ask again in case of faulty input
 				choice = players[current].determineMove();
-				}		
+			}		
 			if (choice == -1) { 				// enforce pass rule
 				board.increasePass();
 				System.out.println("\r " + players[current].getName() + " has passed." + "\r");

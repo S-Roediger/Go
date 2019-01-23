@@ -90,7 +90,13 @@ public class Client extends Thread{
 					userInput = readString(serverAntwoord[1]); //vraag naar user input
 					tui.showMenu();
 					userInputSplit = userInput.split(" "); //split op whitespace, gaat dit goed? System.out.println("Do you want to let a computer player play for you? (Yes/No)");
-					client.sendMessage("SET_CONFIG+"+GAME_ID+"+"+userInputSplit[0]+"+"+userInputSplit[1]);	
+					int tempColor = 0;
+					if (userInputSplit[0].equals("white")) {
+						tempColor = 2;
+					} else {
+						tempColor = 1;
+					}
+					client.sendMessage("SET_CONFIG+"+GAME_ID+"+"+tempColor+"+"+userInputSplit[1]);	
 					serverAntwoord = client.receiveAnswer();
 				}
 				
@@ -267,11 +273,11 @@ public class Client extends Thread{
 		String[] args = new String[20];
 		String a;
 		try {
-			if (in.ready()) {
-				a = in.readLine();
-				args = a.split("\\+");
-				return args;
-			}
+			
+			a = in.readLine();
+			args = a.split("\\+");
+			return args;
+			
 
 		} catch (IOException e) {
 			e.printStackTrace();

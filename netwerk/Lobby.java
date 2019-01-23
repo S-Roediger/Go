@@ -20,11 +20,17 @@ public class Lobby {
 	private boolean config = false;
 	Color first;
 	private Color[] colors = new Color[2];
+	private GameState gameState;
 	
 	//hier moet een spel gestart
 	public Lobby(int gameID) {
 		this.gameID = gameID;
 		handlers = new ArrayList<>();
+		gameState = new GameState();
+	}
+	
+	public synchronized GameState getGameState() {
+		return this.gameState;
 	}
 	
 	/***
