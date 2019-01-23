@@ -51,7 +51,7 @@ public enum Color {
 		return null;
 	}
 	
-	@Override
+/*	@Override
 	public String toString() {
 		if (this.equals(EMPTY)) {
 			return "     ";
@@ -61,5 +61,5 @@ public enum Color {
 			return "WHITE";
 		}
 		return null;
-	}
+	} */
 }

@@ -21,6 +21,7 @@ public class Lobby {
 	Color first;
 	private Color[] colors = new Color[2];
 	private GameState gameState;
+	private boolean gameStarted = false;
 	
 	//hier moet een spel gestart
 	public Lobby(int gameID) {
@@ -37,23 +38,32 @@ public class Lobby {
 	 * starts the game
 	 */
 	public void startGame() {
-		
+		gameStarted = true;
+		gameState.setState("MOVE+FIRST");
 		//players.put(handlers.get(1).getClientName(), Color.getNr(colors[1])); //niet meer nodig want je zet de color bij beiden
 		game = new OnlineGame(dim, this);
+		
+		for (ClientHandler ch:handlers) { // CH moeten nog ackn config krijgen
+			ch.ackn_config();
+		}
+		
 		game.start();
-		gameState.setState("MOVE+FIRST");
+		
 	}
 
+	public synchronized boolean getGameStarted() {
+		return this.gameStarted;
+	}
 	
-	public boolean getConfig() {
+	public synchronized boolean getConfig() {
 		return config;
 	}
 	
-	public void setDim(int i) {
+	public synchronized void setDim(int i) {
 		dim = i;
 	}
 	
-	public int getDim() {
+	public synchronized int getDim() {
 		return this.dim;
 	}
 	/***
@@ -61,7 +71,7 @@ public class Lobby {
 	 * @param name
 	 * @param c
 	 */
-	public void setColor(String name, Color c) {	
+	public synchronized void setColor(String name, Color c) {	
 		players.put(name, Color.getNr(c));
 		
 		if (!config) { //als de eerste player zijn kleuren nog niet heeft doorgegeven, anders willen we dit niet nog een keer uitvoeren
@@ -73,12 +83,12 @@ public class Lobby {
 
 	}
 	
-	public int getGameID() {
+	public synchronized int getGameID() {
 		return gameID;
 	}
 	
 	
-	public boolean isLeader(ClientHandler ch) {
+	public synchronized boolean isLeader(ClientHandler ch) {
 		if (handlers.get(0) == ch) {
 			return true;
 		}
@@ -90,7 +100,7 @@ public class Lobby {
 	 * @param name
 	 * @return
 	 */
-	public boolean isFirstPlayer(String name) {
+	public synchronized boolean isFirstPlayer(String name) {
 		if (players.get(name) == 1) {
 			return true;
 		}
@@ -98,7 +108,7 @@ public class Lobby {
 		
 	}
 	
-	public boolean isFull() { 
+	public synchronized boolean isFull() { 
 		if (handlers.size() == 2) {
 			return true;
 		}
@@ -110,7 +120,7 @@ public class Lobby {
 	 * add client and return true if successful
 	 * @return
 	 */
-	public boolean addClient(ClientHandler ch) { 
+	public synchronized boolean addClient(ClientHandler ch) { 
 		if (handlers.size() < 2) {
 			handlers.add(ch);
 			return true;
@@ -119,9 +129,9 @@ public class Lobby {
 	}
 	
 	
-    public String getStatus() { //$STATUS(PLAYING, WAITING, FINISHED;$CURRENT_PLAYER int color of player that should make move;$BOARD String of fields
+    public synchronized String getStatus() { //$STATUS(PLAYING, WAITING, FINISHED;$CURRENT_PLAYER int color of player that should make move;$BOARD String of fields
     	String board = game.getBoardString();
-    	int currentPlayer;
+    	int currentPlayer = 0;
     	if (this.gameState.getState().equals("MOVE+FIRST")) {
     		currentPlayer = 1;
     	} else {
@@ -134,7 +144,7 @@ public class Lobby {
     	
     }
     
-    public String getOpponentName(String playerName) {
+    public synchronized String getOpponentName(String playerName) {
         if (handlers.get(0).getClientName().equals(playerName)) {
         	return handlers.get(1).getClientName();	
         }		
@@ -144,7 +154,7 @@ public class Lobby {
     /***
      * sends a message to all participating players
      */
-    public void broadcast(String msg) {
+    public synchronized void broadcast(String msg) {
     	for (ClientHandler c:handlers) {
     		c.sendMessage(msg);
     	}
@@ -155,7 +165,7 @@ public class Lobby {
      * @param playerName
      * @return color of player
      */
-    public Color getColor(String playerName) {
+    public synchronized Color getColor(String playerName) {
     	return Color.getColor(players.get(playerName));
     }
     
@@ -163,7 +173,7 @@ public class Lobby {
      * Can be used by clientHandler to communicate current move
      * @param move that current player wants to make
      */
-    public void makeMove(String move) {
+    public synchronized void makeMove(String move) {
     	String temp[] = move.split(";");
     	currentMove[0] = Integer.parseInt(temp[0]);
     	currentMove[1] = Integer.parseInt(temp[1]);
@@ -173,11 +183,13 @@ public class Lobby {
      * can be used by game to get current move
      * @return
      */
-    public int[] getMove(int i) {
+    public synchronized int[] getMove(int i) {
     	return currentMove;
     }
 	
-    public Color[] getColors() {
+    public synchronized Color[] getColors() {
     	return colors;
     }
+    
+    
 }

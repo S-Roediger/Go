@@ -3,7 +3,7 @@ package go;
 import netwerk.Lobby;
 import view.TUI;
 
-public class OnlineGame {
+public class OnlineGame extends Thread {
 
 	
 	private Board board;
@@ -31,7 +31,7 @@ public class OnlineGame {
 	 * TODO
 	 */
 	public void start() {
-		lobby.broadcast("The game has started");
+		//lobby.broadcast("The game has started");
 		
 		play();
 	}
@@ -42,7 +42,7 @@ public class OnlineGame {
 	public void play() {
 		while (!board.gameOver()) {
 			
-			int[] move = lobby.getMove(current);
+			//int[] move = lobby.getMove(current);
 			
 			//getInput from current player
 			//check input
@@ -53,7 +53,7 @@ public class OnlineGame {
 		
 	}
 	
-	public String getBoardString() {
+	public synchronized String getBoardString() {
 		Color[] fieldsCopy = board.getFields();
 		String a = "";
 		for (int i = 0; i < fieldsCopy.length; i++) {

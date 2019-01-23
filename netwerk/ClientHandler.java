@@ -74,9 +74,13 @@ public class ClientHandler extends Thread {
     	try {
 			this.startProtocol();
 			
+			//if (lobby.isLeader(this) && lobby.getGameState().getState().equals("GAMESTART")) {
+			//	lobby.startGame();
+			//}
+			
 			isFirstPlayer = lobby.isFirstPlayer(clientName);
 			String line = "";
-			String[] answer = new String[20];
+			String[] answer = readAnswer(line);
 			answer[0] = line; //test waardes zodat while niet stuk gaat
 			answer[1] = "99";
 			
@@ -104,12 +108,17 @@ public class ClientHandler extends Thread {
 				
 			}
 			
-			line = in.readLine();
-			answer = readAnswer(line);
+			//line = in.readLine();
+			//answer = readAnswer(line);
 			
 			
 			
 			System.out.println(this.clientName+": The protocol is done now!");
+			
+			
+
+		
+			
 			
     		//String line = in.readLine();
     		//String[] answer = readAnswer(line);
@@ -152,18 +161,27 @@ public class ClientHandler extends Thread {
 				}
 			}
 			
-			if (lobby.isLeader(this) && lobby.getGameState().getState().equals("GAMESTART")) {
-				lobby.startGame();
+			if (!lobby.getGameStarted()) {
+				lobby.startGame();	
 			}
+				//String status = lobby.getStatus();
+				//String opponent = lobby.getOpponentName(clientName);
+				//System.out.println("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColor(clientName))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
+				//this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColor(clientName))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
 			
-			String status = lobby.getStatus();
-			String opponent = lobby.getOpponentName(clientName);
-			this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColor(clientName))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
+			
 			
 			//now finally start a game
 			
 
 		}
+    }
+    
+    public void ackn_config() {
+		String status = lobby.getStatus();
+		String opponent = lobby.getOpponentName(clientName);
+    	this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColor(clientName))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
+		
     }
     
     /***
@@ -179,13 +197,6 @@ public class ClientHandler extends Thread {
 				lobby.setDim(dim);
 				
 				lobby.setColor(clientName, Color.getColor(preferredColor));
-				
-				//now that you have all information, start game in lobby
-				//boolean full = false;
-				//while(!full) {
-				//	full = lobby.isFull();
-				//}
-				//lobby.startGame(); Hier nog geen game?
 				
 			}
 		} catch (IOException e) {

@@ -102,7 +102,7 @@ public class Client extends Thread{
 				
 			}	
 				if (serverAntwoord[0].equals("ACKNOWLEDGE_CONFIG")) {
-					System.out.println("In client acknow config aangekomen");
+					
 					if (serverAntwoord[1].equals(client.getClientName())) {
 						color = Color.getColor(Integer.parseInt(serverAntwoord[2]));
 						boardSize = Integer.parseInt(serverAntwoord[3]);
