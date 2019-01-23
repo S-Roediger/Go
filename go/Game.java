@@ -204,4 +204,13 @@ public class Game {
 		}
 	
 	}
+	
+	public synchronized String getBoardString() {
+		Color[] fieldsCopy = board.getFields();
+		String a = "";
+		for (int i = 0; i < fieldsCopy.length; i++) {
+			a += Color.getNr(fieldsCopy[i]);
+		}
+		return a;
+	}
 }

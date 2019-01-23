@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import go.Color;
+import go.GeneralPlayer;
 import go.HumanPlayer;
 import go.Player;
 
@@ -52,7 +53,7 @@ public class ClientHandler extends Thread {
     }
     
     public Player getPlayer() {
-    	Player p = new HumanPlayer(clientName, c);
+    	Player p = new GeneralPlayer(clientName, c);
 		return p;
     	
     }
@@ -157,6 +158,7 @@ public class ClientHandler extends Thread {
 				} else if (!lobby.isLeader(this) && lobby.getGameState().getState().equals("CONNECTION+SECOND")){
 					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
 					lobby.setColor(clientName, lobby.getColors()[1]);
+					c = lobby.getColors()[1];
 					lobby.getGameState().changeState("CONNECTION+SECOND");
 				}
 			}
@@ -164,16 +166,6 @@ public class ClientHandler extends Thread {
 			if (!lobby.getGameStarted()) {
 				lobby.startGame();	
 			}
-				//String status = lobby.getStatus();
-				//String opponent = lobby.getOpponentName(clientName);
-				//System.out.println("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColor(clientName))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
-				//this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColor(clientName))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
-			
-			
-			
-			//now finally start a game
-			
-
 		}
     }
     
@@ -197,6 +189,7 @@ public class ClientHandler extends Thread {
 				lobby.setDim(dim);
 				
 				lobby.setColor(clientName, Color.getColor(preferredColor));
+				c = lobby.getColors()[0];
 				
 			}
 		} catch (IOException e) {

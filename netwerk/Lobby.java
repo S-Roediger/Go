@@ -41,7 +41,7 @@ public class Lobby {
 		gameStarted = true;
 		gameState.setState("MOVE+FIRST");
 		//players.put(handlers.get(1).getClientName(), Color.getNr(colors[1])); //niet meer nodig want je zet de color bij beiden
-		game = new OnlineGame(dim, this);
+		game = new OnlineGame(dim, this, handlers.get(0).getPlayer(), handlers.get(1).getPlayer());
 		
 		for (ClientHandler ch:handlers) { // CH moeten nog ackn config krijgen
 			ch.ackn_config();

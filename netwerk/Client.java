@@ -119,14 +119,6 @@ public class Client extends Thread{
 					"Your color will be " + color +"."+ "\r" +
 					"Now GET READY, because the game is about to start!");
 						
-		/*	userInput = readString("Do you wish to play as computer player? (Yes/No)");
-			if (userInput.equals("Yes")) {
-				p = new ComputerPlayer(clientName, color);
-				System.out.println("You are playing as computer");
-			} else {
-				p = new HumanPlayer(clientName, color);
-				System.out.println("You are playing as human");
-			} */
 			
 			Board board = new Board(boardSize, currentGameState[2]);
 			tui.showGame(board);
