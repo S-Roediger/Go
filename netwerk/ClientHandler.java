@@ -24,6 +24,7 @@ public class ClientHandler extends Thread {
     private Color c;
     private int preferredColor = 0;
     private Lobby lobby;
+    private boolean isFirstPlayer;
     
 
     /**
@@ -73,6 +74,41 @@ public class ClientHandler extends Thread {
     	try {
 			this.startProtocol();
 			
+			isFirstPlayer = lobby.isFirstPlayer(clientName);
+			String line = "";
+			String[] answer = new String[20];
+			answer[0] = line; //test waardes zodat while niet stuk gaat
+			answer[1] = "99";
+			
+			while (!answer[0].equals("GAME_FINISHED") && Integer.parseInt(answer[1]) == this.lobby.getGameID()) {
+				
+				
+				
+				if (isFirstPlayer && this.lobby.getGameState().getState().equals("MOVE+FIRST")) {
+					line = in.readLine();
+					answer = readAnswer(line);
+					System.out.println(answer);
+					//if (answer[0].equals("")) {
+						
+					//}
+				}
+				
+				if (!isFirstPlayer && this.lobby.getGameState().getState().equals("MOVE+SECOND")) {
+					line = in.readLine();
+					answer = readAnswer(line);
+					//setUserInput on board
+					System.out.println(answer);
+				}
+				
+				
+				
+			}
+			
+			line = in.readLine();
+			answer = readAnswer(line);
+			
+			
+			
 			System.out.println(this.clientName+": The protocol is done now!");
 			
     		//String line = in.readLine();
@@ -108,26 +144,25 @@ public class ClientHandler extends Thread {
 					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
 					handleConfig();
 					lobby.getGameState().changeState("CONNECTION+FIRST");
-					//String status = lobby.getStatus();
-					//String opponent = lobby.getOpponentName(clientName);
-					//this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[0])+"+"+dim+"+"+status+"+"+opponent);
-			
+
 				} else if (!lobby.isLeader(this) && lobby.getGameState().getState().equals("CONNECTION+SECOND")){
 					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
+					lobby.setColor(clientName, lobby.getColors()[1]);
 					lobby.getGameState().changeState("CONNECTION+SECOND");
-					//String status = lobby.getStatus();
-					//String opponent = lobby.getOpponentName(clientName);
-					//while (!lobby.getConfig()) { //wacht op de config om klaar te zijn 
-						
-					//}
-					//this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[1])+"+"+dim+"+"+status+"+"+opponent);
-					System.out.println("Ik ben hier aangekomen");
 				}
 			}
+			
+			if (lobby.isLeader(this) && lobby.getGameState().getState().equals("GAMESTART")) {
+				lobby.startGame();
+			}
+			
 			String status = lobby.getStatus();
 			String opponent = lobby.getOpponentName(clientName);
-			this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColors()[0])+"+"+dim+"+"+status+"+"+opponent);
-			System.out.println("Acknowledge Config");
+			this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColor(clientName))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
+			
+			//now finally start a game
+			
+
 		}
     }
     

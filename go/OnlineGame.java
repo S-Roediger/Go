@@ -11,9 +11,11 @@ public class OnlineGame {
 	int[] players;
 	Lobby lobby;
 	String status;
+	int dim;
 	
 	public OnlineGame(int dim, Lobby lobby) {
 		board = new Board(dim);
+		this.dim = dim;
 		current = 0;
 		players = new int[2];
 		players[0] = 1; //black starts
@@ -30,7 +32,7 @@ public class OnlineGame {
 	 */
 	public void start() {
 		lobby.broadcast("The game has started");
-		updateStatus();
+		
 		play();
 	}
 	
@@ -48,15 +50,22 @@ public class OnlineGame {
 			//update status
 			
 		}
-		updateStatus();
-	}
-	
-	public String getStatus() {
-		return status;
-	}
-	
-	public void updateStatus() {//$STATUS(PLAYING, WAITING, FINISHED;$CURRENT_PLAYER int color of player that should make move;$BOARD String of fields
 		
 	}
+	
+	public String getBoardString() {
+		Color[] fieldsCopy = board.getFields();
+		String a = "";
+		for (int i = 0; i < fieldsCopy.length; i++) {
+			a += Color.getNr(fieldsCopy[i]);
+		}
+		return a;
+	}
+		
+	public boolean gameOver() {
+		return false;
+	}
+	
+	
 	
 }

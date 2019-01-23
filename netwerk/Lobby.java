@@ -38,15 +38,12 @@ public class Lobby {
 	 */
 	public void startGame() {
 		
-		players.put(handlers.get(1).getClientName(), Color.getNr(colors[1]));
+		//players.put(handlers.get(1).getClientName(), Color.getNr(colors[1])); //niet meer nodig want je zet de color bij beiden
 		game = new OnlineGame(dim, this);
 		game.start();
+		gameState.setState("MOVE+FIRST");
 	}
-	
-	public void updateLobby() {
-		String status = game.getStatus();
-		// the lobby can broadcast all changes to both clients
-	}
+
 	
 	public boolean getConfig() {
 		return config;
@@ -56,6 +53,9 @@ public class Lobby {
 		dim = i;
 	}
 	
+	public int getDim() {
+		return this.dim;
+	}
 	/***
 	 * set color for first player (who could utter preference) and also set color for second player
 	 * @param name
@@ -63,9 +63,14 @@ public class Lobby {
 	 */
 	public void setColor(String name, Color c) {	
 		players.put(name, Color.getNr(c));
+		
+		if (!config) { //als de eerste player zijn kleuren nog niet heeft doorgegeven, anders willen we dit niet nog een keer uitvoeren
+			colors[0] = c;
+			colors[1] = Color.getOther(c);
+		}
+		
 		config = true;
-		colors[0] = c;
-		colors[1] = Color.getOther(c);
+
 	}
 	
 	public int getGameID() {
@@ -78,6 +83,19 @@ public class Lobby {
 			return true;
 		}
 		return false;
+	}
+	
+	/***
+	 * if the player with name 'name' has color black, then he/she starts otherwise, return false
+	 * @param name
+	 * @return
+	 */
+	public boolean isFirstPlayer(String name) {
+		if (players.get(name) == 1) {
+			return true;
+		}
+		return false;
+		
 	}
 	
 	public boolean isFull() { 
@@ -102,8 +120,18 @@ public class Lobby {
 	
 	
     public String getStatus() { //$STATUS(PLAYING, WAITING, FINISHED;$CURRENT_PLAYER int color of player that should make move;$BOARD String of fields
-    	//return game.getStatus();
-    	return "";
+    	String board = game.getBoardString();
+    	int currentPlayer;
+    	if (this.gameState.getState().equals("MOVE+FIRST")) {
+    		currentPlayer = 1;
+    	} else {
+    		currentPlayer = 2;
+    	}
+    	if (!game.gameOver()) { //hier moet eigenlijk: als het niet de laatste set is
+    		return "PLAYING;"+currentPlayer+";"+board;
+    	}
+    	return "FINISHED;"+currentPlayer+";"+board;
+    	
     }
     
     public String getOpponentName(String playerName) {

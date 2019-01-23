@@ -60,7 +60,7 @@ public class Client extends Thread{
 			boolean isLeader = false;
 			Color color = null;
 			int boardSize = 0;
-			String currentGameState;
+			String[] currentGameState = null;
 			String opponent = null;
 			Player p;
 			
@@ -106,7 +106,8 @@ public class Client extends Thread{
 					if (serverAntwoord[1].equals(client.getClientName())) {
 						color = Color.getColor(Integer.parseInt(serverAntwoord[2]));
 						boardSize = Integer.parseInt(serverAntwoord[3]);
-						currentGameState = serverAntwoord[4]; //$STATUS;$CURRENT_PLAYER;$SCORE;$BOARD
+						String gameState = serverAntwoord[4]; //gameState stuurd nog niets
+						currentGameState = client.parseGameState(gameState); //$STATUS;$CURRENT_PLAYER;$SCORE;$BOARD
 						opponent = serverAntwoord[5];
 					}
 				}
@@ -118,27 +119,30 @@ public class Client extends Thread{
 					"Your color will be " + color +"."+ "\r" +
 					"Now GET READY, because the game is about to start!");
 						
-			userInput = readString("Do you wish to play as computer player? (Yes/No)");
+		/*	userInput = readString("Do you wish to play as computer player? (Yes/No)");
 			if (userInput.equals("Yes")) {
 				p = new ComputerPlayer(clientName, color);
 				System.out.println("You are playing as computer");
 			} else {
 				p = new HumanPlayer(clientName, color);
 				System.out.println("You are playing as human");
-			}
-						
-						
-						
-					
-					
+			} */
 			
-			//maak een nieuw game object aan om voor jezelf bij te houden
-			//Game g = new Game(boardSize, new HumanPlayer(clientName, color), new HumanPlayer(opponent, Color.getOther(color)));
-					
-					
-			serverAntwoord = client.receiveAnswer();
+			Board board = new Board(boardSize, currentGameState[2]);
+			tui.showGame(board);
+			
 			while (!serverAntwoord[0].equals("GAME_FINISHED")) { 
 				
+
+				
+				
+				if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
+					userInput = readString("Please enter move (index)");
+					client.sendMessage("MOVE+" +GAME_ID+"+"+clientName+"+"+userInput);
+					
+				}
+				
+				serverAntwoord = client.receiveAnswer();
 				
 				//send move
 				//server acknowledges move + sends game update
@@ -146,7 +150,7 @@ public class Client extends Thread{
 			}
 			
 			
-			System.out.println("I am still alive");
+			
 			//Maak hier een nieuw game aan met currentGameState dingen
 			
 			//houd currentBoard and previous board
@@ -283,6 +287,17 @@ public class Client extends Thread{
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/***
+	 * parse String using semicolon
+	 * @param a
+	 * @return
+	 */
+	public String[] parseGameState(String a) {
+		String[] answer = new String[20];
+		answer = a.split(";");
+		return answer;
 	}
 	
 }

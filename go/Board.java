@@ -43,6 +43,22 @@ public class Board {
 		checkedStonesGetGroup = new ArrayList<Integer>();
 	}
 	
+	public Board(int dim, String s) {
+		this.dim = dim;
+		fields = new Color[dim*dim];
+		char[] c = new char[dim*dim];
+		s.getChars(0, dim*dim, c, 0);
+		for (int i = 0; i < c.length; i++) {
+			if (c[i] == 0) {
+				fields[i] = Color.EMPTY;
+			} else if (c[i] == 1) {
+				fields[i] = Color.BLACK;
+			} else if (c[i] == 2) {
+				fields[i] = Color.WHITE;
+			}
+		}
+	}
+	
 	
 	
 // --------------------- Commands & Queries ------------------- //

@@ -76,6 +76,10 @@ public class Server {
 				System.out.println("Added handler to lobby");
 				//first add handler to threads, then assign/create lobby object and then finally start ch
 				ch.start();
+				
+				
+				
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
