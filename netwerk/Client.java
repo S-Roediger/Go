@@ -11,9 +11,6 @@ import java.net.UnknownHostException;
 
 import go.Board;
 import go.Color;
-import go.ComputerPlayer;
-import go.Game;
-import go.HumanPlayer;
 import go.Player;
 import view.TUI;
 
