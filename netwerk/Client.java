@@ -145,14 +145,15 @@ public class Client extends Thread{
 					board.update(currentGameState[2]); //elke keer bij ackn move moet je board updaten
 					tui.showGame(board);
 
-				}
-				
-
-			
-				
+				}	
 			}
-						
 			
+			if (serverAntwoord[0].equals("GAME_FINISHED")) {
+				System.out.println(serverAntwoord[4] + "\r");
+				System.out.println(serverAntwoord[2] + " has won. \r");
+				String[] points = client.parseGameState(serverAntwoord[3]);
+				System.out.println("Score for black: " + points[0] + " Score for white: " + points[1]);
+			}
 			
 			//client.start();
 			
