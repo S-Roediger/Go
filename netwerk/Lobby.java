@@ -1,10 +1,12 @@
 package netwerk;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import go.Color;
 import go.Game;
 import go.HumanPlayer;
+import go.OnlineGame;
 import go.Player;
 
 public class Lobby {
@@ -12,47 +14,101 @@ public class Lobby {
 	private int gameID;
 	private int dim;
 	private ArrayList<ClientHandler> handlers;
-	private Color colorFirst;
-	private Game game;
-	private Player p1;
-	private Player p2;
+	private OnlineGame game;
+	private HashMap<String, Integer> players = new HashMap<>();
+	private int[] currentMove;
+	private boolean config = false;
+	Color first;
+	private Color[] colors = new Color[2];
+	private GameState gameState;
+	private boolean gameStarted = false;
 	
 	//hier moet een spel gestart
 	public Lobby(int gameID) {
 		this.gameID = gameID;
 		handlers = new ArrayList<>();
+		gameState = new GameState();
 	}
 	
+	public synchronized GameState getGameState() {
+		return this.gameState;
+	}
 	
+	/***
+	 * starts the game
+	 */
 	public void startGame() {
-		p1 = new HumanPlayer(handlers.get(0).getClientName(), colorFirst);
-		p2 = new HumanPlayer(handlers.get(1).getClientName(), Color.getOther(colorFirst));
-		game = new Game(dim, p1, p2);
+		gameStarted = true;
+		//gameState.setState("MOVE+FIRST");
+		//players.put(handlers.get(1).getClientName(), Color.getNr(colors[1])); //niet meer nodig want je zet de color bij beiden
+		game = new OnlineGame(dim, this, handlers.get(0).getPlayer(), handlers.get(1).getPlayer());
+		
+		for (ClientHandler ch:handlers) { // CH moeten nog ackn config krijgen
+			ch.ackn_config();
+		}
+		
 		game.start();
+		
+	}
+
+	public synchronized boolean getGameStarted() {
+		return this.gameStarted;
 	}
 	
+	public synchronized boolean getConfig() {
+		return config;
+	}
 	
-	public void setDim(int i) {
+	public synchronized void setDim(int i) {
 		dim = i;
 	}
 	
-	public void setColorFirst(Color c) {
-		colorFirst = c;
+	public synchronized int getDim() {
+		return this.dim;
+	}
+	/***
+	 * set color for first player (who could utter preference) and also set color for second player
+	 * @param name
+	 * @param c
+	 */
+	public synchronized void setColor(String name, Color c) {	
+		players.put(name, Color.getNr(c));
+		
+		if (!config) { //als de eerste player zijn kleuren nog niet heeft doorgegeven, anders willen we dit niet nog een keer uitvoeren
+			colors[0] = c;
+			colors[1] = Color.getOther(c);
+		}
+		
+		config = true;
+
 	}
 	
-	public int getGameID() {
+	public synchronized int getGameID() {
 		return gameID;
 	}
 	
 	
-	public boolean isLeader(ClientHandler ch) {
+	public synchronized boolean isLeader(ClientHandler ch) {
 		if (handlers.get(0) == ch) {
 			return true;
 		}
 		return false;
 	}
 	
-	public boolean isFull() { 
+	/***
+	 * if the player with name 'name' has color black, then he/she starts otherwise, return false
+	 * @param name
+	 * @return
+	 */
+	public synchronized boolean isFirstPlayer(String name) {
+		if (players.get(name) == 1) {
+			return true;
+		}
+		return false;
+		
+	}
+	
+	public synchronized boolean isFull() { 
 		if (handlers.size() == 2) {
 			return true;
 		}
@@ -64,7 +120,7 @@ public class Lobby {
 	 * add client and return true if successful
 	 * @return
 	 */
-	public boolean addClient(ClientHandler ch) { 
+	public synchronized boolean addClient(ClientHandler ch) { 
 		if (handlers.size() < 2) {
 			handlers.add(ch);
 			return true;
@@ -73,16 +129,30 @@ public class Lobby {
 	}
 	
 	
-    public String getBoardStatus() {
-        
-    	return "";
+    public String getStatus() { //$STATUS(PLAYING, WAITING, FINISHED;$CURRENT_PLAYER int color of player that should make move;$BOARD String of fields
+    	String board = game.getBoardString();
+    	int currentPlayer = game.getCurrentPlayer();
+    	
+    	
+    	
+    	//if (this.gameState.getState().equals("MOVE+FIRST")) {
+    	//	currentPlayer = 1;
+    	//} else {
+    	//	currentPlayer = 2;
+    	//}
+    	
+    	if (!game.gameOver()) { //hier moet eigenlijk: als het niet de laatste set is
+    		return "PLAYING;"+currentPlayer+";"+board;
+    	}
+    	return "FINISHED;"+currentPlayer+";"+board;
+    	
     }
     
-    public String getOpponentName(String playerName) {
-        if (handlers.get(0).getName().equals(playerName)) {
-        	return handlers.get(1).getName();	
+    public synchronized String getOpponentName(String playerName) {
+        if (handlers.get(0).getClientName().equals(playerName)) {
+        	return handlers.get(1).getClientName();	
         }		
-    	return handlers.get(0).getName();
+    	return handlers.get(0).getClientName();
     }
     
     /***
@@ -97,14 +167,33 @@ public class Lobby {
     /***
      * 
      * @param playerName
-     * @return
+     * @return color of player
      */
     public Color getColor(String playerName) {
-    	if (p1.getName().equals(playerName)) {
-    		return p1.getColor();
-    	}
-    	return p2.getColor();
+    	return Color.getColor(players.get(playerName));
     }
     
+    /***
+     * Can be used by clientHandler to communicate current move
+     * @param move that current player wants to make
+     */
+    public void makeMove(String move) {
+    	String temp[] = move.split(";");
+    	currentMove[0] = Integer.parseInt(temp[0]);
+    	currentMove[1] = Integer.parseInt(temp[1]);
+    }
+    
+    /***
+     * can be used by game to get current move
+     * @return
+     */
+    public int[] getMove(int i) {
+    	return currentMove;
+    }
 	
+    public Color[] getColors() {
+    	return colors;
+    }
+    
+    
 }

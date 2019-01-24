@@ -53,7 +53,6 @@ public class Game {
 	 */
 	public void start() {
 		while (again) {
-			// do I need to make this with threads? You want to be able to host multiple games? TODO
 			reset();
 			play();
 			again = readBoolean("\r"+"Do you want to play again? (Yes/No)", "Yes", "No");
@@ -87,7 +86,7 @@ public class Game {
 			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
 				System.out.println("ERROR: field " + choice + " is no valid choice."); //loop to ask again in case of faulty input
 				choice = players[current].determineMove();
-				}		
+			}		
 			if (choice == -1) { 				// enforce pass rule
 				board.increasePass();
 				System.out.println("\r " + players[current].getName() + " has passed." + "\r");
@@ -204,5 +203,14 @@ public class Game {
 			}
 		}
 	
+	}
+	
+	public synchronized String getBoardString() {
+		Color[] fieldsCopy = board.getFields();
+		String a = "";
+		for (int i = 0; i < fieldsCopy.length; i++) {
+			a += Color.getNr(fieldsCopy[i]);
+		}
+		return a;
 	}
 }

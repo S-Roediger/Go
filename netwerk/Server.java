@@ -76,6 +76,10 @@ public class Server {
 				System.out.println("Added handler to lobby");
 				//first add handler to threads, then assign/create lobby object and then finally start ch
 				ch.start();
+				
+				
+				
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -96,6 +100,9 @@ public class Server {
     		if(!this.gameLobbies.get(k).isFull()) {
     			joined = this.gameLobbies.get(k).addClient(ch);
     			joinedLobby = this.gameLobbies.get(k);
+    			if (this.gameLobbies.get(k).isFull() && this.gameLobbies.get(k).getConfig()) {
+    				this.gameLobbies.get(k).startGame();
+    			}
     		}
     	}
     	if (!joined) {

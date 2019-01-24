@@ -11,8 +11,10 @@ import java.net.UnknownHostException;
 
 import go.Board;
 import go.Color;
+import go.ComputerPlayer;
 import go.Game;
 import go.HumanPlayer;
+import go.Player;
 import view.TUI;
 
 public class Client extends Thread{
@@ -58,14 +60,17 @@ public class Client extends Thread{
 			boolean isLeader = false;
 			Color color = null;
 			int boardSize = 0;
-			String currentGameState;
+			String[] currentGameState = null;
 			String opponent = null;
+			Player p;
 			
 			//communicatie volgens protocol
 			client.sendMessage("HANDSHAKE+"+args[0]);
+			System.out.println("Sent Handshake");
 			String[] serverAntwoord = client.receiveAnswer();
 			System.out.println("Server answered");
 			if (serverAntwoord[0].equals("ACKNOWLEDGE_HANDSHAKE")) {
+				System.out.println("Server acknowledges you!");
 				GAME_ID = Integer.parseInt(serverAntwoord[1]);
 				if (serverAntwoord[2].equals("0")) {
 					isLeader = false;
@@ -85,58 +90,76 @@ public class Client extends Thread{
 					userInput = readString(serverAntwoord[1]); //vraag naar user input
 					tui.showMenu();
 					userInputSplit = userInput.split(" "); //split op whitespace, gaat dit goed? System.out.println("Do you want to let a computer player play for you? (Yes/No)");
-					client.sendMessage("SET_CONFIG+"+GAME_ID+"+"+userInputSplit[0]+"+"+userInputSplit[1]);	
+					int tempColor = 0;
+					if (userInputSplit[0].equals("white")) {
+						tempColor = 2;
+					} else {
+						tempColor = 1;
+					}
+					client.sendMessage("SET_CONFIG+"+GAME_ID+"+"+tempColor+"+"+userInputSplit[1]);	
 					serverAntwoord = client.receiveAnswer();
 				}
 				
-				
+			}	
 				if (serverAntwoord[0].equals("ACKNOWLEDGE_CONFIG")) {
+					
 					if (serverAntwoord[1].equals(client.getClientName())) {
 						color = Color.getColor(Integer.parseInt(serverAntwoord[2]));
 						boardSize = Integer.parseInt(serverAntwoord[3]);
-						currentGameState = serverAntwoord[4]; //$STATUS;$CURRENT_PLAYER;$SCORE;$BOARD
+						String gameState = serverAntwoord[4];
+						currentGameState = client.parseGameState(gameState); //$STATUS;$CURRENT_PLAYER;$SCORE;$BOARD
 						opponent = serverAntwoord[5];
 					}
-					
-					
-					//maak een nieuw game object aan om voor jezelf bij te houden
-					//Game g = new Game(boardSize, new HumanPlayer(clientName, color), new HumanPlayer(opponent, Color.getOther(color)));
-					
-					
-					serverAntwoord = client.receiveAnswer();
-					while (!serverAntwoord[0].equals("GAME_FINISHED")) { 
-						
-						
-						//send move
-						//server acknowledges move + sends game update
-						
-					}
-					
-					
-					System.out.println("I am still alive");
-					//Maak hier een nieuw game aan met currentGameState dingen
-					
-					//houd currentBoard and previous board
-					
-					//heb je nog een game of maak je dat hier volledig?
-					
-					
 				}
 				
 				
+			System.out.println(opponent + " has joined to play with you. \r" +
+					"Your name is " + clientName + "\r" +
+					"You will be playing on a "+ boardSize+" by "+boardSize+" board. \r"+
+					"Your color will be " + color +"."+ "\r" +
+					"Now GET READY, because the game is about to start!");
+						
+			
+			Board board = new Board(boardSize, currentGameState[2]);
+			tui.showGame(board);
+			
+			int lastMove = 0;
+			
+			while (!serverAntwoord[0].equals("GAME_FINISHED")) { 
+				
+				
+	
+				if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
+					userInput = readString("Please enter move (index)");
+					lastMove = Integer.parseInt(userInput);
+					client.sendMessage("MOVE+" +GAME_ID+"+"+clientName+"+"+lastMove);
+					serverAntwoord = client.receiveAnswer();
+				}
+				
+				serverAntwoord = client.receiveAnswer();
+			
+				if (serverAntwoord[0].equals("ACKNOWLEDGE_MOVE") && Integer.parseInt(serverAntwoord[1]) == GAME_ID) {
+					String gameState = serverAntwoord[3];
+					currentGameState = client.parseGameState(gameState); //$STATUS;$CURRENT_PLAYER;$BOARD
+						
+					board.update(currentGameState[2]); //elke keer bij ackn move moet je board updaten
+					tui.showGame(board);
+
+				}
+				
+
+			
 				
 			}
+						
 			
 			
+			//client.start();
 			
-			
-			
-			client.start();
-			
-			do{ // wat doet dit precies?
-				String input = readString("");
-				client.sendMessage(input);
-			}while(true);
+			//do{ // wat doet dit precies?
+			//	String input = readString("");
+			//	client.sendMessage(input);
+			//}while(true);
 			
 		} catch (IOException e) {
 			print("ERROR: couldn't construct a client object!");
@@ -240,13 +263,27 @@ public class Client extends Thread{
 		String[] args = new String[20];
 		String a;
 		try {
+			
 			a = in.readLine();
 			args = a.split("\\+");
 			return args;
+			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/***
+	 * parse String using semicolon
+	 * @param a
+	 * @return
+	 */
+	public String[] parseGameState(String a) {
+		String[] answer = new String[20];
+		answer = a.split(";");
+		return answer;
 	}
 	
 }

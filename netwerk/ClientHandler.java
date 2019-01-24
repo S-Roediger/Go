@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import go.Color;
+import go.NetwerkPlayer;
 import go.HumanPlayer;
 import go.Player;
 
@@ -24,6 +25,7 @@ public class ClientHandler extends Thread {
     private Color c;
     private int preferredColor = 0;
     private Lobby lobby;
+    private boolean isFirstPlayer;
     
 
     /**
@@ -38,6 +40,21 @@ public class ClientHandler extends Thread {
     }
 
     
+    /***
+     * Method to read from input stream, used by player to read client response
+     * @return
+     */
+    public String readFromIn() {
+    	String a = "";
+		try {
+			a = in.readLine();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+    	return a;
+    }
+    
     public void addLobbie(Lobby lobbie) {
     	this.lobby = lobbie;
     }
@@ -51,7 +68,7 @@ public class ClientHandler extends Thread {
     }
     
     public Player getPlayer() {
-    	Player p = new HumanPlayer(clientName, c);
+    	Player p = new NetwerkPlayer(clientName, c, this);
 		return p;
     	
     }
@@ -72,14 +89,64 @@ public class ClientHandler extends Thread {
     public void run() { //reads from client
     	try {
 			this.startProtocol();
-    		String line = in.readLine();
-    		
-    		
-			while (line != null) {
+			
+			//if (lobby.isLeader(this) && lobby.getGameState().getState().equals("GAMESTART")) {
+			//	lobby.startGame();
+			//}
+			
+			
+		/*	
+			isFirstPlayer = lobby.isFirstPlayer(clientName);
+			String line = "";
+			String[] answer = readAnswer(line);
+			answer[0] = line; //test waardes zodat while niet stuk gaat
+			answer[1] = "99";
+			
+			while (!answer[0].equals("GAME_FINISHED") && Integer.parseInt(answer[1]) == this.lobby.getGameID()) {
+				
+				
+				
+				if (isFirstPlayer && this.lobby.getGameState().getState().equals("MOVE+FIRST")) {
+					line = in.readLine();
+					answer = readAnswer(line);
+					System.out.println(answer);
+					//if (answer[0].equals("")) {
+						
+					//}
+				}
+				
+				if (!isFirstPlayer && this.lobby.getGameState().getState().equals("MOVE+SECOND")) {
+					line = in.readLine();
+					answer = readAnswer(line);
+					//setUserInput on board
+					System.out.println(answer);
+				}
+				
+				
+				
+			} */
+			
+			//line = in.readLine();
+			//answer = readAnswer(line);
+			
+			
+			
+			System.out.println(this.clientName+": The protocol is done now!");
+			
+			
+
+		
+			
+			
+    		//String line = in.readLine();
+    		//String[] answer = readAnswer(line);
+    		//hier moet de loop die steeds checkt of player aan de beurt is of niet
+
+  		/*while (line != null) {
 				server.broadcast(lobby.getGameID(), clientName + ": " + line);
 				line = in.readLine();
-			}
-			shutdown();
+			} */
+			
 		} catch (IOException e) {
 			shutdown();
 		}
@@ -95,19 +162,35 @@ public class ClientHandler extends Thread {
 		String[] answer = readAnswer(line);
 		if (answer.length == 2 && answer[0].equals("HANDSHAKE")) {
 			clientName = answer[1];
-			if(lobby.isLeader(this)) {
-				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
-				handleConfig();
-				String status = lobby.getBoardStatus();
-				String opponent = lobby.getOpponentName(clientName);
-				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+preferredColor+"+"+dim+"+"+status+"+"+opponent);
-			} else {
-				this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
-				String status = lobby.getBoardStatus();
-				String opponent = lobby.getOpponentName(clientName);
-				lobby.broadcast("ACKNOWLEDGE_CONFIG+"+clientName+"+"+preferredColor+"+"+dim+"+"+status+"+"+opponent);
+			
+			while (!lobby.getGameState().getState().equals("GAMESTART")) {
+				
+			
+			
+				if(lobby.isLeader(this) && lobby.getGameState().getState().equals("CONNECTION+FIRST")) {
+					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
+					handleConfig();
+					lobby.getGameState().changeState("CONNECTION+FIRST");
+
+				} else if (!lobby.isLeader(this) && lobby.getGameState().getState().equals("CONNECTION+SECOND")){
+					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
+					lobby.setColor(clientName, lobby.getColors()[1]);
+					c = lobby.getColors()[1];
+					lobby.getGameState().changeState("CONNECTION+SECOND");
+				}
+			}
+			
+			if (!lobby.getGameStarted()) {
+				lobby.startGame();	
 			}
 		}
+    }
+    
+    public void ackn_config() {
+		String status = lobby.getStatus();
+		String opponent = lobby.getOpponentName(clientName);
+    	this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColor(clientName))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
+		
     }
     
     /***
@@ -119,23 +202,11 @@ public class ClientHandler extends Thread {
 			String[] answer = readAnswer(in.readLine());
 			if (answer.length == 4 && answer[0].equals("SET_CONFIG") && Integer.parseInt(answer[1]) == lobby.getGameID()) {
 				dim = Integer.parseInt(answer[3]);
+				preferredColor = Integer.parseInt(answer[2]);
 				lobby.setDim(dim);
 				
-				if (answer[2].equals("white")) {
-					c = Color.WHITE;
-					preferredColor = 2;
-				} else {
-					c = Color.BLACK;
-					preferredColor = 1;
-				}
-				lobby.setColorFirst(c);
-				
-				//now that you have all information, start game in lobby
-				boolean full = false;
-				while(!full) {
-					full = lobby.isFull();
-				}
-				lobby.startGame();
+				lobby.setColor(clientName, Color.getColor(preferredColor));
+				c = lobby.getColors()[0];
 				
 			}
 		} catch (IOException e) {

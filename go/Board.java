@@ -43,6 +43,22 @@ public class Board {
 		checkedStonesGetGroup = new ArrayList<Integer>();
 	}
 	
+	public Board(int dim, String s) {
+		this.dim = dim;
+		this.fields = new Color[dim*dim];
+		char[] c = s.toCharArray();
+		
+		for (int i = 0; i < c.length; i++) {
+			if (c[i] == '0') {
+				fields[i] = Color.EMPTY;
+			} else if (c[i] == '1') {
+				fields[i] = Color.BLACK;
+			} else if (c[i] == '2') {
+				fields[i] = Color.WHITE;
+			}
+		}
+	}
+	
 	
 	
 // --------------------- Commands & Queries ------------------- //
@@ -421,11 +437,11 @@ public class Board {
     		checkFields.add(i);
     		if (fields[i].equals(Color.BLACK)) { //add a point to black score for every black stone
     			scoreBlack++;
-    			System.out.println("I just assigned a point to black for a stone on field : "+i);
+    			//System.out.println("I just assigned a point to black for a stone on field : "+i);
     		}
     		if (fields[i].equals(Color.WHITE)) { // add a point to white 
     			scoreWhite++;
-    			System.out.println("I just assigned a point to white for a stone on field : "+i);
+    			//System.out.println("I just assigned a point to white for a stone on field : "+i);
     		}
     	}
     	
@@ -434,15 +450,15 @@ public class Board {
     		if (checkFields.contains(j) && fields[j].equals(Color.EMPTY)) {
     			getGroup(j, Color.EMPTY, group); //find empty groups
     			
-    			System.out.println("This group is currently checked "+group);
-    			System.out.println("This group is captured by white: "+isCaptured(Color.WHITE, group));
-    			System.out.println("This group is captured by black: "+isCaptured(Color.BLACK, group));
+    			//System.out.println("This group is currently checked "+group);
+    			//System.out.println("This group is captured by white: "+isCaptured(Color.WHITE, group));
+    			//System.out.println("This group is captured by black: "+isCaptured(Color.BLACK, group));
     			if (isCaptured(Color.WHITE, group)) { 	//if white "captured"/owned this area
     				scoreWhite+= group.size();	//assign one point per owned field to white
-    				System.out.println("I just assigned this amount of points to white: "+group.size());
+    				//System.out.println("I just assigned this amount of points to white: "+group.size());
     			} else if (isCaptured(Color.BLACK, group)) {	//if it was owned by black
     				scoreBlack+= group.size();	//assign points to black
-    				System.out.println("I just assigned this amount of points to black: "+group.size());
+    				//System.out.println("I just assigned this amount of points to black: "+group.size());
     			}
     			
     			for (int k = 0; k < group.size(); k++) {
@@ -457,6 +473,24 @@ public class Board {
     	score[0] = scoreBlack;
     	score[1] = scoreWhite + 0.5;
     	return score;
+    }
+    
+    /***
+     * update board fields with string
+     * @param s
+     */
+    public void update(String s) {
+		char[] c = s.toCharArray();
+		
+		for (int i = 0; i < c.length; i++) {
+			if (c[i] == '0') {
+				fields[i] = Color.EMPTY;
+			} else if (c[i] == '1') {
+				fields[i] = Color.BLACK;
+			} else if (c[i] == '2') {
+				fields[i] = Color.WHITE;
+			}
+		}
     }
     
     /***
