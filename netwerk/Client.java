@@ -85,6 +85,7 @@ public class Client extends Thread{
 			//next round of communication between client and clienthandler (server)
 			
 			serverAntwoord = client.receiveAnswer();
+			//System.out.println("ServerAntwoord: "+serverAntwoord);
 			if (isLeader) {
 				if (serverAntwoord[0].equals("REQUEST_CONFIG")) {
 					userInput = readString(serverAntwoord[1]); //vraag naar user input
@@ -113,15 +114,15 @@ public class Client extends Thread{
 				}
 				
 				
-			System.out.println(opponent + " has joined to play with you. \r" +
-					"Your name is " + clientName + "\r" +
-					"You will be playing on a "+ boardSize+" by "+boardSize+" board. \r"+
-					"Your color will be " + color +"."+ "\r" +
-					"Now GET READY, because the game is about to start!");
+		//	System.out.println(opponent + " has joined to play with you. \r" +
+		//			"Your name is " + clientName + "\r" +
+		//			"You will be playing on a "+ boardSize+" by "+boardSize+" board. \r"+
+		//			"Your color will be " + color +"."+ "\r" +
+		//			"Now GET READY, because the game is about to start!");
 						
 			
-			Board board = new Board(boardSize, currentGameState[2]);
-			tui.showGame(board);
+		//	Board board = new Board(boardSize, currentGameState[2]);
+		//	tui.showGame(board);
 			
 			int lastMove = 0;
 			
@@ -142,7 +143,7 @@ public class Client extends Thread{
 					String gameState = serverAntwoord[3];
 					currentGameState = client.parseGameState(gameState); //$STATUS;$CURRENT_PLAYER;$BOARD
 						
-					board.update(currentGameState[2]); //elke keer bij ackn move moet je board updaten
+					Board board = new Board(boardSize, currentGameState[2]); //elke keer bij ackn move moet je board updaten
 					tui.showGame(board);
 
 				}	
@@ -206,6 +207,7 @@ public class Client extends Thread{
 	/** send a message to a ClientHandler. 
 	 * @throws IOException */
 	public void sendMessage(String msg) {
+		System.out.println("Send Message: "+msg);
 		try {
 			out.write(msg);
 			out.newLine();
@@ -263,9 +265,11 @@ public class Client extends Thread{
 	public String[] receiveAnswer() {
 		String[] args = new String[20];
 		String a;
+		
 		try {
 			
 			a = in.readLine();
+			System.out.println("Received: " + a);
 			args = a.split("\\+");
 			return args;
 			
