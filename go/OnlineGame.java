@@ -15,6 +15,7 @@ public class OnlineGame extends Thread {
 	Lobby lobby;
 	String status;
 	int dim;
+	int currentPlayerAckn = 1;
 	
 	public OnlineGame(int dim, Lobby lobby, Player p0, Player p1) {
 		board = new Board(dim);
@@ -40,7 +41,6 @@ public class OnlineGame extends Thread {
 	 * TODO
 	 */
 	public void start() {
-		
 		play();
 	}
 	
@@ -50,33 +50,28 @@ public class OnlineGame extends Thread {
 	public void play() {
 		int choice = 0;
 		while(!board.gameOver()) {
-			//tui.showGame(board);
-			//updateGui();
-	
-			//check rules!
 			
 			choice = players[current].determineMove(); //get player choices
 			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
-				System.out.println("ERROR: field " + choice + " is no valid choice."); //loop to ask again in case of faulty input
+				lobby.broadcast("INVALID_MOVE+Invalid move");; //loop to ask again in case of faulty input
 				choice = players[current].determineMove();
 			}		
 			if (choice == -1) { 				// enforce pass rule
 				board.increasePass();
-				System.out.println("\r " + players[current].getName() + " has passed." + "\r");
 			} else {
 				players[current].makeMove(board, choice);
-				//gui.addStone(choice, players[current].getColor());
-				//gui.addHintIndicator(choice);
 				handleCapture(Color.getOther(players[current].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
 				handleCapture(players[current].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
 				handleSuicide(players[current].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
 				board.resetPass();
 			}
+			int playerWhoMadeLastMove = current +1; //player who made most recent move, needed for protocol
 			current = (current + 3) % 2;
+			this.currentPlayerAckn = current + 1;
+			lobby.broadcast("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus());
 			
 		}
-		System.out.println("\r" + "The game is over." + "\r");
-		printResult();
+		lobby.broadcast("GAME_FINISHED+"+lobby.getGameID()+"+"+getWinner()+"+"+getScore(getWinner()));
 	}
 		
 	/***
@@ -89,10 +84,12 @@ public class OnlineGame extends Thread {
 		suicide.add(lastSet);
 		if (board.isCaptured(Color.getOther(players[current].getColor()), suicide)) {
 			board.remove(suicide);
-			//gui.removeStone(suicide);
-			System.out.println(c+" has commited suicide on field " + lastSet);
 		}
 		
+	}
+	
+	public int getCurrentPlayer() {
+		return this.currentPlayerAckn;
 	}
 	
 	
@@ -126,33 +123,38 @@ public class OnlineGame extends Thread {
 			if (board.isCaptured(Color.EMPTY, a)) {
 				board.remove(a);
 				//gui.removeStone(a);
-				System.out.println(c+" was captured! The following fields are removed "+a);
+				//System.out.println(c+" was captured! The following fields are removed "+a);
 			}
 		}
 	}
 	
-	public void printResult() {
+	public String getWinner() {
 		double[] score = board.getScore();
-		System.out.println("Black has the following amount of points: "+score[0] +"\r" + "White has the following amount of points: "+ score[1]);
+		//System.out.println("Black has the following amount of points: "+score[0] +"\r" + "White has the following amount of points: "+ score[1]);
 		if (score[0] > score[1]) {
-			System.out.println("Black has won!");
+			//System.out.println("Black has won!");
+			return players[0].getName();
 		} else if (score[0] < score[1]) {
-			System.out.println("White has won!");
+			//System.out.println("White has won!");
+			return players[1].getName();
 		} else if (score[0] == score[1]) {
-			System.out.println("There is a draw! Both players win!");
+			return "draw"; //TODO what to do in case of draw?
+			//System.out.println("There is a draw! Both players win!");
 		}
+		return "";
 	}
 	
-	private boolean readBoolean(String prompt, String yes, String no) {
-        String answer;
-        Scanner in;
-        do {
-            System.out.print(prompt);
-            in = new Scanner(System.in);
-            answer = in.hasNextLine() ? in.nextLine() : null;
-        } while (answer == null || (!answer.equals(yes) && !answer.equals(no)));
-        return answer.equals(yes);
-    }
+	
+	public double getScore(String name) {
+		String winner = this.getWinner();
+		double[] score = board.getScore();
+		Color winnerColor = lobby.getColor(winner);
+		if (winnerColor == Color.BLACK) {
+			return score[0];
+		} else {
+			return score[1];
+		}
+	}
 	
 	public synchronized String getBoardString() {
 		Color[] fieldsCopy = board.getFields();
@@ -164,7 +166,7 @@ public class OnlineGame extends Thread {
 	}
 		
 	public boolean gameOver() {
-		return false;
+		return board.gameOver();
 	}
 	
 	

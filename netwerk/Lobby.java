@@ -39,7 +39,7 @@ public class Lobby {
 	 */
 	public void startGame() {
 		gameStarted = true;
-		gameState.setState("MOVE+FIRST");
+		//gameState.setState("MOVE+FIRST");
 		//players.put(handlers.get(1).getClientName(), Color.getNr(colors[1])); //niet meer nodig want je zet de color bij beiden
 		game = new OnlineGame(dim, this, handlers.get(0).getPlayer(), handlers.get(1).getPlayer());
 		
@@ -129,14 +129,18 @@ public class Lobby {
 	}
 	
 	
-    public synchronized String getStatus() { //$STATUS(PLAYING, WAITING, FINISHED;$CURRENT_PLAYER int color of player that should make move;$BOARD String of fields
+    public String getStatus() { //$STATUS(PLAYING, WAITING, FINISHED;$CURRENT_PLAYER int color of player that should make move;$BOARD String of fields
     	String board = game.getBoardString();
-    	int currentPlayer = 0;
-    	if (this.gameState.getState().equals("MOVE+FIRST")) {
-    		currentPlayer = 1;
-    	} else {
-    		currentPlayer = 2;
-    	}
+    	int currentPlayer = game.getCurrentPlayer();
+    	
+    	
+    	
+    	//if (this.gameState.getState().equals("MOVE+FIRST")) {
+    	//	currentPlayer = 1;
+    	//} else {
+    	//	currentPlayer = 2;
+    	//}
+    	
     	if (!game.gameOver()) { //hier moet eigenlijk: als het niet de laatste set is
     		return "PLAYING;"+currentPlayer+";"+board;
     	}
@@ -154,7 +158,7 @@ public class Lobby {
     /***
      * sends a message to all participating players
      */
-    public synchronized void broadcast(String msg) {
+    public void broadcast(String msg) {
     	for (ClientHandler c:handlers) {
     		c.sendMessage(msg);
     	}
@@ -165,7 +169,7 @@ public class Lobby {
      * @param playerName
      * @return color of player
      */
-    public synchronized Color getColor(String playerName) {
+    public Color getColor(String playerName) {
     	return Color.getColor(players.get(playerName));
     }
     
@@ -173,7 +177,7 @@ public class Lobby {
      * Can be used by clientHandler to communicate current move
      * @param move that current player wants to make
      */
-    public synchronized void makeMove(String move) {
+    public void makeMove(String move) {
     	String temp[] = move.split(";");
     	currentMove[0] = Integer.parseInt(temp[0]);
     	currentMove[1] = Integer.parseInt(temp[1]);
@@ -183,11 +187,11 @@ public class Lobby {
      * can be used by game to get current move
      * @return
      */
-    public synchronized int[] getMove(int i) {
+    public int[] getMove(int i) {
     	return currentMove;
     }
 	
-    public synchronized Color[] getColors() {
+    public Color[] getColors() {
     	return colors;
     }
     

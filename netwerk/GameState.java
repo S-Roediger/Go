@@ -30,7 +30,7 @@ public class GameState {
 				this.currentState = "GAMESTART";
 				break;
 				
-			case"GAMESTART":
+			case"GAMESTART":		//Dit kan misschien gewoon weg, tijdens het spel hoef ik dit niet
 				this.currentState = "MOVE+FIRST";
 				
 			case "MOVE+FIRST":

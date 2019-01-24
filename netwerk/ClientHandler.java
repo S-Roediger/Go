@@ -8,7 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import go.Color;
-import go.GeneralPlayer;
+import go.NetwerkPlayer;
 import go.HumanPlayer;
 import go.Player;
 
@@ -40,6 +40,21 @@ public class ClientHandler extends Thread {
     }
 
     
+    /***
+     * Method to read from input stream, used by player to read client response
+     * @return
+     */
+    public String readFromIn() {
+    	String a = "";
+		try {
+			a = in.readLine();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+    	return a;
+    }
+    
     public void addLobbie(Lobby lobbie) {
     	this.lobby = lobbie;
     }
@@ -53,7 +68,7 @@ public class ClientHandler extends Thread {
     }
     
     public Player getPlayer() {
-    	Player p = new GeneralPlayer(clientName, c);
+    	Player p = new NetwerkPlayer(clientName, c, this);
 		return p;
     	
     }
@@ -79,6 +94,8 @@ public class ClientHandler extends Thread {
 			//	lobby.startGame();
 			//}
 			
+			
+		/*	
 			isFirstPlayer = lobby.isFirstPlayer(clientName);
 			String line = "";
 			String[] answer = readAnswer(line);
@@ -107,7 +124,7 @@ public class ClientHandler extends Thread {
 				
 				
 				
-			}
+			} */
 			
 			//line = in.readLine();
 			//answer = readAnswer(line);

@@ -106,7 +106,7 @@ public class Client extends Thread{
 					if (serverAntwoord[1].equals(client.getClientName())) {
 						color = Color.getColor(Integer.parseInt(serverAntwoord[2]));
 						boardSize = Integer.parseInt(serverAntwoord[3]);
-						String gameState = serverAntwoord[4]; //gameState stuurd nog niets
+						String gameState = serverAntwoord[4];
 						currentGameState = client.parseGameState(gameState); //$STATUS;$CURRENT_PLAYER;$SCORE;$BOARD
 						opponent = serverAntwoord[5];
 					}
@@ -123,49 +123,43 @@ public class Client extends Thread{
 			Board board = new Board(boardSize, currentGameState[2]);
 			tui.showGame(board);
 			
+			int lastMove = 0;
+			
 			while (!serverAntwoord[0].equals("GAME_FINISHED")) { 
 				
-
 				
-				
+	
 				if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
 					userInput = readString("Please enter move (index)");
-					client.sendMessage("MOVE+" +GAME_ID+"+"+clientName+"+"+userInput);
-					
+					lastMove = Integer.parseInt(userInput);
+					client.sendMessage("MOVE+" +GAME_ID+"+"+clientName+"+"+lastMove);
+					serverAntwoord = client.receiveAnswer();
 				}
 				
 				serverAntwoord = client.receiveAnswer();
+			
+				if (serverAntwoord[0].equals("ACKNOWLEDGE_MOVE") && Integer.parseInt(serverAntwoord[1]) == GAME_ID) {
+					String gameState = serverAntwoord[3];
+					currentGameState = client.parseGameState(gameState); //$STATUS;$CURRENT_PLAYER;$BOARD
+						
+					board.update(currentGameState[2]); //elke keer bij ackn move moet je board updaten
+					tui.showGame(board);
+
+				}
 				
-				//send move
-				//server acknowledges move + sends game update
+
+			
 				
 			}
+						
 			
 			
+			//client.start();
 			
-			//Maak hier een nieuw game aan met currentGameState dingen
-			
-			//houd currentBoard and previous board
-			
-			//heb je nog een game of maak je dat hier volledig?
-			
-			
-				
-				
-				
-				
-			
-			
-			
-			
-			
-			
-			client.start();
-			
-			do{ // wat doet dit precies?
-				String input = readString("");
-				client.sendMessage(input);
-			}while(true);
+			//do{ // wat doet dit precies?
+			//	String input = readString("");
+			//	client.sendMessage(input);
+			//}while(true);
 			
 		} catch (IOException e) {
 			print("ERROR: couldn't construct a client object!");
