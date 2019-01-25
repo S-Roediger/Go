@@ -43,9 +43,33 @@ public class OnlineGame extends Thread {
 	 * TODO
 	 */
 	public void start() {
-		play();
+		//play();
 	}
 	
+	public boolean getExit() {
+		return this.exit;
+	}
+	
+	
+	public void setExit(Boolean b) {
+		this.exit = b;
+	}
+	
+	public int getCurrent() {
+		return this.current;
+	}
+	
+	public void setCurrent(int i) {
+		this.current = i;
+	}
+	
+	public Board getBoard() {
+		return board;
+	}
+	
+	public Player[] getPlayers() {
+		return this.players;
+	}
 	
 	/***
 	 * keeps track of game
@@ -53,7 +77,6 @@ public class OnlineGame extends Thread {
 	public void play() {
 		int choice = 0;
 		while(!board.gameOver() || exit) {
-			
 			choice = players[current].determineMove(); //get player choices
 			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
 				lobby.broadcast("INVALID_MOVE+Invalid move");; //loop to ask again in case of faulty input
@@ -97,6 +120,10 @@ public class OnlineGame extends Thread {
 		return this.currentPlayerAckn;
 	}
 	
+	
+	public void setCurrentPlayer(int i) {
+		this.currentPlayerAckn = i;
+	}
 	
 	public void handleCapture(Color c, int lastSet) {
 		

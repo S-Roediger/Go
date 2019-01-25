@@ -51,6 +51,10 @@ public class Lobby {
 		
 	}
 
+	public OnlineGame getGame() {
+		return this.game;
+	}
+	
 	public synchronized boolean getGameStarted() {
 		return this.gameStarted;
 	}

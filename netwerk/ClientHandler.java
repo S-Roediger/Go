@@ -60,6 +60,10 @@ public class ClientHandler extends Thread {
     	return a;
     }
     
+    public ServerInputHandler getSih() {
+    	return this.sih;
+    }
+    
     public void addLobbie(Lobby lobbie) {
     	this.lobby = lobbie;
     }
@@ -112,8 +116,6 @@ public class ClientHandler extends Thread {
     			}
     				
     		}
-    		
-
     		
 			//this.startProtocol();
 			
