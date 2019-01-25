@@ -65,7 +65,7 @@ public class Server {
      */
     public void run() {
     	try {
-			ServerSocket ssocket = new ServerSocket(port);
+			ServerSocket ssocket = new ServerSocket(port); //TODO Add appropriate error exception so that you can try again
 			while (true) {
 				Socket s = ssocket.accept();
 				
