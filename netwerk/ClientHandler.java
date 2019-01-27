@@ -20,12 +20,16 @@ public class ClientHandler extends Thread {
     private Server server;
     private BufferedReader in;
     private BufferedWriter out;
-    private String clientName;
-    private int dim;
-    private Color c;
-    private int preferredColor = 0;
+ 
+
+
     private Lobby lobby;
-    private boolean isFirstPlayer;
+  
+    private ServerInputHandler sih;
+    private boolean gameStarted = false;
+    
+    
+    
     
 
     /**
@@ -37,6 +41,7 @@ public class ClientHandler extends Thread {
         this.server = serverArg;
         in = new BufferedReader(new InputStreamReader(sockArg.getInputStream()));
         out = new BufferedWriter(new OutputStreamWriter(sockArg.getOutputStream()));
+        sih = new ServerInputHandler(this);
     }
 
     
@@ -55,8 +60,16 @@ public class ClientHandler extends Thread {
     	return a;
     }
     
+    public ServerInputHandler getSih() {
+    	return this.sih;
+    }
+    
     public void addLobbie(Lobby lobbie) {
     	this.lobby = lobbie;
+    }
+    
+    public Lobby getLobby() {
+    	return this.lobby;
     }
     
     /***
@@ -64,17 +77,17 @@ public class ClientHandler extends Thread {
      * @return
      */
     public int getDim() {
-    	return dim;
+    	return sih.getDim();
     }
     
     public Player getPlayer() {
-    	Player p = new NetwerkPlayer(clientName, c, this);
+    	Player p = new NetwerkPlayer(sih.getClientName(), lobby.getColor(sih.getClientName()), this);
 		return p;
     	
     }
     
     public String getClientName() {
-    	return clientName;
+    	return sih.getClientName();
     }
     
 
@@ -88,65 +101,26 @@ public class ClientHandler extends Thread {
      */
     public void run() { //reads from client
     	try {
-			this.startProtocol();
+    		
+    		while (true) {
+    			String line = in.readLine();
+    			String[] answer;
+    			//if (line != null) {
+    				answer = readAnswer(line);
+    				sih.checkInput(answer);
+    			//}
+    			
+    			if (sih.readyToStartGame() && !this.gameStarted) {
+    				lobby.startGame();
+    				gameStarted = true;
+    			}
+    				
+    		}
+    		
+			//this.startProtocol();
 			
-			//if (lobby.isLeader(this) && lobby.getGameState().getState().equals("GAMESTART")) {
-			//	lobby.startGame();
-			//}
-			
-			
-		/*	
-			isFirstPlayer = lobby.isFirstPlayer(clientName);
-			String line = "";
-			String[] answer = readAnswer(line);
-			answer[0] = line; //test waardes zodat while niet stuk gaat
-			answer[1] = "99";
-			
-			while (!answer[0].equals("GAME_FINISHED") && Integer.parseInt(answer[1]) == this.lobby.getGameID()) {
 				
-				
-				
-				if (isFirstPlayer && this.lobby.getGameState().getState().equals("MOVE+FIRST")) {
-					line = in.readLine();
-					answer = readAnswer(line);
-					System.out.println(answer);
-					//if (answer[0].equals("")) {
-						
-					//}
-				}
-				
-				if (!isFirstPlayer && this.lobby.getGameState().getState().equals("MOVE+SECOND")) {
-					line = in.readLine();
-					answer = readAnswer(line);
-					//setUserInput on board
-					System.out.println(answer);
-				}
-				
-				
-				
-			} */
-			
-			//line = in.readLine();
-			//answer = readAnswer(line);
-			
-			
-			
-			System.out.println(this.clientName+": The protocol is done now!");
-			
-			
-
-		
-			
-			
-    		//String line = in.readLine();
-    		//String[] answer = readAnswer(line);
-    		//hier moet de loop die steeds checkt of player aan de beurt is of niet
-
-  		/*while (line != null) {
-				server.broadcast(lobby.getGameID(), clientName + ": " + line);
-				line = in.readLine();
-			} */
-			
+	
 		} catch (IOException e) {
 			shutdown();
 		}
@@ -161,7 +135,7 @@ public class ClientHandler extends Thread {
     	String line = in.readLine();
 		String[] answer = readAnswer(line);
 		if (answer.length == 2 && answer[0].equals("HANDSHAKE")) {
-			clientName = answer[1];
+			//ClientName() = answer[1];
 			
 			while (!lobby.getGameState().getState().equals("GAMESTART")) {
 				
@@ -174,8 +148,8 @@ public class ClientHandler extends Thread {
 
 				} else if (!lobby.isLeader(this) && lobby.getGameState().getState().equals("CONNECTION+SECOND")){
 					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
-					lobby.setColor(clientName, lobby.getColors()[1]);
-					c = lobby.getColors()[1];
+					//lobby.setColor(clientName, lobby.getColors()[1]);
+					//c = lobby.getColors()[1];
 					lobby.getGameState().changeState("CONNECTION+SECOND");
 				}
 			}
@@ -188,8 +162,9 @@ public class ClientHandler extends Thread {
     
     public void ackn_config() {
 		String status = lobby.getStatus();
-		String opponent = lobby.getOpponentName(clientName);
-    	this.sendMessage("ACKNOWLEDGE_CONFIG+"+clientName+"+"+Color.getNr(lobby.getColor(clientName))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
+		String opponent = lobby.getOpponentName(sih.getClientName());
+    	this.sendMessage("ACKNOWLEDGE_CONFIG+"+sih.getClientName()+"+"+Color.getNr(lobby.getColor(sih.getClientName()))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
+		System.out.println("ACKNOWLEDGE_CONFIG+"+sih.getClientName()+"+"+Color.getNr(lobby.getColor(sih.getClientName()))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
 		
     }
     
@@ -201,12 +176,12 @@ public class ClientHandler extends Thread {
     	try {
 			String[] answer = readAnswer(in.readLine());
 			if (answer.length == 4 && answer[0].equals("SET_CONFIG") && Integer.parseInt(answer[1]) == lobby.getGameID()) {
-				dim = Integer.parseInt(answer[3]);
-				preferredColor = Integer.parseInt(answer[2]);
-				lobby.setDim(dim);
+				//dim = Integer.parseInt(answer[3]);
+				//preferredColor = Integer.parseInt(answer[2]);
+				//lobby.setDim(dim);
 				
-				lobby.setColor(clientName, Color.getColor(preferredColor));
-				c = lobby.getColors()[0];
+				//lobby.setColor(clientName, Color.getColor(preferredColor));
+				//c = lobby.getColors()[0];
 				
 			}
 		} catch (IOException e) {
@@ -234,8 +209,11 @@ public class ClientHandler extends Thread {
     }
     
     public String[] readAnswer(String s) {
-    	String[] answer = s.split("\\+");
-    	return answer;
+    	if ( s != null ) {
+    		String[] answer = s.split("\\+");
+    		return answer;	
+    	}
+    	return null;
     }
     
 
@@ -246,7 +224,7 @@ public class ClientHandler extends Thread {
      */
     private void shutdown() {
         server.removeHandler(this);
-        server.broadcast(lobby.getGameID(),"[" + clientName + " has left]");
+        server.broadcast(lobby.getGameID(),"[" + sih.getClientName() + " has left]");
     }
     
     

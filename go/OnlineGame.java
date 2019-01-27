@@ -10,13 +10,16 @@ public class OnlineGame extends Thread {
 
 	
 	private Board board;
-	int current;
-	Player[] players;
-	Lobby lobby;
-	String status;
-	int dim;
-	int currentPlayerAckn = 1;
-	int playerWhoMadeLastMove;
+
+	private int current;
+	private Player[] players;
+	private Lobby lobby;
+	private String status;
+	private int dim;
+	private int currentPlayerAckn = 1;
+	private boolean exit = false;
+
+
 	
 	public OnlineGame(int dim, Lobby lobby, Player p0, Player p1) {
 		board = new Board(dim);
@@ -42,7 +45,32 @@ public class OnlineGame extends Thread {
 	 * TODO
 	 */
 	public void start() {
-		play();
+		//play();
+	}
+	
+	public boolean getExit() {
+		return this.exit;
+	}
+	
+	
+	public void setExit(Boolean b) {
+		this.exit = b;
+	}
+	
+	public int getCurrent() {
+		return this.current;
+	}
+	
+	public void setCurrent(int i) {
+		this.current = i;
+	}
+	
+	public Board getBoard() {
+		return board;
+	}
+	
+	public Player[] getPlayers() {
+		return this.players;
 	}
 	
 	/***
@@ -50,8 +78,7 @@ public class OnlineGame extends Thread {
 	 */
 	public void play() {
 		int choice = 0;
-		while(!board.gameOver()) {
-			
+		while(!board.gameOver() || exit) {
 			choice = players[current].determineMove(); //get player choices
 			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
 				lobby.broadcast("INVALID_MOVE+Invalid move");; //loop to ask again in case of faulty input
@@ -59,6 +86,8 @@ public class OnlineGame extends Thread {
 			}		
 			if (choice == -1) { 				// enforce pass rule
 				board.increasePass();
+			} else if (choice == -99) {
+				exit = true;
 			} else {
 				players[current].makeMove(board, choice);
 				handleCapture(Color.getOther(players[current].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
@@ -70,7 +99,7 @@ public class OnlineGame extends Thread {
 			current = (current + 3) % 2;
 			this.currentPlayerAckn = current + 1;
 			lobby.broadcast("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus());
-			
+			System.out.println("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus());
 		}
 		//lobby.broadcast("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus()); //dit is nodig om laatste move nog te ackn met gameStatus: FINISHED
 		lobby.broadcast("GAME_FINISHED+"+lobby.getGameID()+"+"+getWinner()+"+"+getScore()+"+The game has ended since both players passed");
@@ -94,6 +123,10 @@ public class OnlineGame extends Thread {
 		return this.currentPlayerAckn;
 	}
 	
+	
+	public void setCurrentPlayer(int i) {
+		this.currentPlayerAckn = i;
+	}
 	
 	public void handleCapture(Color c, int lastSet) {
 		
@@ -131,6 +164,13 @@ public class OnlineGame extends Thread {
 	}
 	
 	public String getWinner() {
+		
+		if (exit) {
+			int tempCurrent = current;
+			tempCurrent = (tempCurrent + 3) % 2;
+			return players[tempCurrent].getName();
+		}
+		
 		double[] score = board.getScore();
 		//System.out.println("Black has the following amount of points: "+score[0] +"\r" + "White has the following amount of points: "+ score[1]);
 		if (score[0] > score[1]) {

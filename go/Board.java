@@ -1,6 +1,7 @@
 package go;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Board {
@@ -57,6 +58,8 @@ public class Board {
 				fields[i] = Color.WHITE;
 			}
 		}
+		pastBoardStates = new Color[dim*dim][dim*dim];
+		pastBoardStates[0] = fields; 
 	}
 	
 	
@@ -515,6 +518,11 @@ public class Board {
 				fields[i] = Color.WHITE;
 			}
 		}
+		
+		
+    	for (int k = 0; k < dim*dim; k++) {
+    		pastBoardStates[pastBoardStates.length-1][k] = fields[k];
+    	}
     }
     
     /***
@@ -536,6 +544,32 @@ public class Board {
     	} else {
     		return isField(choice) && isEmptyField(choice) && !checkPreviousBoardState(choice, c);
     	}
+    	
+    }
+    
+    /***
+     * determines a random valid move 
+     * @param c - color that you would like to determine valid move for
+     * @param t - int indicating how much time the bot has to find a random valid move before a pass is returned
+     * @return
+     */
+    public int determineRandomValidMove(Color c, int t) {
+    	
+    	int[] fieldsIndexCopyPlusPass = new int[dim*dim+1];
+    	for (int i = 0; i < fields.length; i++) {
+    		fieldsIndexCopyPlusPass[i] = i;
+    	}
+    	long startTime = System.currentTimeMillis();
+    	long elapsedTime = 0;
+    	int random = new Random().nextInt(fieldsIndexCopyPlusPass.length);
+    	while (elapsedTime < t) {
+    		if (isValidMove(random, c)) { 
+    			return random;
+    		}
+    		random = new Random().nextInt(fieldsIndexCopyPlusPass.length);
+    		elapsedTime = System.currentTimeMillis() - startTime;
+    	}
+    	return -1;
     	
     }
    

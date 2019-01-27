@@ -18,7 +18,7 @@ public class Lobby {
 	private HashMap<String, Integer> players = new HashMap<>();
 	private int[] currentMove;
 	private boolean config = false;
-	Color first;
+
 	private Color[] colors = new Color[2];
 	private GameState gameState;
 	private boolean gameStarted = false;
@@ -40,7 +40,7 @@ public class Lobby {
 	public void startGame() {
 		gameStarted = true;
 		//gameState.setState("MOVE+FIRST");
-		//players.put(handlers.get(1).getClientName(), Color.getNr(colors[1])); //niet meer nodig want je zet de color bij beiden
+		players.put(handlers.get(1).getClientName(), Color.getNr(colors[1])); //niet meer nodig want je zet de color bij beiden
 		game = new OnlineGame(dim, this, handlers.get(0).getPlayer(), handlers.get(1).getPlayer());
 		
 		for (ClientHandler ch:handlers) { // CH moeten nog ackn config krijgen
@@ -51,6 +51,10 @@ public class Lobby {
 		
 	}
 
+	public OnlineGame getGame() {
+		return this.game;
+	}
+	
 	public synchronized boolean getGameStarted() {
 		return this.gameStarted;
 	}
@@ -73,6 +77,7 @@ public class Lobby {
 	 */
 	public synchronized void setColor(String name, Color c) {	
 		players.put(name, Color.getNr(c));
+		
 		
 		if (!config) { //als de eerste player zijn kleuren nog niet heeft doorgegeven, anders willen we dit niet nog een keer uitvoeren
 			colors[0] = c;
@@ -100,7 +105,7 @@ public class Lobby {
 	 * @param name
 	 * @return
 	 */
-	public synchronized boolean isFirstPlayer(String name) {
+	public boolean isFirstPlayer(String name) {
 		if (players.get(name) == 1) {
 			return true;
 		}
@@ -108,7 +113,7 @@ public class Lobby {
 		
 	}
 	
-	public synchronized boolean isFull() { 
+	public boolean isFull() { 
 		if (handlers.size() == 2) {
 			return true;
 		}
@@ -148,7 +153,7 @@ public class Lobby {
     	
     }
     
-    public synchronized String getOpponentName(String playerName) {
+    public String getOpponentName(String playerName) {
         if (handlers.get(0).getClientName().equals(playerName)) {
         	return handlers.get(1).getClientName();	
         }		
