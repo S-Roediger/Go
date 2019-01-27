@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Random;
 
 
 public class Client extends Thread{
@@ -43,11 +44,13 @@ public class Client extends Thread{
 		try {
 			
 			//making client object
+
+			
 			String clientName = args[0];
-			Client client = new Client(args[0], host, port);
+			Client client = new Client(clientName, host, port);
 			
 			//communicatie volgens protocol
-			client.sendMessage("HANDSHAKE+"+args[0]);
+			client.sendMessage("HANDSHAKE+"+clientName);
 			
 			client.start();
 			
@@ -133,6 +136,10 @@ public class Client extends Thread{
 
 	}
 
+	public void setClientName(String s) {
+		this.clientName = s;
+	}
+	
 	/** close the socket connection. 
 	 * @throws IOException */
 	public void shutdown() {

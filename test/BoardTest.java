@@ -2,51 +2,38 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+
 import org.junit.Before;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
 
 import go.Board;
 import go.Color;
-import go.Game;
-import go.HumanPlayer;
-import go.Player;
 
 class BoardTest {
 
-	Board bSimple;
-	Board bComplex;
-	Game game;
+	private Board bSimple;
+	private Board bComplex;
+	
 	
 	
 	//in this class you also need to test (self defined) thrown exceptions from board
 	
 	@Before
-	void setUpGame() throws Exception {
-		Player p1 = new HumanPlayer("Hannah", Color.WHITE);
-		Player p2 = new HumanPlayer("Anna", Color.BLACK);
+	public void setUp() throws Exception {
+		bSimple = new Board(9);
+		bComplex = new Board(9);
 		
-		game = new Game(9, p1, p2);
-		//game.start();
 		
-	}
-	
-	//neighbours testen en kleuren testen
-	
-	@Before
-	void setUpSimpleBoard() throws Exception {
-		bSimple = game.getBoard();
 		bSimple.setField(10, Color.BLACK);
 		bSimple.setField(1, Color.WHITE);
 		bSimple.setField(11, Color.WHITE);
 		bSimple.setField(9, Color.WHITE);
 		bSimple.setField(19, Color.WHITE);
-	}
-	
-
-	@Before
-	void setUpComplexBoard() throws Exception {
-		Board bComplex = new Board(9);
+		
+		
+		
 		bComplex.setField(9, Color.BLACK);
 		bComplex.setField(10, Color.BLACK);
 		bComplex.setField(0, Color.WHITE);
@@ -55,18 +42,34 @@ class BoardTest {
 		bComplex.setField(19, Color.WHITE);
 		bComplex.setField(18, Color.WHITE);
 	}
+	
 
 	@Test
-	void testSimpleCapture() {
-		assertTrue(bSimple.isCaptured(10, Color.BLACK, bSimple.getNrGroupMembers(10, Color.BLACK))); //Waarom nullpointer?
+	public void testSimpleCapture() {
+		try {
+			this.setUp(); //Waarom werkt setup niet gewoon?
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		ArrayList<Integer> captured = new ArrayList<Integer>();
+		captured.add(10);
+		assertTrue(bSimple.isCaptured(Color.WHITE, captured));
 	}
 	
 	
 	
 	@Test
-	void testComplexCapture() {
-		assertTrue(bComplex.isCaptured(9, Color.BLACK, bSimple.getNrGroupMembers(9, Color.BLACK)));
-		assertTrue(bComplex.isCaptured(10, Color.BLACK, bSimple.getNrGroupMembers(10, Color.BLACK)));
-	}
+	public void testComplexCapture() {
+		try {
+			this.setUp();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		ArrayList<Integer> captured = new ArrayList<Integer>();
+		bComplex.getGroup(9, Color.BLACK, captured);
+		System.out.println(bComplex.toString());
+		assertTrue(bComplex.isCaptured(Color.WHITE, captured)); //this should be working ?!
+	}	
 
 }

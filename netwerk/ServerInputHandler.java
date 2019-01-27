@@ -1,5 +1,7 @@
 package netwerk;
 
+import java.util.Random;
+
 import go.Color;
 import go.OnlineGame;
 
@@ -14,6 +16,7 @@ public class ServerInputHandler {
     private ClientHandler ch;
     private boolean secondPlayerAckn = false;
 	private int choice;
+	private OnlineGame game;
 	
 	
     
@@ -40,12 +43,15 @@ public class ServerInputHandler {
     }
 	
 	public void checkInput(String[] input) {
-		
+		this.game = ch.getLobby().getGame();
 		//String[] args = input.split("\\+");
 		
 		switch (input[0]) {
 		
+		
+		
 		case "HANDSHAKE":
+			
 			clientName = input[1];
 			
 			if(ch.getLobby().isLeader(ch)) {
@@ -67,7 +73,7 @@ public class ServerInputHandler {
 			dim = Integer.parseInt(input[3]);
 			preferredColor = Integer.parseInt(input[2]);
 			ch.getLobby().setDim(dim);
-			
+			this.clientName = clientName+1; //add int 1 to name to make sure both cannot have the same name
 			ch.getLobby().setColor(clientName, Color.getColor(preferredColor));
 			c = ch.getLobby().getColors()[0];
 			
@@ -82,36 +88,38 @@ public class ServerInputHandler {
 			break;
 			
 		case "MOVE":
+			
+			
 			if (input[0].equals("MOVE")) { //&& answer[2].equals(p.getName())
 				this.choice = Integer.parseInt(input[3]);
 			} else if (input[0].equals("EXIT")) {
 				this.choice = -99;
 			}
 			
-			if(!ch.getLobby().getGame().getBoard().gameOver() || ch.getLobby().getGame().getExit()) {
+			if(!game.getBoard().gameOver() || game.getExit()) {
 				//choice = game.getPlayers()[game.getCurrent()].determineMove(); //get player choices
-				if (!ch.getLobby().getGame().getBoard().isValidMove(choice, ch.getLobby().getGame().getPlayers()[ch.getLobby().getGame().getCurrent()].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
+				if (!game.getBoard().isValidMove(choice, game.getPlayers()[game.getCurrent()].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
 					ch.getLobby().broadcast("INVALID_MOVE+Invalid move");; //loop to ask again in case of faulty input
 					//choice = players[current].determineMove();
 				}		
 				if (choice == -1) { 				// enforce pass rule
-					ch.getLobby().getGame().getBoard().increasePass();
+					game.getBoard().increasePass();
 				} else if (choice == -99) {
-					ch.getLobby().getGame().setExit(true);
+					game.setExit(true);
 				} else {
-					ch.getLobby().getGame().getPlayers()[ch.getLobby().getGame().getCurrent()].makeMove(ch.getLobby().getGame().getBoard(), choice);
-					ch.getLobby().getGame().handleCapture(Color.getOther(ch.getLobby().getGame().getPlayers()[ch.getLobby().getGame().getCurrent()].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
-					ch.getLobby().getGame().handleCapture(ch.getLobby().getGame().getPlayers()[ch.getLobby().getGame().getCurrent()].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
-					ch.getLobby().getGame().handleSuicide(ch.getLobby().getGame().getPlayers()[ch.getLobby().getGame().getCurrent()].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
-					ch.getLobby().getGame().getBoard().resetPass();
+					game.getPlayers()[game.getCurrent()].makeMove(game.getBoard(), choice);
+					game.handleCapture(Color.getOther(game.getPlayers()[game.getCurrent()].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
+					game.handleCapture(game.getPlayers()[game.getCurrent()].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
+					game.handleSuicide(game.getPlayers()[game.getCurrent()].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
+					game.getBoard().resetPass();
 				}
-				int playerWhoMadeLastMove = ch.getLobby().getGame().getCurrent() +1; //player who made most recent move, needed for protocol
-				ch.getLobby().getGame().setCurrent((ch.getLobby().getGame().getCurrent()+3) %2);
-				ch.getLobby().getGame().setCurrentPlayer(ch.getLobby().getGame().getCurrent() + 1);
+				int playerWhoMadeLastMove = game.getCurrent() +1; //player who made most recent move, needed for protocol
+				game.setCurrent((game.getCurrent()+3) %2);
+				game.setCurrentPlayer(game.getCurrent() + 1);
 				ch.getLobby().broadcast("ACKNOWLEDGE_MOVE+"+ch.getLobby().getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+ch.getLobby().getStatus());
 				System.out.println("ACKNOWLEDGE_MOVE+"+ch.getLobby().getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+ch.getLobby().getStatus());
 			} else {
-				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+ch.getLobby().getGame().getWinner()+"+"+ch.getLobby().getGame().getScore(ch.getLobby().getGame().getWinner()));
+				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore(game.getWinner()));
 			}
 			
 		

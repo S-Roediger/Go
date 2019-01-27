@@ -45,6 +45,11 @@ public class ClientInputHandler {
 			
 			
 		case "REQUEST_CONFIG":
+			
+			//if (client.getClientName().equals("ComputerPlayer")) { zou kunnen - is dat gewenst?
+			//	return "SET_CONFIG+"+GAME_ID+"+"+2+"+"+9;	
+			//}
+			
 			String userInput = readString(args[1]); 
 			String[] userInputSplit = userInput.split(" "); 
 			int tempColor = 0;
@@ -68,13 +73,13 @@ public class ClientInputHandler {
 			
 			
 		case "ACKNOWLEDGE_CONFIG":
-			if (args[1].equals(client.getClientName())) {
+				client.setClientName(args[1]);
 				color = Color.getColor(Integer.parseInt(args[2]));
 				boardSize = Integer.parseInt(args[3]);
 				String gameState = args[4];
 				currentGameState = client.parseGameState(gameState); //$STATUS;$CURRENT_PLAYER;$SCORE;$BOARD
 				opponent = args[5];
-			}
+			
 			
 			System.out.println(opponent + " has joined to play with you. \r" +
 					"Your name is " + client.getClientName() + "\r" +
@@ -88,12 +93,20 @@ public class ClientInputHandler {
 			
 			
 			if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
-				userInput = readString("Please enter a move (index) or pass with '-1' \r Enter 'EXIT' to exit the game");
-				if (!userInput.equals("EXIT")) {
-					lastMove = Integer.parseInt(userInput);
-					return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+lastMove;
+				
+				
+				if (this.client.getClientName().contains("ComputerPlayer")) { 
+					return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+board.determineRandomValidMove(color, 3000);
 				} else {
-					return "EXIT+"+GAME_ID+"+"+client.getClientName();
+					System.out.println("Please enter a move (index) or pass with '-1' \r Enter 'EXIT' to exit the game");
+					System.out.println("(HINT: The following would be a valid move: " + board.determineRandomValidMove(color, 3000) + ")");
+					userInput = readString("");
+					if (!userInput.equals("EXIT")) {
+						lastMove = Integer.parseInt(userInput);
+						return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+lastMove;
+					} else {
+						return "EXIT+"+GAME_ID+"+"+client.getClientName();
+					}
 				}
 
 			}
@@ -102,21 +115,27 @@ public class ClientInputHandler {
 			
 		case "ACKNOWLEDGE_MOVE":
 			
-			String gameState = args[3];
+			gameState = args[3];
 			currentGameState = client.parseGameState(gameState); //$STATUS;$CURRENT_PLAYER;$BOARD
 				
 			board.update(currentGameState[2]); //elke keer bij ackn move moet je board updaten
 			tui.showGame(board);
 			
 			if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
-				userInput = readString("Please enter a move (index) or pass with '-1' \r Enter 'EXIT' to exit the game");
-				if (!userInput.equals("EXIT")) {
-					lastMove = Integer.parseInt(userInput);
-					return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+lastMove;
+				
+				if (this.client.getClientName().contains("ComputerPlayer")) { //if Computer Player do random move, does it take previous board states into consideration though?
+					return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+board.determineRandomValidMove(color, 3000);
 				} else {
-					return "EXIT+"+GAME_ID+"+"+client.getClientName();
+					System.out.println("Please enter a move (index) or pass with '-1' \r Enter 'EXIT' to exit the game");
+					System.out.println("(HINT: The following would be a valid move: " + board.determineRandomValidMove(color, 3000) + ")");
+					userInput = readString("");
+					if (!userInput.equals("EXIT")) {
+						lastMove = Integer.parseInt(userInput);
+						return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+lastMove;
+					} else {
+						return "EXIT+"+GAME_ID+"+"+client.getClientName();
+					}
 				}
-
 			} 
 			break;
 			
