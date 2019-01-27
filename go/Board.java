@@ -423,6 +423,23 @@ public class Board {
     	
     }
     
+    public boolean boardIsEmpty() {
+    	int empty = 0;
+    	for (int i = 0; i < fields.length; i++) {
+    		if (fields[i] == Color.EMPTY) {
+    			empty++;
+    		}
+    	}
+    		
+    	if (empty >= fields.length) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    	
+	
+    }
+    
     /***
      * Calculates the score at the end of the game
      * White gets bonus points in the amount of 0.5 points for being second player
@@ -435,6 +452,13 @@ public class Board {
     	double scoreWhite = 0;
     	double scoreBlack = 0;
     	ArrayList<Integer> checkFields = new ArrayList<>();
+    	
+    	
+    	if (boardIsEmpty()) {
+        	score[0] = scoreBlack;
+        	score[1] = scoreWhite + 0.5;
+    		return score;
+    	}
     	
     	for (int i = 0; i < fields.length; i++) { //get an array containing all indexes of the board
     		checkFields.add(i);

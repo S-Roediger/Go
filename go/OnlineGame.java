@@ -10,6 +10,7 @@ public class OnlineGame extends Thread {
 
 	
 	private Board board;
+
 	private int current;
 	private Player[] players;
 	private Lobby lobby;
@@ -17,6 +18,7 @@ public class OnlineGame extends Thread {
 	private int dim;
 	private int currentPlayerAckn = 1;
 	private boolean exit = false;
+
 
 	
 	public OnlineGame(int dim, Lobby lobby, Player p0, Player p1) {
@@ -93,13 +95,14 @@ public class OnlineGame extends Thread {
 				handleSuicide(players[current].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
 				board.resetPass();
 			}
-			int playerWhoMadeLastMove = current +1; //player who made most recent move, needed for protocol
+			playerWhoMadeLastMove = current +1; //player who made most recent move, needed for protocol
 			current = (current + 3) % 2;
 			this.currentPlayerAckn = current + 1;
 			lobby.broadcast("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus());
 			System.out.println("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus());
 		}
-		lobby.broadcast("GAME_FINISHED+"+lobby.getGameID()+"+"+getWinner()+"+"+getScore(getWinner()));
+		//lobby.broadcast("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus()); //dit is nodig om laatste move nog te ackn met gameStatus: FINISHED
+		lobby.broadcast("GAME_FINISHED+"+lobby.getGameID()+"+"+getWinner()+"+"+getScore()+"+The game has ended since both players passed");
 	}
 		
 	/***
@@ -177,22 +180,17 @@ public class OnlineGame extends Thread {
 			//System.out.println("White has won!");
 			return players[1].getName();
 		} else if (score[0] == score[1]) {
-			return "draw"; //TODO what to do in case of draw?
+			return "draw"; //TODO what to do in case of draw? WE DO NOT HAVE A DRAW EVER SINCE WHITE GETS .5 POINTS AT THE END AND IN GAME YOU CANNOT EARN HALF POINTS
 			//System.out.println("There is a draw! Both players win!");
 		}
 		return "";
 	}
 	
 	
-	public double getScore(String name) {
-		String winner = this.getWinner();
+	public String getScore() {
 		double[] score = board.getScore();
-		Color winnerColor = lobby.getColor(winner);
-		if (winnerColor == Color.BLACK) {
-			return score[0];
-		} else {
-			return score[1];
-		}
+		String result = score[0]+";"+score[1];
+		return result;
 	}
 	
 	public synchronized String getBoardString() {

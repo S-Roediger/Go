@@ -45,6 +45,7 @@ public class Client extends Thread{
 			
 			//making client object
 
+
 			
 			String clientName = args[0];
 			Client client = new Client(clientName, host, port);
@@ -125,6 +126,7 @@ public class Client extends Thread{
 	/** send a message to a ClientHandler. 
 	 * @throws IOException */
 	public void sendMessage(String msg) {
+		System.out.println("Send Message: "+msg);
 		try {
 			//System.out.println("Im in the sendMessage() and send this: " +msg);
 			out.write(msg);
@@ -171,15 +173,14 @@ public class Client extends Thread{
 	public String[] receiveAnswer() {
 		String[] args = new String[20];
 		String a;
+		
 		try {
 			
 			a = in.readLine();
 			if ( a != null ) {
 				args = a.split("\\+");
 				return args;
-			}
-			
-			
+			}	
 
 		} catch (IOException e) {
 			e.printStackTrace();

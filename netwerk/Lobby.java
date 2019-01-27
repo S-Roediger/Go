@@ -146,7 +146,7 @@ public class Lobby {
     	//	currentPlayer = 2;
     	//}
     	
-    	if (!game.gameOver()) { //hier moet eigenlijk: als het niet de laatste set is
+    	if (!game.gameOver()) { //dit klopt
     		return "PLAYING;"+currentPlayer+";"+board;
     	}
     	return "FINISHED;"+currentPlayer+";"+board;
