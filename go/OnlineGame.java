@@ -95,9 +95,9 @@ public class OnlineGame extends Thread {
 				handleSuicide(players[current].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
 				board.resetPass();
 			}
-			playerWhoMadeLastMove = current +1; //player who made most recent move, needed for protocol
+			int playerWhoMadeLastMove = current +1; //player who made most recent move, needed for protocol, +1 needed to translate to color 1=black, white =2
 			current = (current + 3) % 2;
-			this.currentPlayerAckn = current + 1;
+			this.currentPlayerAckn = current + 1; //player whos next, needed for protocol --> asked by lobby.getStatus()
 			lobby.broadcast("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus());
 			System.out.println("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus());
 		}
