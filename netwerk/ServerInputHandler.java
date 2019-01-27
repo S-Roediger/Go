@@ -98,26 +98,32 @@ public class ServerInputHandler {
 			
 			if(!game.getBoard().gameOver() || game.getExit()) {
 				//choice = game.getPlayers()[game.getCurrent()].determineMove(); //get player choices
-				if (!game.getBoard().isValidMove(choice, game.getPlayers()[game.getCurrent()].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
-					ch.getLobby().broadcast("INVALID_MOVE+Invalid move");; //loop to ask again in case of faulty input
+				if (game.getBoard().isValidMove(choice, game.getPlayers()[game.getCurrent()].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
+					
+					if (choice == -1) { 				// enforce pass rule
+						game.getBoard().increasePass();
+					} else if (choice == -99) {
+						game.setExit(true);
+					} else {
+						game.getPlayers()[game.getCurrent()].makeMove(game.getBoard(), choice);
+						game.handleCapture(Color.getOther(game.getPlayers()[game.getCurrent()].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
+						game.handleCapture(game.getPlayers()[game.getCurrent()].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
+						game.handleSuicide(game.getPlayers()[game.getCurrent()].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
+						game.getBoard().resetPass();
+					}
+					int playerWhoMadeLastMove = game.getCurrent() +1; //player who made most recent move, needed for protocol
+					game.setCurrent((game.getCurrent()+3) %2);
+					game.setCurrentPlayer(game.getCurrent() + 1);
+					ch.getLobby().broadcast("ACKNOWLEDGE_MOVE+"+ch.getLobby().getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+ch.getLobby().getStatus());
+					System.out.println("ACKNOWLEDGE_MOVE+"+ch.getLobby().getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+ch.getLobby().getStatus());
+				
+					
+
 					//choice = players[current].determineMove();
-				}		
-				if (choice == -1) { 				// enforce pass rule
-					game.getBoard().increasePass();
-				} else if (choice == -99) {
-					game.setExit(true);
 				} else {
-					game.getPlayers()[game.getCurrent()].makeMove(game.getBoard(), choice);
-					game.handleCapture(Color.getOther(game.getPlayers()[game.getCurrent()].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
-					game.handleCapture(game.getPlayers()[game.getCurrent()].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
-					game.handleSuicide(game.getPlayers()[game.getCurrent()].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
-					game.getBoard().resetPass();
+					ch.getLobby().broadcast("INVALID_MOVE+Invalid move"); //loop to ask again in case of faulty input
+					System.out.println("INVALID MOVE!");
 				}
-				int playerWhoMadeLastMove = game.getCurrent() +1; //player who made most recent move, needed for protocol
-				game.setCurrent((game.getCurrent()+3) %2);
-				game.setCurrentPlayer(game.getCurrent() + 1);
-				ch.getLobby().broadcast("ACKNOWLEDGE_MOVE+"+ch.getLobby().getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+ch.getLobby().getStatus());
-				System.out.println("ACKNOWLEDGE_MOVE+"+ch.getLobby().getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+ch.getLobby().getStatus());
 			} else {
 				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
 			}
