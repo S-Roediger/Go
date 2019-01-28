@@ -31,44 +31,43 @@ public class Client extends Thread{
 		InetAddress host=null;
 		int port =0;
 
-		try {
-			String hostInput = readString("Please enter the server hostname or ip-address.");
-			host = InetAddress.getByName(hostInput);
-		} catch (UnknownHostException e) {
-			print("The name you entered was no valid hostname!");
-			String hostInput = readString("Please enter a valid server hostname or ip-address.");
+		
+		boolean correctHostname = false;
+		String hostInput;
+		while (!correctHostname) {
 			try {
+				hostInput = readString("Please enter the server hostname or ip-address.");
 				host = InetAddress.getByName(hostInput);
-			} catch (UnknownHostException e1) {
-				print("You entered an invalid hostname twice. The system will shutdown now.");
-				System.exit(0);
+				correctHostname = true;
+			} catch (UnknownHostException e) {
+				print("The name you entered was no valid hostname!");
+				hostInput = readString("Please enter the server hostname or ip-address.");
 			}
+		}
 			
+		
+			
+		boolean validPort = false;
+		String portInput;
+		while (!validPort) {
+			try {
+				portInput = readString("Please enter the port number of the server.");
+				port = Integer.parseInt(portInput);
+				validPort = true;
+			} catch (NumberFormatException e) {
+				print("The port you entered was no valid portnummer!");
+				portInput = readString("Please enter the port number of the server.");
+			}
 		}
 
-		try {
-			String portInput = readString("Please enter the port number of the server.");
-			port = Integer.parseInt(portInput);
-		} catch (NumberFormatException e) {
-			print("The port you entered was no valid portnummer!");
-			String portInput = readString("Please enter a valid port number of the server.");
-			try {
-				port = Integer.parseInt(portInput);
-			} catch (NumberFormatException e1) {
-				print("You entered an invalid port number twice. The system will shutdown now");
-				System.exit(0);
-			}
-		}
+		
 
 		try {
 			
 			//making client object
-
-
-			
-			//String clientName = args[0];
 			Client client = new Client(clientName, host, port);
 
+			//set client computer move time
 			if (clientName.equals("ComputerPlayer")) {
 				client.setComputerMoveTime(moveTime);
 			}
@@ -78,11 +77,6 @@ public class Client extends Thread{
 			client.sendMessage("HANDSHAKE+"+clientName);
 			
 			client.start();
-			
-			//do{ // wat doet dit precies?
-			//	String input = readString("");
-			//	client.sendMessage(input);
-			//}while(true);
 			
 		} catch (IOException e) {
 			print("ERROR: couldn't construct a client object!");
@@ -120,36 +114,24 @@ public class Client extends Thread{
 	}
 	
 	/**
-	 * Reads the messages in the socket connection. Each message will
-	 * be forwarded to the MessageUI
+	 * Reads the messages in the socket connection. Each message will be checked for action in the clientinputHandler
+	 * 
 	 */
 	public void run() {
 		
-		
-		
 		while (true) {
 			String[] input = this.receiveAnswer();
-			
+		
 			if (input != null) {
 				String msg = this.getCIH().checkInput(input);
 				if ( msg!= null) {
 					this.sendMessage(msg);
 				}
 			}
-			
+		
 		}
 		
-		
-		/*try {
-			String line = in.readLine();
-			while (line != null) {
-				print(line);
-				line = in.readLine();
-			}
-			shutdown();
-		} catch (IOException e) {
-			shutdown();
-		} */
+
 	}
 	
 	public ClientInputHandler getCIH() {
@@ -161,7 +143,6 @@ public class Client extends Thread{
 	public void sendMessage(String msg) {
 		System.out.println("Send Message: "+msg);
 		try {
-			//System.out.println("Im in the sendMessage() and send this: " +msg);
 			out.write(msg);
 			out.newLine();
 			out.flush();
@@ -233,7 +214,7 @@ public class Client extends Thread{
 	}
 	
 	public static String readString(String tekst) {
-		System.out.print(tekst);
+		System.out.println(tekst);
 		String antw = null;
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(

@@ -19,6 +19,9 @@ public class GUI {
 		gogui.setBoardSize(boardSize);
 	}
 	
+	public void stop() {
+		
+	}
 	
 	public void update(String s) {
 		char[] c = s.toCharArray();

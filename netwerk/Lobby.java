@@ -18,11 +18,12 @@ public class Lobby {
 	private HashMap<String, Integer> players = new HashMap<>();
 	private int[] currentMove;
 	private boolean config = false;
-
+	private int rematch;
 	private Color[] colors = new Color[2];
 	private GameState gameState;
 	private boolean gameStarted = false;
-	
+	private boolean rematchSet = false;
+	private int rematchCounter = 0;
 	//hier moet een spel gestart
 	public Lobby(int gameID) {
 		this.gameID = gameID;
@@ -33,6 +34,8 @@ public class Lobby {
 	public synchronized GameState getGameState() {
 		return this.gameState;
 	}
+	
+	
 	
 	/***
 	 * starts the game
@@ -50,7 +53,45 @@ public class Lobby {
 		game.start();
 		
 	}
-
+	
+	public void startRematch() {
+		this.game = new OnlineGame(dim, this, handlers.get(0).getPlayer(), handlers.get(1).getPlayer());
+		for (ClientHandler ch:handlers) { // CH moeten nog ackn config krijgen
+			ch.ackn_config();
+		}
+		
+		game.start();
+	}
+ 
+	public synchronized void setRematch(boolean b) {
+		if (b) {
+			this.rematch++;
+		}
+		rematchCounter++;
+		System.out.println("Rematch[] "+ rematch);
+		if (rematchCounter > 1) { //check whether both players have answered rematch_request
+			rematchSet = true;
+			
+		}
+	}
+	
+	public boolean getRematchSet() {
+		return this.rematchSet;
+	}
+	
+	public void setRematchSetFalse() {
+		this.rematchSet = false;
+	}
+	
+	public boolean rematch() {
+		if (rematch > 1) {
+			this.rematch = 0;
+			return true;
+			
+		}
+		return false;
+	}
+	
 	public OnlineGame getGame() {
 		return this.game;
 	}

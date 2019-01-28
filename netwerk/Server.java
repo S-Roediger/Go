@@ -1,6 +1,9 @@
 package netwerk;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -34,12 +37,17 @@ public class Server {
 
     /** Start een Server-applicatie op. */
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println(USAGE);
-            System.exit(0);
-        }
-        
-        Server server = new Server(Integer.parseInt(args[0]));
+
+        System.out.println("Please enter a port number.");
+        String antw = null;
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			antw = in.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		Server server = new Server(Integer.parseInt(antw));
         server.run();
         
     }
@@ -65,7 +73,25 @@ public class Server {
      */
     public void run() {
     	try {
-			ServerSocket ssocket = new ServerSocket(port); //TODO Add appropriate error exception so that you can try again
+    		ServerSocket ssocket = null;
+    		boolean correctPort = false;
+    		while (!correctPort) {
+    			try {
+    				ssocket = new ServerSocket(port); 
+    				correctPort = true;
+    			} catch (BindException e) {
+    				System.out.println("You entered a portnumber that is already in use. Please enter another port number");
+    		        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    				try {
+    					this.port = Integer.parseInt(in.readLine());
+    				} catch (IOException e1) {
+    					e1.printStackTrace();
+    				}
+    			}
+    		}
+    		
+
+			//TODO Add appropriate error exception so that you can try again
 			while (true) {
 				Socket s = ssocket.accept();
 				
