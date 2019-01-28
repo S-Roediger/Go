@@ -101,7 +101,9 @@ public class Server {
 				ch.addLobbie(joinLobby(ch));
 				System.out.println("Added handler to lobby");
 				//first add handler to threads, then assign/create lobby object and then finally start ch
-				ch.start();
+				ch.start(); //ch moet eerst handshake kunnen sturen 
+				
+				startGameInFullLobbies(); //voordat we hier een nieuw game beginnen
 				
 				
 				
@@ -112,6 +114,15 @@ public class Server {
 		}
     }
     
+    
+    public void startGameInFullLobbies() {
+    	Collection<Integer> gameIds = gameLobbies.keySet();
+    	for (int k:gameIds) {
+    		if (this.gameLobbies.get(k).isFull() && this.gameLobbies.get(k).getConfig()) {
+				this.gameLobbies.get(k).startGame();
+    		}
+    	}
+    }
     
     /***
      * Let a clientHandler join a lobby, when there is no lobby with a free spot, create a new one
@@ -126,9 +137,6 @@ public class Server {
     		if(!this.gameLobbies.get(k).isFull()) {
     			joined = this.gameLobbies.get(k).addClient(ch);
     			joinedLobby = this.gameLobbies.get(k);
-    			if (this.gameLobbies.get(k).isFull() && this.gameLobbies.get(k).getConfig()) {
-    				this.gameLobbies.get(k).startGame();
-    			}
     		}
     	}
     	if (!joined) {
