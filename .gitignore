@@ -1,5 +1,5 @@
 ### LaTeX ###
-.pdf
+*.pdf
 .DS_Store
 *.tex
 *.vpp
