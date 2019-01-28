@@ -162,9 +162,8 @@ public class ClientInputHandler {
 		case "ACKNOWLEDGE_REMATCH":
 			if (Integer.parseInt(args[1]) == 1) {
 				rematch = true;
-				
 				gui.clearBoard();
-			
+				System.out.println("You both agreed to have a rematch! \r");
 				
 			} else {
 				rematch = false;

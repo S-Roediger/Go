@@ -94,7 +94,7 @@ public class ServerInputHandler {
 			
 			ch.getLobby().setRematch(rematch);
 			if (ch.getLobby().getRematchSet()) {
-				//ch.getLobby().setRematchSetFalse(); //to reset this for next rematch
+				ch.getLobby().setRematchSetFalse(); //to reset this for next rematch
 				if (ch.getLobby().rematch()) {
 					ch.getLobby().broadcast("ACKNOWLEDGE_REMATCH+1");
 					System.out.println("Server: ACKNOWLEDGE_REMATCH+1");

@@ -71,7 +71,7 @@ public class Lobby {
 		System.out.println("Rematch[] "+ rematch);
 		if (rematchCounter > 1) { //check whether both players have answered rematch_request
 			rematchSet = true;
-			this.rematch = 0;
+			
 		}
 	}
 	
@@ -85,7 +85,9 @@ public class Lobby {
 	
 	public boolean rematch() {
 		if (rematch > 1) {
+			this.rematch = 0;
 			return true;
+			
 		}
 		return false;
 	}
