@@ -31,34 +31,36 @@ public class Client extends Thread{
 		InetAddress host=null;
 		int port =0;
 
-		try {
-			String hostInput = readString("Please enter the server hostname or ip-address.");
-			host = InetAddress.getByName(hostInput);
-		} catch (UnknownHostException e) {
-			print("The name you entered was no valid hostname!");
-			String hostInput = readString("Please enter a valid server hostname or ip-address.");
+		
+		boolean correctHostname = false;
+		String hostInput;
+		while (!correctHostname) {
 			try {
+				hostInput = readString("Please enter the server hostname or ip-address.");
 				host = InetAddress.getByName(hostInput);
-			} catch (UnknownHostException e1) {
-				print("You entered an invalid hostname twice. The system will shutdown now.");
-				System.exit(0);
+				correctHostname = true;
+			} catch (UnknownHostException e) {
+				print("The name you entered was no valid hostname!");
+				hostInput = readString("Please enter the server hostname or ip-address.");
 			}
+		}
 			
+		
+			
+		boolean validPort = false;
+		String portInput;
+		while (!validPort) {
+			try {
+				portInput = readString("Please enter the port number of the server.");
+				port = Integer.parseInt(portInput);
+				validPort = true;
+			} catch (NumberFormatException e) {
+				print("The port you entered was no valid portnummer!");
+				portInput = readString("Please enter the port number of the server.");
+			}
 		}
 
-		try {
-			String portInput = readString("Please enter the port number of the server.");
-			port = Integer.parseInt(portInput);
-		} catch (NumberFormatException e) {
-			print("The port you entered was no valid portnummer!");
-			String portInput = readString("Please enter a valid port number of the server.");
-			try {
-				port = Integer.parseInt(portInput);
-			} catch (NumberFormatException e1) {
-				print("You entered an invalid port number twice. The system will shutdown now");
-				System.exit(0);
-			}
-		}
+		
 
 		try {
 			
