@@ -44,7 +44,7 @@ public class ServerInputHandler {
 	
 	public void checkInput(String[] input) {
 		this.game = ch.getLobby().getGame();
-		//String[] args = input.split("\\+");
+		System.out.println("Output "+game+":");
 		
 		switch (input[0]) {
 		
@@ -57,15 +57,16 @@ public class ServerInputHandler {
 			if(ch.getLobby().isLeader(ch)) {
 				ch.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+ch.getLobby().getGameID()+"+"+1); 
 		    	ch.sendMessage("REQUEST_CONFIG+Please provide a preferred configuration by entering board size and preferred color (e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE");
-
-				//ch.getLobby().getGameState().changeState("CONNECTION+FIRST");
-
+		    	
+		    	System.out.println("ACKNOWLEDGE_HANDSHAKE+"+ch.getLobby().getGameID()+"+"+1);
+		    	System.out.println("REQUEST_CONFIG+Please provide a preferred configuration by entering board size and preferred color (e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE");
+		    	
 			} else if (!ch.getLobby().isLeader(ch) && ch.getLobby().getConfig()){
 				ch.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+ch.getLobby().getGameID()+"+"+0);
+				System.out.println("ACKNOWLEDGE_HANDSHAKE+"+ch.getLobby().getGameID()+"+"+0);
 				ch.getLobby().setColor(clientName, ch.getLobby().getColors()[1]);
 				c = ch.getLobby().getColors()[1];
 				this.secondPlayerAckn = true;
-				//ch.getLobby().getGameState().changeState("CONNECTION+SECOND");
 			}
 			break;
 			
@@ -126,20 +127,19 @@ public class ServerInputHandler {
 				}
 			} else {
 				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
-			}
-			
-		
-			
-			
+				System.out.println("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
+			}		
 		
 			break;
 			
 		case "EXIT": 
-			//deal with this
+			ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());  
+			System.out.println("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
 			break;
 			
 		default:
-			ch.getLobby().broadcast("UNKNOWN_COMMAND");
+			ch.getLobby().broadcast("UNKNOWN_COMMAND+Unknown command");
+			System.out.println("UNKNOWN_COMMAND+Unknown command");
 			
 
 		}

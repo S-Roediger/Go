@@ -65,12 +65,9 @@ public class Client extends Thread{
 		try {
 			
 			//making client object
-
-
-			
-			//String clientName = args[0];
 			Client client = new Client(clientName, host, port);
 
+			//set client computer move time
 			if (clientName.equals("ComputerPlayer")) {
 				client.setComputerMoveTime(moveTime);
 			}
@@ -80,11 +77,6 @@ public class Client extends Thread{
 			client.sendMessage("HANDSHAKE+"+clientName);
 			
 			client.start();
-			
-			//do{ // wat doet dit precies?
-			//	String input = readString("");
-			//	client.sendMessage(input);
-			//}while(true);
 			
 		} catch (IOException e) {
 			print("ERROR: couldn't construct a client object!");
@@ -122,24 +114,24 @@ public class Client extends Thread{
 	}
 	
 	/**
-	 * Reads the messages in the socket connection. Each message will
-	 * be forwarded to the MessageUI
+	 * Reads the messages in the socket connection. Each message will be checked for action in the clientinputHandler
+	 * 
 	 */
 	public void run() {
 		
-		
-		
 		while (true) {
 			String[] input = this.receiveAnswer();
-			
+		
 			if (input != null) {
 				String msg = this.getCIH().checkInput(input);
 				if ( msg!= null) {
 					this.sendMessage(msg);
 				}
 			}
-			
+		
 		}
+		
+
 	}
 	
 	public ClientInputHandler getCIH() {
@@ -151,7 +143,6 @@ public class Client extends Thread{
 	public void sendMessage(String msg) {
 		System.out.println("Send Message: "+msg);
 		try {
-			//System.out.println("Im in the sendMessage() and send this: " +msg);
 			out.write(msg);
 			out.newLine();
 			out.flush();

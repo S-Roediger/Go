@@ -445,7 +445,7 @@ public class Board {
      * White gets bonus points in the amount of 0.5 points for being second player
      * @return an int array containing the final score of both players
      */
-    public double[] getScore() { //TODO
+    public double[] getScore() { 
     	//needs to be called after (&before) getGroups() is called, to make sure list is reset for next call
     	this.checkedStonesGetGroup.clear();
     	double[] score = new double[2];
@@ -464,11 +464,11 @@ public class Board {
     		checkFields.add(i);
     		if (fields[i].equals(Color.BLACK)) { //add a point to black score for every black stone
     			scoreBlack++;
-    			//System.out.println("I just assigned a point to black for a stone on field : "+i);
+    			
     		}
     		if (fields[i].equals(Color.WHITE)) { // add a point to white 
     			scoreWhite++;
-    			//System.out.println("I just assigned a point to white for a stone on field : "+i);
+    			
     		}
     	}
     	
@@ -477,15 +477,13 @@ public class Board {
     		if (checkFields.contains(j) && fields[j].equals(Color.EMPTY)) {
     			getGroup(j, Color.EMPTY, group); //find empty groups
     			
-    			//System.out.println("This group is currently checked "+group);
-    			//System.out.println("This group is captured by white: "+isCaptured(Color.WHITE, group));
-    			//System.out.println("This group is captured by black: "+isCaptured(Color.BLACK, group));
-    			if (isCaptured(Color.WHITE, group)) { 	//if white "captured"/owned this area
-    				scoreWhite+= group.size();	//assign one point per owned field to white
-    				//System.out.println("I just assigned this amount of points to white: "+group.size());
+    			
+    			if (isCaptured(Color.WHITE, group)) { 
+    				scoreWhite+= group.size();	
+    				
     			} else if (isCaptured(Color.BLACK, group)) {	//if it was owned by black
     				scoreBlack+= group.size();	//assign points to black
-    				//System.out.println("I just assigned this amount of points to black: "+group.size());
+    				
     			}
     			
     			for (int k = 0; k < group.size(); k++) {
@@ -576,9 +574,6 @@ public class Board {
     
 // ------------------------ TUI ---------------------- //	
 	
-    //private static final String[] NUMBERING = {" 0 | 1 | 2 ", "---+---+---",
-   //     " 3 | 4 | 5 ", "---+---+---", " 6 | 7 | 8 "};
-    //private static final String LINE = NUMBERING[82];
     private static final String DELIM = "     \r";
 	
     /**
@@ -588,7 +583,7 @@ public class Board {
      * @return the game situation as String
      */
 	
-    public String toString() { //TODO
+    public String toString() { 
         String s = "";
         for (int k = 0; k < dim; k++) {
         	s = s + "----------";
@@ -609,18 +604,13 @@ public class Board {
                     row = row + "|";
                 }
             }
-            s = s + row + DELIM; //+ NUMBERING[i * 2];
+            s = s + row + DELIM; 
             for (int k = 0; k < dim; k++) {
             	s = s + "----------";
             }
             s = s + DELIM;
         }
         
-            
-            
-           // if (i < dim - 1) {
-             //   s = s + "\n" + LINE + DELIM + NUMBERING[i * 2 + 1] + "\n";
-            //}
         
         
         
