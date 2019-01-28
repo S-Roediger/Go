@@ -227,7 +227,7 @@ public class ClientInputHandler {
 		case "GAME_FINISHED":
 			winner = args[2];
 			score = client.parseGameState(args[3]);
-			System.out.println(winner + " has won. \r Black has " + score[0] + " points. \r White has " + score[1] + " points." + args[4]);
+			System.out.println(winner + " has won. \r"+"Black has " + score[0] + " points. \r"+"White has " + score[1] + " points. \r" + args[4]);
 			
 			
 			break;
