@@ -137,6 +137,10 @@ public class ServerInputHandler {
 		case "EXIT": 
 			//deal with this
 			break;
+			
+		default:
+			ch.getLobby().broadcast("UNKNOWN_COMMAND");
+			
 
 		}
 	}

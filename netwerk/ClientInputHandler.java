@@ -57,11 +57,20 @@ public class ClientInputHandler {
 			String userInput = readString(args[1]); 
 			String[] userInputSplit = userInput.split(" "); 
 			int tempColor = 0;
+			
+			
+			//while (!userInputSplit[0].equals("white") || !userInputSplit[0].equals("black")) { //&& userInputSplit[1].matches("\\d+")
+			//	userInput = readString("Your previous command was unknown, please retry. \r"+args[1]); 
+			//	userInputSplit = userInput.split(" "); 
+			//}
 			if (userInputSplit[0].equals("white")) {
 				tempColor = 2;
 			} else {
 				tempColor = 1;
 			}
+		
+			
+
 			
 			return "SET_CONFIG+"+GAME_ID+"+"+tempColor+"+"+userInputSplit[1];	
 			
