@@ -20,6 +20,19 @@ public class GUI {
 	}
 	
 	
+	public void update(String s) {
+		char[] c = s.toCharArray();
+		
+		for (int i = 0; i < c.length; i++) {
+			if (c[i] == '0') {
+				removeStone(i);
+			} else if (c[i] == '1') {
+				addStone(i, Color.BLACK);
+			} else if (c[i] == '2') {
+				addStone(i, Color.WHITE);
+			}
+		}
+	}
 	
 	/***
 	 * Method to turn index into coordinates x, y
@@ -54,12 +67,9 @@ public class GUI {
 	 * Method to remove stone at intersection i
 	 * @param i - index of to be cleared intersection
 	 */
-	public void removeStone(ArrayList<Integer> i) {
-		for (int index:i) {
-			int[] coordinates = getCoordinates(index);
-			gogui.removeStone(coordinates[0], coordinates[1]);
-		}
-
+	public void removeStone(int i) {
+		int[] coordinates = getCoordinates(i);
+		gogui.removeStone(coordinates[0], coordinates[1]);
 	}
 	
 	/***

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 
 import go.Board;
 import go.Color;
+import view.GUI;
 import view.TUI;
 
 public class ClientInputHandler {
@@ -19,10 +20,13 @@ public class ClientInputHandler {
 	private String[] currentGameState;
 	private int lastMove;
 	private TUI tui;
+	private GUI gui;
 	private Board board;
 	private String winner;
 	private String[] score;
 	private boolean rematch = false;
+	private int hint;
+	private int invalidCounter;
 	
 	public ClientInputHandler(Client client) {
 		this.client = client;
@@ -53,11 +57,20 @@ public class ClientInputHandler {
 			String userInput = readString(args[1]); 
 			String[] userInputSplit = userInput.split(" "); 
 			int tempColor = 0;
+			
+			
+			//while (!userInputSplit[0].equals("white") || !userInputSplit[0].equals("black")) { //&& userInputSplit[1].matches("\\d+")
+			//	userInput = readString("Your previous command was unknown, please retry. \r"+args[1]); 
+			//	userInputSplit = userInput.split(" "); 
+			//}
 			if (userInputSplit[0].equals("white")) {
 				tempColor = 2;
 			} else {
 				tempColor = 1;
 			}
+		
+			
+
 			
 			return "SET_CONFIG+"+GAME_ID+"+"+tempColor+"+"+userInputSplit[1];	
 			
@@ -90,6 +103,9 @@ public class ClientInputHandler {
 			tui = new TUI();
 			board = new Board(boardSize, currentGameState[2]);
 			tui.showGame(board);
+			gui = new GUI(boardSize);
+			gui.update(currentGameState[2]);
+			
 			
 			
 			if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
@@ -120,6 +136,7 @@ public class ClientInputHandler {
 				
 			board.update(currentGameState[2]); //elke keer bij ackn move moet je board updaten
 			tui.showGame(board);
+			gui.update(currentGameState[2]);
 			
 			if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
 				
@@ -127,7 +144,9 @@ public class ClientInputHandler {
 					return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+board.determineRandomValidMove(color, 3000);
 				} else {
 					System.out.println("Please enter a move (index) or pass with '-1' \r Enter 'EXIT' to exit the game");
-					System.out.println("(HINT: The following would be a valid move: " + board.determineRandomValidMove(color, 3000) + ")");
+					hint = board.determineRandomValidMove(color, 3000);
+					System.out.println("(HINT: The following would be a valid move: " + hint + ")");
+					gui.addHintIndicator(hint);
 					userInput = readString("");
 					if (!userInput.equals("EXIT")) {
 						lastMove = Integer.parseInt(userInput);
@@ -148,11 +167,57 @@ public class ClientInputHandler {
 			return null;
 			
 		case "INVALID_MOVE":
-			// handle this
+			
+			if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
+				
+				if (this.client.getClientName().contains("ComputerPlayer")) { 
+					if (invalidCounter > 10) {
+						return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+"-1";
+					} else {
+						invalidCounter++;
+						return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+board.determineRandomValidMove(color, 3000);
+					}
+					
+					
+				} else {
+					System.out.println(args[1] + "\r");
+					System.out.println("Please enter another move (index) or pass with '-1' \r Enter 'EXIT' to exit the game");
+					gui.removeHintIndicator();
+					hint = board.determineRandomValidMove(color, 3000);
+					System.out.println("(HINT: The following would be a valid move: " + hint + ")");
+					gui.addHintIndicator(hint);
+					userInput = readString("");
+					if (!userInput.equals("EXIT")) {
+						lastMove = Integer.parseInt(userInput);
+						return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+lastMove;
+					} else {
+						return "EXIT+"+GAME_ID+"+"+client.getClientName();
+					}
+				}
+			}
 			break;
 			
 		case "UNKNOWN_COMMAND":
-			// handle this
+			if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
+				
+				if (this.client.getClientName().contains("ComputerPlayer")) { //if Computer Player do random move, does it take previous board states into consideration though?
+					return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+board.determineRandomValidMove(color, 3000);
+				} else {
+					System.out.println("You just entered an unkown command. \r");
+					System.out.println("Please enter another move (index) or pass with '-1' \r Enter 'EXIT' to exit the game");
+					gui.removeHintIndicator();
+					hint = board.determineRandomValidMove(color, 3000);
+					System.out.println("(HINT: The following would be a valid move: " + hint + ")");
+					gui.addHintIndicator(hint);
+					userInput = readString("");
+					if (!userInput.equals("EXIT")) {
+						lastMove = Integer.parseInt(userInput);
+						return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+lastMove;
+					} else {
+						return "EXIT+"+GAME_ID+"+"+client.getClientName();
+					}
+				}
+			}
 			break;
 			
 		case "GAME_FINISHED":
@@ -161,7 +226,7 @@ public class ClientInputHandler {
 			System.out.println(winner + " has won. \r Black has " + score[0] + " points. \r White has " + score[1] + " points.");
 			
 			
-			return null;
+			break;
 		}
 		return null;
 	}
