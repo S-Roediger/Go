@@ -13,8 +13,6 @@ import go.HumanPlayer;
 import go.Player;
 
 
-//hier ook game aanmaken 
-//computerplayer??
 
 public class ClientHandler extends Thread {
     private Server server;
@@ -105,10 +103,10 @@ public class ClientHandler extends Thread {
     		while (true) {
     			String line = in.readLine();
     			String[] answer;
-    			//if (line != null) {
-    				answer = readAnswer(line);
-    				sih.checkInput(answer);
-    			//}
+    			
+    			answer = readAnswer(line);
+    			sih.checkInput(answer);
+    			
     			
     			if (sih.readyToStartGame() && !this.gameStarted) {
     				lobby.startGame();
@@ -116,11 +114,6 @@ public class ClientHandler extends Thread {
     			}
     				
     		}
-    		
-			//this.startProtocol();
-			
-				
-	
 		} catch (IOException e) {
 			shutdown();
 		}
