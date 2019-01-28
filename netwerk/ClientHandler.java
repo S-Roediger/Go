@@ -120,67 +120,12 @@ public class ClientHandler extends Thread {
       
     }
     
-    /***
-     * makes initial connection with client according to protocol
-     * @throws IOException 
-     */
-    public void startProtocol() throws IOException {
-    	String line = in.readLine();
-		String[] answer = readAnswer(line);
-		if (answer.length == 2 && answer[0].equals("HANDSHAKE")) {
-			//ClientName() = answer[1];
-			
-			while (!lobby.getGameState().getState().equals("GAMESTART")) {
-				
-			
-			
-				if(lobby.isLeader(this) && lobby.getGameState().getState().equals("CONNECTION+FIRST")) {
-					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+1); 
-					handleConfig();
-					lobby.getGameState().changeState("CONNECTION+FIRST");
-
-				} else if (!lobby.isLeader(this) && lobby.getGameState().getState().equals("CONNECTION+SECOND")){
-					this.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+lobby.getGameID()+"+"+0);
-					//lobby.setColor(clientName, lobby.getColors()[1]);
-					//c = lobby.getColors()[1];
-					lobby.getGameState().changeState("CONNECTION+SECOND");
-				}
-			}
-			
-			if (!lobby.getGameStarted()) {
-				lobby.startGame();	
-			}
-		}
-    }
-    
     public void ackn_config() {
 		String status = lobby.getStatus();
 		String opponent = lobby.getOpponentName(sih.getClientName());
     	this.sendMessage("ACKNOWLEDGE_CONFIG+"+sih.getClientName()+"+"+Color.getNr(lobby.getColor(sih.getClientName()))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
 		System.out.println("ACKNOWLEDGE_CONFIG+"+sih.getClientName()+"+"+Color.getNr(lobby.getColor(sih.getClientName()))+"+"+lobby.getDim()+"+"+status+"+"+opponent);
 		
-    }
-    
-    /***
-     * handles the config of game with client
-     */
-    public void handleConfig() {
-    	this.sendMessage("REQUEST_CONFIG+Please provide a preferred configuration by entering board size and preferred color (e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE");
-    	try {
-			String[] answer = readAnswer(in.readLine());
-			if (answer.length == 4 && answer[0].equals("SET_CONFIG") && Integer.parseInt(answer[1]) == lobby.getGameID()) {
-				//dim = Integer.parseInt(answer[3]);
-				//preferredColor = Integer.parseInt(answer[2]);
-				//lobby.setDim(dim);
-				
-				//lobby.setColor(clientName, Color.getColor(preferredColor));
-				//c = lobby.getColors()[0];
-				
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-    	
     }
 
     /**

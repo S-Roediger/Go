@@ -138,18 +138,6 @@ public class Client extends Thread{
 			}
 			
 		}
-		
-		
-		/*try {
-			String line = in.readLine();
-			while (line != null) {
-				print(line);
-				line = in.readLine();
-			}
-			shutdown();
-		} catch (IOException e) {
-			shutdown();
-		} */
 	}
 	
 	public ClientInputHandler getCIH() {
@@ -233,7 +221,7 @@ public class Client extends Thread{
 	}
 	
 	public static String readString(String tekst) {
-		System.out.print(tekst);
+		System.out.println(tekst);
 		String antw = null;
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(

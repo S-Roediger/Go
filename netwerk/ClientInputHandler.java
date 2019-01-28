@@ -34,7 +34,7 @@ public class ClientInputHandler {
 	
 	public String checkInput(String[] args) {
 		
-		//String[] args = input.split("\\+");
+		
 		
 		switch (args[0]) {
 		
@@ -49,10 +49,6 @@ public class ClientInputHandler {
 			
 			
 		case "REQUEST_CONFIG":
-			
-			//if (client.getClientName().equals("ComputerPlayer")) { zou kunnen - is dat gewenst?
-			//	return "SET_CONFIG+"+GAME_ID+"+"+2+"+"+9;	
-			//}
 			
 			String userInput = readString(args[1]); 
 			String[] userInputSplit = userInput.split(" "); 
