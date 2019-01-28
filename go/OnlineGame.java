@@ -72,38 +72,7 @@ public class OnlineGame extends Thread {
 	public Player[] getPlayers() {
 		return this.players;
 	}
-	
-	/***
-	 * keeps track of game
-	 */
-	public void play() {
-		int choice = 0;
-		while(!board.gameOver() || exit) {
-			choice = players[current].determineMove(); //get player choices
-			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
-				lobby.broadcast("INVALID_MOVE+Invalid move");; //loop to ask again in case of faulty input
-				choice = players[current].determineMove();
-			}		
-			if (choice == -1) { 				// enforce pass rule
-				board.increasePass();
-			} else if (choice == -99) {
-				exit = true;
-			} else {
-				players[current].makeMove(board, choice);
-				handleCapture(Color.getOther(players[current].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
-				handleCapture(players[current].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
-				handleSuicide(players[current].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
-				board.resetPass();
-			}
-			int playerWhoMadeLastMove = current +1; //player who made most recent move, needed for protocol, +1 needed to translate to color 1=black, white =2
-			current = (current + 3) % 2;
-			this.currentPlayerAckn = current + 1; //player whos next, needed for protocol --> asked by lobby.getStatus()
-			lobby.broadcast("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus());
-			System.out.println("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus());
-		}
-		//lobby.broadcast("ACKNOWLEDGE_MOVE+"+lobby.getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+lobby.getStatus()); //dit is nodig om laatste move nog te ackn met gameStatus: FINISHED
-		lobby.broadcast("GAME_FINISHED+"+lobby.getGameID()+"+"+getWinner()+"+"+getScore()+"+The game has ended since both players passed");
-	}
+
 		
 	/***
 	 * Handles suicide
@@ -206,6 +175,7 @@ public class OnlineGame extends Thread {
 		return board.gameOver();
 	}
 	
+
 	
 	
 }

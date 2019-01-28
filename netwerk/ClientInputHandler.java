@@ -95,11 +95,16 @@ public class ClientInputHandler {
 					"You will be playing on a "+ boardSize+" by "+boardSize+" board. \r"+
 					"Your color will be " + color +"."+ "\r" +
 					"Now GET READY, because the game is about to start!");
-						
-			tui = new TUI();
-			board = new Board(boardSize, currentGameState[2]);
+				
+			if (!rematch) {
+				tui = new TUI();
+				board = new Board(boardSize, currentGameState[2]);
+				gui = new GUI(boardSize);
+			}
+
+			
+			board.update(currentGameState[2]);
 			tui.showGame(board);
-			gui = new GUI(boardSize);
 			gui.update(currentGameState[2]);
 			
 			
@@ -157,6 +162,10 @@ public class ClientInputHandler {
 		case "ACKNOWLEDGE_REMATCH":
 			if (Integer.parseInt(args[1]) == 1) {
 				rematch = true;
+				
+				gui.clearBoard();
+			
+				
 			} else {
 				rematch = false;
 			}
@@ -219,7 +228,7 @@ public class ClientInputHandler {
 		case "GAME_FINISHED":
 			winner = args[2];
 			score = client.parseGameState(args[3]);
-			System.out.println(winner + " has won. \r Black has " + score[0] + " points. \r White has " + score[1] + " points.");
+			System.out.println(winner + " has won. \r Black has " + score[0] + " points. \r White has " + score[1] + " points." + args[4]);
 			
 			
 			break;

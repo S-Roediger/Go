@@ -102,6 +102,7 @@ public class ClientHandler extends Thread {
     		
     		while (true) {
     			String line = in.readLine();
+    			System.out.println(this.getClientName()+": "+line);
     			String[] answer;
     			
     			answer = readAnswer(line);
