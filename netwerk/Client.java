@@ -75,6 +75,7 @@ public class Client extends Thread{
 			
 			//communicatie volgens protocol
 			client.sendMessage("HANDSHAKE+"+clientName);
+			System.out.println("HANDSHAKE+"+clientName);
 			
 			client.start();
 			

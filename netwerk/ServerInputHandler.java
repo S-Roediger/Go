@@ -17,6 +17,7 @@ public class ServerInputHandler {
     private boolean secondPlayerAckn = false;
 	private int choice;
 	private OnlineGame game;
+	private boolean gameFinished;
 	
     public ServerInputHandler(ClientHandler ch) {
     	this.ch = ch;
@@ -74,7 +75,9 @@ public class ServerInputHandler {
 				
 				
 				if (ch.getLobby().isFull() && ch.getLobby().getConfig()) {
+					gameFinished = false;
 					ch.getLobby().startGame();
+					
 					
 				}
 				
@@ -91,6 +94,7 @@ public class ServerInputHandler {
 			c = ch.getLobby().getColors()[0];
 			
 			if (ch.getLobby().isFull() && ch.getLobby().getConfig()) {
+				gameFinished = false;
 				ch.getLobby().startGame();
 				
 			}
@@ -149,16 +153,17 @@ public class ServerInputHandler {
 					ch.getLobby().broadcast("ACKNOWLEDGE_MOVE+"+ch.getLobby().getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+ch.getLobby().getStatus());
 					System.out.println("Server: ACKNOWLEDGE_MOVE+"+ch.getLobby().getGameID()+"+"+choice+";"+playerWhoMadeLastMove+"+"+ch.getLobby().getStatus());
 					
-					if (game.getExit()) {
+					if (game.getExit() && !gameFinished) {
 						ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore()+"+The game was exited by "+game.getPlayers()[playerWhoMadeLastMove-1].getName());
 						System.out.println("Server: GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore()+"+The game was exited by "+game.getPlayers()[playerWhoMadeLastMove-1].getName());
-
+						gameFinished = true;
 					
-					} else if (game.getBoard().gameOver()) {
+					} else if (game.getBoard().gameOver() && !gameFinished) {
 						ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore()+"+The game ended due to 2 passes");
 						System.out.println("Server: GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore()+"+The game ended due to 2 passes");
 						
 						ch.getLobby().broadcast("REQUEST_REMATCH");
+						gameFinished = true;
 					}
  
 					
@@ -166,9 +171,10 @@ public class ServerInputHandler {
 					ch.getLobby().broadcast("INVALID_MOVE+Invalid move"); //loop to ask again in case of faulty input
 					System.out.println("Server: INVALID MOVE+Invalid move");
 				}
-			} else {
+			} else if (!gameFinished) {
 				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
 				System.out.println("Server: GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
+				gameFinished = true;
 			}
 				
 					
@@ -176,8 +182,11 @@ public class ServerInputHandler {
 			break;
 			
 		case "EXIT": 
-			ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());  
-			System.out.println("Server: GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
+			if (!gameFinished) {
+				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());  
+				System.out.println("Server: GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
+			}
+
 			break;
 			
 		default:

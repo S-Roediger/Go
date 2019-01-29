@@ -106,12 +106,6 @@ public class Server {
 				System.out.println("Added handler to lobby");
 				//first add handler to threads, then assign/create lobby object and then finally start ch
 				ch.start(); //ch moet eerst handshake kunnen sturen 
-				
-				//startGameInFullLobbies(); //voordat we hier een nieuw game beginnen
-				
-				
-				
-				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
