@@ -86,20 +86,7 @@ public class Board {
 	 */
 	public void resetPass() {
 		pass = 0;
-	}
-	
-	/***
-	 * Creates a deepCopy from the current board
-	 * @return deepCopy of board
-	 */
-	public Board deepCopy() { //TODO Do I really need this?
-		Board b = new Board(dim);
-		for (int i = 0; i < dim*dim; i++) {
-			b.setField(i, fields[i]);
-		}
-		return b;
 	} 
-	
 	
 	public int index(int row, int col) {
 		return dim*row+col;
@@ -111,15 +98,6 @@ public class Board {
      */
     public boolean isField(int index) {
     	return index >= 0 && index < dim * dim;
-    }
-    
-    /**
-     * Returns true of the (row,col) pair refers to a valid field on the board.
-     *
-     * @return true if 0 <= row < dim && 0 <= col < dim
-     */
-    public boolean isField(int row, int col) {
-        return row >= 0 && row < dim && col >= 0 && col < dim;
     }
     
     /**
@@ -143,7 +121,7 @@ public class Board {
      *            the column of the field
      * @return the color on the field
      */
-    public Color getField(int row, int col) {
+    public Color getField(int row, int col) { //wordt gebruikt in TUI
     	return getField(index(row, col));
     	
     }
@@ -158,21 +136,6 @@ public class Board {
     public boolean isEmptyField(int i) {
     	return fields[i] == Color.EMPTY;
     }
-	
-    /**
-     * Returns true if the field referred to by the (row,col) pair it empty.
-     *
-     * @param row
-     *            the row of the field
-     * @param col
-     *            the column of the field
-     * @return true if the field is empty
-     */
-    public boolean isEmptyField(int row, int col) {
-    	return fields[index(row, col)] == Color.EMPTY;
-    
-    }
-    
     
     /**
      * Returns true if the game is over. The game is over when there is a winner
@@ -278,7 +241,7 @@ public class Board {
      * one color is captured and removed from the board 
      * when all the intersections directly adjacent to it 
      * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
-     * @param Color c - Color of the player that potentially captured a group
+     * @param Color c - Color of the player that potentially captured a group (if single stone is tested), otherwise c needs to be Color.EMPTY since with groups you cannot check for same color neighbour
      * @param ArrayList<Integer> group - Indexes of potentially captured fields
      * @return
      */
@@ -299,7 +262,7 @@ public class Board {
     			if (co.equals(Color.getOther(c))) { //if one of the borders has the opponent color as neighbour, the area is not captured/owned
     				return false;
     			}
-    			if (co.equals(Color.EMPTY)) { //GAAT DIT GOED?? TODO
+    			if (co.equals(Color.EMPTY)) { 
     				freeIntersections++;
     			}
     		}
