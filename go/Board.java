@@ -557,6 +557,7 @@ public class Board {
     	for (int i = 0; i < fields.length; i++) {
     		fieldsIndexCopyPlusPass[i] = i;
     	}
+    	fieldsIndexCopyPlusPass[fieldsIndexCopyPlusPass.length-1] = -1;
     	long startTime = System.currentTimeMillis();
     	long elapsedTime = 0;
     	int random = new Random().nextInt(fieldsIndexCopyPlusPass.length);

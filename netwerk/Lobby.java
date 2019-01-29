@@ -24,6 +24,7 @@ public class Lobby {
 	private boolean gameStarted = false;
 	private boolean rematchSet = false;
 	private int rematchCounter = 0;
+	private int handshake = 0;
 	//hier moet een spel gestart
 	public Lobby(int gameID) {
 		this.gameID = gameID;
@@ -35,6 +36,9 @@ public class Lobby {
 		return this.gameState;
 	}
 	
+	public void increaseHandshake() {
+		this.handshake++;
+	}
 	
 	
 	/***
@@ -155,7 +159,7 @@ public class Lobby {
 	}
 	
 	public boolean isFull() { 
-		if (handlers.size() == 2) {
+		if (handlers.size() == 2 && handshake == 2) { 
 			return true;
 		}
 		return false;

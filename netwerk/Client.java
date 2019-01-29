@@ -25,7 +25,7 @@ public class Client extends Thread{
 		
 	int moveTime = 0;
 	if (clientName.equals("ComputerPlayer")) {
-		moveTime = Integer.parseInt(readString("You indicated that you want to play with a computer player. \r Please enter the maximum 'thinking time' for your computer player."));
+		moveTime = Integer.parseInt(readString("You indicated that you want to play with a computer player. \r"+ "Please enter the maximum 'thinking time' for your computer player in milliseconds (3000ms = 30s)."));
 	}
 		
 		InetAddress host=null;
@@ -159,7 +159,7 @@ public class Client extends Thread{
 	/** close the socket connection. 
 	 * @throws IOException */
 	public void shutdown() {
-		print("Closing socket connection...");
+		print("It seems that the server has disconnected. The socket connection will be closed now...");
 		try {
 			sock.close();
 		} catch (IOException e) {

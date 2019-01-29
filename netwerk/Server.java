@@ -93,6 +93,10 @@ public class Server {
 
 			//TODO Add appropriate error exception so that you can try again
 			while (true) {
+				
+				
+				//startGameInFullLobbies(); //voordat we hier een nieuw game beginnen
+				
 				Socket s = ssocket.accept();
 				
 				ClientHandler ch = new ClientHandler(this, s);
@@ -103,7 +107,7 @@ public class Server {
 				//first add handler to threads, then assign/create lobby object and then finally start ch
 				ch.start(); //ch moet eerst handshake kunnen sturen 
 				
-				startGameInFullLobbies(); //voordat we hier een nieuw game beginnen
+				//startGameInFullLobbies(); //voordat we hier een nieuw game beginnen
 				
 				
 				

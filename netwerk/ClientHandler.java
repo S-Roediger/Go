@@ -145,7 +145,7 @@ public class ClientHandler extends Thread {
 	    	out.newLine();
 	    	out.flush();
 		} catch (IOException e) {
-			lobby.broadcast("GAME_FINISHED+"+lobby.getGameID()+"+"+lobby.getOpponentName(this.getClientName())+"+"+lobby.getGame().getScore()+"+Game ended, because " + this.getClientName() + " has disconnected.");
+			shutdown();
 		}
 
     }
@@ -166,7 +166,7 @@ public class ClientHandler extends Thread {
      */
     private void shutdown() {
         server.removeHandler(this);
-        server.broadcast(lobby.getGameID(),"[" + sih.getClientName() + " has left]");
+        server.broadcast(lobby.getGameID(),"" + sih.getClientName() + " disconnected]");
     }
     
     

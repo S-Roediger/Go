@@ -26,7 +26,7 @@ public class ClientInputHandler {
 	private String[] score;
 	private boolean rematch = false;
 	private int hint;
-	private int invalidCounter;
+	private int invalidCounter = 0;
 	
 	public ClientInputHandler(Client client) {
 		this.client = client;
@@ -141,7 +141,7 @@ public class ClientInputHandler {
 			
 			if (currentGameState[0].equals("PLAYING") && Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
 				
-				if (this.client.getClientName().contains("ComputerPlayer")) { //if Computer Player do random move, does it take previous board states into consideration though?
+				if (this.client.getClientName().contains("ComputerPlayer")) { 
 					return "MOVE+" +GAME_ID+"+"+client.getClientName()+"+"+board.determineRandomValidMove(color, 3000);
 				} else {
 					System.out.println("Please enter a move (index) or pass with '-1' \r Enter 'EXIT' to exit the game");

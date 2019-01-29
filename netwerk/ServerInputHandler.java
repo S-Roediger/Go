@@ -50,17 +50,35 @@ public class ServerInputHandler {
 			
 			if(ch.getLobby().isLeader(ch)) {
 				ch.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+ch.getLobby().getGameID()+"+"+1); 
+				ch.getLobby().increaseHandshake();
 		    	ch.sendMessage("REQUEST_CONFIG+Please provide a preferred configuration by entering board size and preferred color (e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE");
 		    	
 		    	System.out.println("Server: ACKNOWLEDGE_HANDSHAKE+"+ch.getLobby().getGameID()+"+"+1);
 		    	System.out.println("Server: REQUEST_CONFIG+Please provide a preferred configuration by entering board size and preferred color (e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE");
 		    	
-			} else if (!ch.getLobby().isLeader(ch) && ch.getLobby().getConfig()){
+		    	
+		    	
+			} else if (!ch.getLobby().isLeader(ch)){ // && ch.getLobby().getConfig() waarom zou de config al gezet moeten zijn zodat wij een second player kunnen acknowledgen??!
 				ch.sendMessage("ACKNOWLEDGE_HANDSHAKE+"+ch.getLobby().getGameID()+"+"+0);
 				System.out.println("Server: ACKNOWLEDGE_HANDSHAKE+"+ch.getLobby().getGameID()+"+"+0);
-				ch.getLobby().setColor(clientName, ch.getLobby().getColors()[1]);
-				c = ch.getLobby().getColors()[1];
-				this.secondPlayerAckn = true;
+				ch.getLobby().increaseHandshake();
+				
+				if (ch.getLobby().getConfig()) {
+					ch.getLobby().setColor(clientName, ch.getLobby().getColors()[1]);
+					c = ch.getLobby().getColors()[1];
+					this.secondPlayerAckn = true;
+				}
+				
+
+				
+				
+				
+				if (ch.getLobby().isFull() && ch.getLobby().getConfig()) {
+					ch.getLobby().startGame();
+					
+				}
+				
+				
 			}
 			break;
 			
