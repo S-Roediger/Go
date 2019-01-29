@@ -18,12 +18,6 @@ public class ServerInputHandler {
 	private int choice;
 	private OnlineGame game;
 	
-	
-    
-    public boolean readyToStartGame() {
-    	return ch.getLobby().getConfig() && secondPlayerAckn;
-    }
-	
     public ServerInputHandler(ClientHandler ch) {
     	this.ch = ch;
     	

@@ -112,13 +112,6 @@ public class ClientHandler extends Thread {
     				lobby.broadcast("GAME_FINISHED+"+lobby.getGameID()+"+"+lobby.getOpponentName(this.getClientName())+"+"+lobby.getGame().getScore()+"+Game ended, because " + this.getClientName() + " has disconnected.");
     				disconnected = true;
     			}
-    			
-    			
-    			
-    			if (sih.readyToStartGame() && !this.gameStarted) {
-    				lobby.startGame();
-    				gameStarted = true;
-    			}
     				
     		}
 		} catch (IOException e) {
