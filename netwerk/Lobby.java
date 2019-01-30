@@ -22,7 +22,6 @@ public class Lobby {
 	private boolean config = false;
 	private int rematch;
 	private Color[] colors = new Color[2];
-	private GameState gameState;
 	private boolean gameStarted = false;
 	private boolean rematchSet = false;
 	private int rematchCounter = 0;
@@ -33,20 +32,12 @@ public class Lobby {
 	
 	public Lobby(int gameID) {
 		this.gameID = gameID;
-		handlers = new ArrayList<>();
-		gameState = new GameState();
+		handlers = new ArrayList<>();	
 	}
 	
 	
 	// ------------- Commands & Queries ----------- //
 	
-	/**
-	 * Method to obtain gameState.
-	 * @return gameState //TODO
-	 */
-	public synchronized GameState getGameState() {
-		return this.gameState;
-	}
 	
 	/**
 	 * Method to increase handshake counter.
@@ -81,7 +72,6 @@ public class Lobby {
 		for (ClientHandler ch:handlers) { 
 			ch.acknConfig();
 		}
-		
 		game.start();
 	}
  
