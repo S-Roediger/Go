@@ -183,14 +183,6 @@ public class Lobby {
     	String board = game.getBoardString();
     	int currentPlayer = game.getCurrentPlayer();
     	
-    	
-    	
-    	//if (this.gameState.getState().equals("MOVE+FIRST")) {
-    	//	currentPlayer = 1;
-    	//} else {
-    	//	currentPlayer = 2;
-    	//}
-    	
     	if (!game.gameOver()) { //dit klopt
     		return "PLAYING;"+currentPlayer+";"+board;
     	}

@@ -1,6 +1,5 @@
 package netwerk;
 
-import java.util.Random;
 
 import go.Color;
 import go.OnlineGame;
@@ -172,8 +171,8 @@ public class ServerInputHandler {
 					System.out.println("Server: INVALID MOVE+Invalid move");
 				}
 			} else if (!gameFinished) {
-				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
-				System.out.println("Server: GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
+				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore()+"+ ");
+				System.out.println("Server: GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore()+"+ ");
 				gameFinished = true;
 			}
 				
@@ -183,8 +182,8 @@ public class ServerInputHandler {
 			
 		case "EXIT": 
 			if (!gameFinished) {
-				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());  
-				System.out.println("Server: GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore());
+				ch.getLobby().broadcast("GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore()+"+"+input[2]+" has exited the game.");  
+				System.out.println("Server: GAME_FINISHED+"+ch.getLobby().getGameID()+"+"+game.getWinner()+"+"+game.getScore()+"+"+input[2]+" has exited the game.");
 			}
 
 			break;

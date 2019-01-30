@@ -116,12 +116,7 @@ public class ClientHandler extends Thread {
     		}
 		} catch (IOException e) {
 			lobby.broadcast("GAME_FINISHED+"+lobby.getGameID()+"+"+lobby.getOpponentName(this.getClientName())+"+"+lobby.getGame().getScore()+"+Game ended, because " + this.getClientName() + " has disconnected.");
-			//server.removeHandler(this);
-			//shutdown();
-		} //catch (NullPointerException e1) {
-			//lobby.broadcast("GAME_FINISHED+"+lobby.getGameID()+"+"+lobby.getOpponentName(this.getClientName())+"+"+lobby.getGame().getScore()+" " + this.getClientName() + " has disconnected.");
-			
-		//}
+		}
       
     }
     
@@ -166,7 +161,7 @@ public class ClientHandler extends Thread {
      */
     private void shutdown() {
         server.removeHandler(this);
-        server.broadcast(lobby.getGameID(),"" + sih.getClientName() + " disconnected]");
+        server.broadcast("" + sih.getClientName() + " disconnected");
     }
     
     
