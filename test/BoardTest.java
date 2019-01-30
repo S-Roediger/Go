@@ -19,7 +19,6 @@ class BoardTest {
 		bSimple = new Board(9);
 		bComplex = new Board(9);
 		
-		
 		bSimple.setField(10, Color.BLACK);
 		bSimple.setField(1, Color.WHITE);
 		bSimple.setField(11, Color.WHITE);
@@ -63,7 +62,7 @@ class BoardTest {
 		ArrayList<Integer> captured = new ArrayList<Integer>();
 		bComplex.getGroup(9, Color.BLACK, captured);
 		
-		assertTrue(bComplex.isCaptured(Color.EMPTY, captured)); //here you need to check with c = Color.EMPTY due to implementation with groups
+		assertTrue(bComplex.isCaptured(Color.EMPTY, captured));
 	}	
 	
 	@Test

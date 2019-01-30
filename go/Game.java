@@ -1,17 +1,17 @@
 package go;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 import view.GUI;
 import view.TUI;
 
 public class Game {
 /***
- * Hier komt alles bij elkaar - Controller class
+ * Controller class - Offline Game.
  */
+	
+	// ------------ Fields ------------------- //
 	
 	private Board board;
 	private Player[] players;
@@ -24,7 +24,7 @@ public class Game {
 	
 	
 	/***
-	 * Constructor of the game, creates a new game object
+	 * Constructor of the game, creates a new game object.
 	 * @param board
 	 * @param s0
 	 * @param s1
@@ -48,20 +48,20 @@ public class Game {
 	
 	
 	/***
-	 * Resets the board and starts a new game
+	 * Resets the board and starts a new game.
 	 * While loop to be able to keep going after game ended
 	 */
 	public void start() {
 		while (again) {
 			reset();
 			play();
-			again = readBoolean("\r"+"Do you want to play again? (Yes/No)", "Yes", "No");
+			again = readBoolean("\r" + "Do you want to play again? (Yes/No)", "Yes", "No");
 		}
 
 	}
 	
 	/***
-	 * Reset the board for new game
+	 * Reset the board for new game.
 	 */
 	public void reset() {
 		board.reset();
@@ -70,21 +70,21 @@ public class Game {
 	}
 	
 	/***
-	 * game loop:
+	 * The game loop.
 	 * updates view, enforces rules and makes move of players
 	 * 
 	 */
 	public void play() {
 		int choice = 0;
-		while(!board.gameOver()) {
+		while (!board.gameOver()) {
 			tui.showGame(board);
-			//updateGui();
-	
-			//check rules!
 			
-			choice = players[current].determineMove(); //get player choices
-			while (!board.isValidMove(choice, players[current].getColor())) { //check whether field is empty, on board and != recreate prevBoardState
-				System.out.println("ERROR: field " + choice + " is no valid choice."); //loop to ask again in case of faulty input
+			//get player choices
+			choice = players[current].determineMove(); 
+			//check whether field is empty, on board and != recreate prevBoardState
+			while (!board.isValidMove(choice, players[current].getColor())) { 
+				//loop to ask again in case of faulty input
+				System.out.println("ERROR: field " + choice + " is no valid choice."); 
 				choice = players[current].determineMove();
 			}		
 			if (choice == -1) { 				// enforce pass rule
@@ -94,9 +94,11 @@ public class Game {
 				players[current].makeMove(board, choice);
 				gui.addStone(choice, players[current].getColor());
 				gui.addHintIndicator(choice);
-				handleCapture(Color.getOther(players[current].getColor()), choice); // je checkt eerst of jouw move een ander heeft gecaptured
-				handleCapture(players[current].getColor(), choice);		// 	is dat uberhaupt logisch? Kan de huidige player gecaptured worden in eigen zet?	|	en dan kijk je naar suicide
-				handleSuicide(players[current].getColor(), choice); //je kijkt of je eigen steen suicide gepleegt heeft
+				// je checkt eerst of jouw move een ander heeft gecaptured
+				handleCapture(Color.getOther(players[current].getColor()), choice); 	
+				handleCapture(players[current].getColor(), choice);
+				//je kijkt of je eigen steen suicide gepleegt heeft
+				handleSuicide(players[current].getColor(), choice); 
 				board.resetPass();
 			}
 			current = (current + 3) % 2;
@@ -107,9 +109,9 @@ public class Game {
 	}
 	
 	/***
-	 * Handles suicide
-	 * @param c
-	 * @param lastSet
+	 * Handles suicide.
+	 * @param c - Color for to be checked stone
+	 * @param lastSet - index of last set
 	 */
 	public void handleSuicide(Color c, int lastSet) {
 		ArrayList<Integer> suicide = new ArrayList<Integer>();
@@ -120,32 +122,33 @@ public class Game {
 				gui.removeStone(i);	
 			}
 			
-			System.out.println(c+" has commited suicide on field " + lastSet);
+			System.out.println(c + " has commited suicide on field " + lastSet);
 		}
 		
 	}
 	
-	
+	/**
+	 * Handles captures.
+	 * @param c - Color of potentially captured party
+	 * @param lastSet - index representing last set
+	 */
 	public void handleCapture(Color c, int lastSet) {
 		
-		
-		// bekijk alleen alle neigbours van de laatste zet, anders wordt het computationally misschien te zwaar
-		
+		//Only look at direct neighbours of the last set
 		ArrayList<ArrayList<Integer>> groepen = new ArrayList<>();
 		ArrayList<Integer> fieldsToBeChecked = new ArrayList<Integer>();
 		
-		// ----- nieuwe opzet op basis van nieuwe manier van neigh fixen ---
-		
-		//board.updateCurrentNeighbours(lastSet);
-		
-		for (int j = 0; j < board.getCurrentNeighColor(lastSet).size(); j++) {	// krijg de buren van je laatste zet
-			if (board.getCurrentNeighColor(lastSet).get(j).equals(c)) {	//kijk of die de kleur van je opponent hebben
-				fieldsToBeChecked.add(board.getCurrentNeighIndex(lastSet).get(j));	//voeg de index van de stenen van je opponent toe
+		//get neighbours from last set
+		for (int j = 0; j < board.getCurrentNeighColor(lastSet).size(); j++) {
+			//see whether they have the color of your opponent
+			if (board.getCurrentNeighColor(lastSet).get(j).equals(c)) {
+				//add these stones to the fieldsToBeChecked
+				fieldsToBeChecked.add(board.getCurrentNeighIndex(lastSet).get(j));
 			}
 		}	
 		
-		for (int i = 0; i < fieldsToBeChecked.size(); i++) { //vind de groepen voor de fieldsToBeChecked
-			
+		for (int i = 0; i < fieldsToBeChecked.size(); i++) {
+			//find the groups for the fields to be checked
 			ArrayList<Integer> r = new ArrayList<Integer>();
 			board.getGroup(fieldsToBeChecked.get(i), c, r);
 			groepen.add(r);
@@ -159,14 +162,18 @@ public class Game {
 					gui.removeStone(i);
 				}
 				
-				System.out.println(c+" was captured! The following fields are removed "+a);
+				System.out.println(c + " was captured! The following fields are removed " + a);
 			}
 		}
 	}
 	
+	/**
+	 * Method that prints the results at the end of the game.
+	 */
 	public void printResult() {
 		double[] score = board.getScore();
-		System.out.println("Black has the following amount of points: "+score[0] +"\r" + "White has the following amount of points: "+ score[1]);
+		System.out.println("Black has the following amount of points: " + score[0] + "\r" +
+				"White has the following amount of points: " + score[1]);
 		if (score[0] > score[1]) {
 			System.out.println("Black has won!");
 		} else if (score[0] < score[1]) {
@@ -176,6 +183,13 @@ public class Game {
 		}
 	}
 	
+	/**
+	 * Method to read a boolean.
+	 * @param prompt
+	 * @param yes
+	 * @param no
+	 * @return boolean corresponding to user input
+	 */
 	private boolean readBoolean(String prompt, String yes, String no) {
         String answer;
         Scanner in;
@@ -184,39 +198,7 @@ public class Game {
             in = new Scanner(System.in);
             answer = in.hasNextLine() ? in.nextLine() : null;
         } while (answer == null || (!answer.equals(yes) && !answer.equals(no)));
+        in.close();
         return answer.equals(yes);
     }
-	
-	
-	/***
-	 * Returns the board so that I can manipulate it in the BoardTest class
-	 * @return board of current game
-	 */
-	public Board getBoard() {
-		return this.board;
-	}
-	
-	/***
-	 * update GUI
-	 */
-	public void updateGui() {
-		gui.clearBoard();
-		for (int i = 0; i < board.getFields().length; i++) {
-			if (board.getFields()[i].equals(Color.WHITE)) {
-				gui.addStone(i, Color.WHITE);
-			} else if (board.getFields()[i].equals(Color.BLACK)) {
-				gui.addStone(i, Color.BLACK);
-			}
-		}
-	
-	}
-	
-	public synchronized String getBoardString() {
-		Color[] fieldsCopy = board.getFields();
-		String a = "";
-		for (int i = 0; i < fieldsCopy.length; i++) {
-			a += Color.getNr(fieldsCopy[i]);
-		}
-		return a;
-	}
 }

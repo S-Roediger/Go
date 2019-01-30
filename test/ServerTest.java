@@ -108,7 +108,9 @@ class ServerTest {
 		assertEquals("ACKNOWLEDGE_HANDSHAKE+0+0", answer2);
 		
 		answer = c1.returnServerAnswer();
-		assertEquals("REQUEST_CONFIG+Please provide a preferred configuration by entering board size and preferred color (e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE",answer);
+		assertEquals("REQUEST_CONFIG+Please provide a preferred configuration"
+				+ " by entering board size and preferred color (e.g. white/black 9)"
+					+ "+$PREFERRED_COLOR+$BOARD_SIZE", answer);
 		c1.sendMessage("SET_CONFIG+0+1+3");
 		
 		answer = c1.returnServerAnswer();
@@ -138,7 +140,9 @@ class ServerTest {
 		assertEquals("ACKNOWLEDGE_HANDSHAKE+0+0", answer2);
 		
 		answer = c1.returnServerAnswer();
-		assertEquals("REQUEST_CONFIG+Please provide a preferred configuration by entering board size and preferred color (e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE",answer);
+		assertEquals("REQUEST_CONFIG+Please provide a preferred configuration "
+				+ "by entering board size and preferred color "
+					+ "(e.g. white/black 9)+$PREFERRED_COLOR+$BOARD_SIZE", answer);
 		c1.sendMessage("SET_SOMETHINGWRONG+0+1+9");
 		
 		answer = c1.returnServerAnswer();

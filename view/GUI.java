@@ -1,6 +1,5 @@
 package view;
 
-import java.util.ArrayList;
 
 import com.nedap.go.gui.GoGuiIntegrator;
 
@@ -38,13 +37,13 @@ public class GUI {
 	}
 	
 	/***
-	 * Method to turn index into coordinates x, y
+	 * Method to turn index into coordinates x, y.
 	 * @param i - index of intersection
 	 * @return int[] containing coordinates x and y
 	 */
 	public int[] getCoordinates(int i) {
 		int x = i % boardSize;
-		int y = i/boardSize;
+		int y = i / boardSize;
 		int[] result = new int[2];
 		result[0] = x;
 		result[1] = y;
@@ -53,7 +52,7 @@ public class GUI {
 	
 	
 	/***
-	 * Method to add a stone on intersection i with given color c
+	 * Method to add a stone on intersection i with given color c.
 	 * @param i - index of intersection
 	 * @param c - color of stone that will be placed
 	 */
@@ -67,7 +66,7 @@ public class GUI {
 	}
 	
 	/***
-	 * Method to remove stone at intersection i
+	 * Method to remove stone at intersection i.
 	 * @param i - index of to be cleared intersection
 	 */
 	public void removeStone(int i) {
@@ -80,7 +79,7 @@ public class GUI {
 	 * @param i
 	 * @param c
 	 */
-	public void addAreaIndicator(int i, Color c) { //TODO probably not necessary!!
+	public void addAreaIndicator(int i, Color c) { 
 		boolean white = false;
 		if (c.equals(Color.WHITE)) {
 			white = true;
@@ -90,7 +89,7 @@ public class GUI {
 	}
 	
 	/***
-	 * Adds hint indicator
+	 * Adds hint indicator.
 	 * @param i - field that is suggested to user
 	 */
 	public void addHintIndicator(int i) {
@@ -99,14 +98,14 @@ public class GUI {
 	}
 	
 	/***
-	 * TODO
+	 * Removes the hint.
 	 */
 	public void removeHintIndicator() {
 		gogui.removeHintIdicator();
 	}
 	
 	/***
-	 * TODO
+	 * Clears the board.
 	 */
 	public void clearBoard() {
 		gogui.clearBoard();
