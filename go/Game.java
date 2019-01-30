@@ -116,7 +116,10 @@ public class Game {
 		suicide.add(lastSet);
 		if (board.isCaptured(Color.getOther(players[current].getColor()), suicide)) {
 			board.remove(suicide);
-			//gui.removeStone(suicide);
+			for (int i:suicide) {
+				gui.removeStone(i);	
+			}
+			
 			System.out.println(c+" has commited suicide on field " + lastSet);
 		}
 		
@@ -152,7 +155,10 @@ public class Game {
 		for (ArrayList<Integer> a:groepen) {
 			if (board.isCaptured(Color.EMPTY, a)) {
 				board.remove(a);
-				//gui.removeStone(a);
+				for (int i:a) {
+					gui.removeStone(i);
+				}
+				
 				System.out.println(c+" was captured! The following fields are removed "+a);
 			}
 		}

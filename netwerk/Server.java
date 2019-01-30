@@ -32,7 +32,7 @@ public class Server {
     private List<ClientHandler> threads;
     private HashMap<Integer, Lobby> gameLobbies; 
     private int lastGameID;
-    
+    private ServerSocket ssocket;
     
 
     /** Start een Server-applicatie op. */
@@ -66,6 +66,14 @@ public class Server {
     }
     
     /**
+     * this is needed in order to test server
+     * @return
+     */
+    public ServerSocket getServerSocket() {
+    	return ssocket;
+    }
+    
+    /**
      * Listens to a port of this Server if there are any Clients that 
      * would like to connect. For every new socket connection a new
      * ClientHandler thread is started that takes care of the further
@@ -73,7 +81,7 @@ public class Server {
      */
     public void run() {
     	try {
-    		ServerSocket ssocket = null;
+    		
     		boolean correctPort = false;
     		while (!correctPort) {
     			try {
@@ -162,7 +170,7 @@ public class Server {
      * to all connected Clients.
      * @param msg message that is send
      */
-    public void broadcast(int gameID, String msg) { //TODO DO WE NEED A SERVER BROADCAST? WE WILL NEVER SEND ANYTHING TO ALL PLAYERS IN DIFFERENT GAMES RIGHT?
+    public void broadcast(String msg) { 
     	print(msg);
     	for (ClientHandler c:threads) {
         	c.sendMessage(msg);
@@ -183,6 +191,11 @@ public class Server {
      */
     public void removeHandler(ClientHandler handler) {
         threads.remove(handler);
+    }
+    
+    public void shutdown(ServerSocket s) throws IOException {
+    	this.broadcast("The server is shutting down");
+    	s.close();
     }
     
 }
