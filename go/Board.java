@@ -6,12 +6,11 @@ import java.util.Random;
 
 public class Board {
 /***
- * Model class, keep log of game changes, rules
- * 
- * 
+ * Model class, keep log of game changes and rules.
  */
 	
-	
+// ------------------ Fields --------------------- //	
+
 	private Color[] fields;
 	private int dim; 
 	private int pass;
@@ -24,29 +23,37 @@ public class Board {
 // --------------------- Constructor ---------------- //
 	
 	/***
-	 * Creates empty board with given dimensions
+	 * Creates an empty board with given dimensions.
 	 * Initializes the int pass to keep track of passes from players
 	 * Initializes 2d array pastBoardStates and adds initial board state to keep track of history
-	 * 
-	 * 
+	 * Initializes an arrayList of current neighbour colors
+	 * Initializes an arrayList of current neighbour indices
+	 * Initializes an arrayList of checked stones for the method 'getGroup'
+	 * @param dim - Dimension of the board 
 	 */
 	public Board(int dim) {
 		this.dim = dim;
-		fields = new Color[dim*dim];
-		for (int i = 0; i < dim*dim; i++) {
+		fields = new Color[dim * dim];
+		for (int i = 0; i < dim * dim; i++) {
 			fields[i] = Color.EMPTY;
 		}
 		pass = 0;
-		pastBoardStates = new Color[dim*dim][dim*dim];
+		pastBoardStates = new Color[dim * dim][dim * dim];
 		pastBoardStates[0] = fields; 
 		currentNeighColor = new ArrayList<Color>();
 		currentNeighIndex = new ArrayList<Integer>();
 		checkedStonesGetGroup = new ArrayList<Integer>();
 	}
 	
+	
+	/***
+	 * Creates a new board from a String representation of a board.
+	 * @param dim - Dimension of the board
+	 * @param s - String representation of a board ('0' = Empty; '1' = Black; '2' = White)
+	 */
 	public Board(int dim, String s) {
 		this.dim = dim;
-		this.fields = new Color[dim*dim];
+		this.fields = new Color[dim * dim];
 		char[] c = s.toCharArray();
 		
 		for (int i = 0; i < c.length; i++) {
@@ -58,7 +65,7 @@ public class Board {
 				fields[i] = Color.WHITE;
 			}
 		}
-		pastBoardStates = new Color[dim*dim][dim*dim];
+		pastBoardStates = new Color[dim * dim][dim * dim];
 		pastBoardStates[0] = fields; 
 	}
 	
@@ -67,33 +74,40 @@ public class Board {
 // --------------------- Commands & Queries ------------------- //
 	
 	/***
-	 * 
-	 * @return int counter variable that keeps track of the amount of times that players passed
+	 * Counter variable that keeps track of the amount of times that players passed.
+	 * @return Integer representing the current amount of passes 
+	 * from both players (during current round) 
 	 */
 	public int getPass() {
 		return pass;
 	}
 	
 	/***
-	 * Method to increase int pass
+	 * Method to increase the Integer pass that counts current amount of passes.
 	 */
 	public void increasePass() {
 		pass++;
 	}
 	
 	/***
-	 * Method to reset int pass
+	 * Method to reset the pass Integer.
 	 */
 	public void resetPass() {
 		pass = 0;
 	} 
 	
+	/***
+	 * Method to convert the coordinates row and col to an index.
+	 * @param row - representing x coordinate of board
+	 * @param col - representing y coordinate of board 
+	 */
 	public int index(int row, int col) {
-		return dim*row+col;
+		return dim * row + col;
 	}
 	
     /**
      * Returns true if ix is a valid index of a field on the board.
+     * @param index - Integer representing index on board
      * @return true if 0 <= index < dim * dim
      */
     public boolean isField(int index) {
@@ -102,35 +116,27 @@ public class Board {
     
     /**
      * Returns the content of the field i.
-     *
-     * @param i
-     *            the number of the field (see NUMBERING) //maybe I am not using this..
+     * @param i - Integer representing index on board
      * @return the color on the field
      */
-
     public Color getField(int i) {
     	return fields[i];
     }
     
     /**
      * Returns the content of the field referred to by the (row,col) pair.
-     *
-     * @param row
-     *            the row of the field
-     * @param col
-     *            the column of the field
+     * @param row - representing x coordinate of board
+     * @param col - representing y coordinate of board
      * @return the color on the field
      */
-    public Color getField(int row, int col) { //wordt gebruikt in TUI
+    public Color getField(int row, int col) {
     	return getField(index(row, col));
     	
     }
     
     /**
      * Returns true if the field i is empty.
-     *
-     * @param i
-     *            the index of the field (see NUMBERING)
+     * @param i - Integer representing index on board
      * @return true if the field is empty
      */
     public boolean isEmptyField(int i) {
@@ -138,10 +144,8 @@ public class Board {
     }
     
     /**
-     * Returns true if the game is over. The game is over when there is a winner
-     * or both players have passed.
-     *
-     * @return true if the game is over
+     * Returns true if the game is over. The game is over when both players have passed.
+     * @return true if the game is over, false if the game is not yet over.
      */
     public boolean gameOver() {
         if (pass > 1) {
@@ -151,87 +155,67 @@ public class Board {
     }
     
     /**
-     * Empties all fields of this board (i.e., let them refer to the value
-     * Color.EMPTY).
+     * Empties all fields of this board (i.e., let them refer to the value Color.EMPTY).
      */
     public void reset() {
-    	for (int i = 0; i < dim*dim; i++) {
+    	for (int i = 0; i < dim * dim; i++) {
 			fields[i] = Color.EMPTY;
 		}
     	pass = 0;
-    	
     }
 
     /***
-     * 
-     * @return true if this set causes the board to obtain the same state as previously
+     * Method to check whether a particular set with a particular color would recreate
+     * a previous board state.
+     * @param set - index of the potential set that player attempts to make
+     * @param c - Color of player that attempts to make the particular set
+     * @return true if this particular set causes the board to obtain the same state as previously
      */
     public boolean checkPreviousBoardState(int set, Color c) {
     	int diff = 0;
     	int diffAll = 0;
-        Color[] nieuw = new Color[dim*dim];		//create new array that simulates board after potential set is done
+    	//create new array that simulates board after potential set is done
+        Color[] newBoard = new Color[dim * dim];		
         
         for (int k = 0; k < fields.length; k++) {
-        	nieuw[k] = fields[k];
+        	newBoard[k] = fields[k];
         }
-        
-       // nieuw = fields; this results in a deep copy EVIL!
-        nieuw[set] = c;
+        //make the potential set in the newly created boardCopy
+        newBoard[set] = c;
        
-       // en check of het board dan hetzelfde zou zijn als //
+       //now you can check whether this particular board constellation was created previously
         
-        for (Color[] col:pastBoardStates) {	//loop door alle past boardstates
+        for (Color[] col:pastBoardStates) {	//loop through all past board states
         	diff = 0;
-        	for (int j = 0; j < dim*dim; j++) {
-        		if (col[j] != nieuw[j]) {			//vergelijk alle elementen in oudeBoardStatex met alle elementen in nieuw
-        			diff++;
+        	for (int j = 0; j < dim * dim; j++) {
+        		if (col[j] != newBoard[j]) { //compare all fields of the old board constellation 
+        			diff++;					//with all fields of newBoard
         		}
         	}
-        	if (diff > 0) { //als er differences zijn gevonden
+        	if (diff > 0) { //if there were any difference found increase the difference count
         		diffAll++;
         	} else {
-        		return true; //als er geen gevonden zijn, geef meteen true terug
-        	}
+        		return true; //otherwise immediately return true, 
+        	}				//since this set would recreate a previous board state
         }
-        	if (diffAll >= pastBoardStates.length) { //check of alle pastBoardStates were different from nieuw
-        		return false;
-        	} else {
-        		return true;
-        	}
+        if (diffAll >= pastBoardStates.length) { //check whether all past board states 
+        	return false;						// were different from newBoard
+        } else {
+        	return true;
+        }
     }
     
     /**
      * Sets the content of field i to the color c.
-     * Checks whether this is a valid move and therefore sets the move only if valid //should not validate here MODEL CLASS!!
-     * Otherwise, it lets the user know that this is an invalid set
-     * 
-     * Possible to take stones away here when set was a capture
-     * 
-     * @param i
-     *            the field number
-     * @param c
-     *            the color to be placed
+     * Immediately adds the new board constellation to the list of past board states
+     * @param i - Integer representing index on board
+     * @param c - the color to be placed     
      */
     public void setField(int i, Color c) {
     	fields[i] = c;
-    	for (int k = 0; k < dim*dim; k++) {
-    		pastBoardStates[pastBoardStates.length-1][k] = fields[k];
+    	for (int k = 0; k < dim * dim; k++) {
+    		pastBoardStates[pastBoardStates.length - 1][k] = fields[k];
     	}
-    }
-    		
-    /**
-     * Sets the content of the field represented by the (row,col) pair to the
-     * mark m.
-     *
-     * @param row
-     *            the field's row
-     * @param col
-     *            the field's column
-     * @param c
-     *            the color to be placed
-     */
-    public void setField(int row, int col, Color c) {
-    	this.setField(index(row, col), c);
     }
     
     
@@ -241,16 +225,21 @@ public class Board {
      * one color is captured and removed from the board 
      * when all the intersections directly adjacent to it 
      * are occupied by the enemy. (Capture of the enemy takes precedence over self-capture.)
-     * @param Color c - Color of the player that potentially captured a group (if single stone is tested), otherwise c needs to be Color.EMPTY since with groups you cannot check for same color neighbour
+     * 
+     * @param Color c - Color of the player that potentially captured a group (if single stone
+     *  is tested and suicide is tested), otherwise c needs to be Color.EMPTY since with groups
+     *  you cannot check for same color neighbour, but have to check whether any of the stones
+     * in group have Color.Empty as neighbour
      * @param ArrayList<Integer> group - Indexes of potentially captured fields
-     * @return
+     * @return true if group is captured, otherwise not
      */
-    public boolean isCaptured(Color c, ArrayList<Integer> group) { //TODO translate
+    public boolean isCaptured(Color c, ArrayList<Integer> group) {
     	
     	//needs to be called after getGroups() is called, to make sure list is reset for next call
-    	this.checkedStonesGetGroup.clear(); //als je gaat kijken of je gevonden groep gecaptured is of niet, dan kan je de hulplijst voor getGroup resetten
+    	this.checkedStonesGetGroup.clear();
     	
-    	if (group.size() == 0) { //als er geen steen is, heeft deze ook geen freeIntersections en kan ook niet gecaptured worden
+    	//if there is no stone (empty list is checked), this stone cannot be captured
+    	if (group.size() == 0) {
     		return false;
     	}
     	
@@ -259,7 +248,9 @@ public class Board {
     	for (int i = 0; i < group.size(); i++) {
     		ArrayList<Color> neighColors = getCurrentNeighColor(group.get(i));
     		for (Color co:neighColors) {
-    			if (co.equals(Color.getOther(c))) { //if one of the borders has the opponent color as neighbour, the area is not captured/owned
+    			//if one of the borders has the opponent color as neighbour (or Empty),
+    			//the area is not captured/owned
+    			if (co.equals(Color.getOther(c))) { 
     				return false;
     			}
     			if (co.equals(Color.EMPTY)) { 
@@ -267,22 +258,25 @@ public class Board {
     			}
     		}
     	}
-    	if (freeIntersections >= group.size()*group.size()) { //you need to take this to power of 2 because
-    		return false;									//it needs to be >= otherwise it will go wrong when successful suicide move is done
+    	if (freeIntersections >= group.size() * group.size()) { 
+    		return false;
     	}
     	return true;
     }
      
     
     /***
-     * Finds a connected group of same colored stones and puts in a list containing the indexes of all stones in the group
-     * @param i
-     * @param c
-     * @return
+     * Finds a connected group of same colored stones and puts in
+     * a list containing the indexes of all stones in the group.
+     * @param i - Index for which we want to find all related neighbours
+     * @param c - Color of index i
+     * @param ArryList<Integer> group - Base group that will be filled with related
+     * indices during function execution
      */
-    public void getGroup(int i, Color c, ArrayList<Integer> group) { //TODO comment this function
+    public void getGroup(int i, Color c, ArrayList<Integer> group) {
     	
-    	
+    	//Since this function is recursive we need a stop condition
+    	//We stop when we check an index that we already checked before
     	if (this.checkedStonesGetGroup.contains(i)) {
     		return;
     	}
@@ -294,8 +288,12 @@ public class Board {
     	}
     	
     	for (int j = 0; j < this.getCurrentNeighColor(i).size(); j++) {
+    		//if one of the current neighbours of i equals its color 
     		if (this.getCurrentNeighColor(i).get(j).equals(c)) {
+    			// and our group does not contain this neighbour yet
     			if (!group.contains(this.getCurrentNeighIndex(i).get(j))) {		
+    				//look again whether the neighbours of this (neighbouring) index
+    				//have the same color
     				getGroup(this.getCurrentNeighIndex(i).get(j), c, group);
     			}
     		}
@@ -304,11 +302,13 @@ public class Board {
     }
     
     /***
-     * Returns an array with all neighbours, 
-     * when the given index is at the board edge and therefore has no direct neighbour in one of the directions,
+     * Returns an array with all neighbours. 
+     * When the given index is at the board edge 
+     * and therefore has no direct neighbour in one of the directions,
      * the Color OFF is returned in the array
-     * @param i
-     * @return array with colors of all adjacent intersections in the following order: left, above, right, down
+     * @param i - index on the board
+     * @return array with colors of all adjacent intersections
+     * in the following order: left, above, right, down
      */
     public void updateCurrentNeighbours(int i) {
     	
@@ -317,47 +317,47 @@ public class Board {
     	
 	   	
 	   	if (i % dim != 0) { //i is not at the left edge
-	   		this.currentNeighColor.add(getField(i-1));
-	   		this.currentNeighIndex.add(i-1);
+	   		this.currentNeighColor.add(getField(i - 1));
+	   		this.currentNeighIndex.add(i - 1);
 	   		
 	   	} else {
 	   		this.currentNeighColor.add(Color.OFF);
-	   		this.currentNeighIndex.add(i-1);
+	   		this.currentNeighIndex.add(i - 1);
 	   	}
 	   	
-	   	if (i > dim-1) { //i is not at the upper edge
-	   		this.currentNeighColor.add(getField(i-dim));
-	   		this.currentNeighIndex.add(i-dim);
+	   	if (i > dim - 1) { //i is not at the upper edge
+	   		this.currentNeighColor.add(getField(i - dim));
+	   		this.currentNeighIndex.add(i - dim);
 	   		
 	   	} else {
 	   		this.currentNeighColor.add(Color.OFF);
-	   		this.currentNeighIndex.add(i-dim);
+	   		this.currentNeighIndex.add(i - dim);
 	   	}
 	   	
-	   	if (i % dim != dim-1) { //i is not at the right edge
-	   		this.currentNeighColor.add(getField(i+1));
-	   		this.currentNeighIndex.add(i+1);
+	   	if (i % dim != dim - 1) { //i is not at the right edge
+	   		this.currentNeighColor.add(getField(i + 1));
+	   		this.currentNeighIndex.add(i + 1);
 	   		
 	   	} else {
 	   		this.currentNeighColor.add(Color.OFF);
-	   		this.currentNeighIndex.add(i+1);
+	   		this.currentNeighIndex.add(i + 1);
 	   	}
 	   	
-	   	if (i < (dim*dim)-dim-1) { //i is not at the bottom edge
-	   		this.currentNeighColor.add(getField(i+dim));
-	   		this.currentNeighIndex.add(i+dim);
+	   	if (i < (dim * dim) - dim - 1) { //i is not at the bottom edge
+	   		this.currentNeighColor.add(getField(i + dim));
+	   		this.currentNeighIndex.add(i + dim);
 	   		
 	   	} else {
 	   		this.currentNeighColor.add(Color.OFF);
-	   		this.currentNeighIndex.add(i+dim);
+	   		this.currentNeighIndex.add(i + dim);
 	   	}
     }
     
     
     /***
-     * updates and returns currentNeighColors
-     * @param i
-     * @return
+     * Updates and returns the field ArrayList<Color> currentNeighColor for index i.
+     * @param i - index on board
+     * @return ArrayList containing the colors of the neighbours of field i
      */
     public ArrayList<Color> getCurrentNeighColor(int i) {
     	this.updateCurrentNeighbours(i);
@@ -365,9 +365,9 @@ public class Board {
     }
     
     /***
-     * updates and returns currentNeighIndex
-     * @param i
-     * @return
+     * Updates and returns the field ArrayList<Integer> currentNeighIndex for index i.
+     * @param i - index on board
+     * @return ArrayList containing the indices of the neighbours of field i
      */
     public ArrayList<Integer> getCurrentNeighIndex(int i) {
     	this.updateCurrentNeighbours(i);
@@ -375,9 +375,9 @@ public class Board {
     }
     
     /***
-     * Removes stones from given index
-     * After method execution this field will be Color.EMPTY again
-     * @param i
+     * Removes stones from given index.
+     * After method execution this field will have the Color.EMPTY again
+     * @param i - index on board
      */
     public void remove(ArrayList<Integer> i) {
     	for (int k = 0; k < i.size(); k++) {
@@ -386,36 +386,37 @@ public class Board {
     	
     }
     
+    /***
+     * Checks whether all fields of the current board have the color EMPTY.
+     * @return true if the board is empty, otherwise false
+     */
     public boolean boardIsEmpty() {
     	int empty = 0;
     	for (int i = 0; i < fields.length; i++) {
     		if (fields[i] == Color.EMPTY) {
     			empty++;
     		}
-    	}
-    		
+    	}	
     	if (empty >= fields.length) {
     		return true;
     	} else {
     		return false;
     	}
-    	
-	
     }
     
     /***
-     * Calculates the score at the end of the game
-     * White gets bonus points in the amount of 0.5 points for being second player
+     * Calculates the score at the end of the game.
+     * White gets bonus points in the amount of 0.5 points for being second player.
      * @return an int array containing the final score of both players
      */
     public double[] getScore() { 
-    	//needs to be called after (&before) getGroups() is called, to make sure list is reset for next call
+    	//needs to be called after (&before) getGroups() is called,
+    	//to make sure list is reset for next call
     	this.checkedStonesGetGroup.clear();
     	double[] score = new double[2];
     	double scoreWhite = 0;
     	double scoreBlack = 0;
     	ArrayList<Integer> checkFields = new ArrayList<>();
-    	
     	
     	if (boardIsEmpty()) {
         	score[0] = scoreBlack;
@@ -423,38 +424,39 @@ public class Board {
     		return score;
     	}
     	
-    	for (int i = 0; i < fields.length; i++) { //get an array containing all indexes of the board
+    	//get an array containing all indexes of the board
+    	for (int i = 0; i < fields.length; i++) { 
     		checkFields.add(i);
-    		if (fields[i].equals(Color.BLACK)) { //add a point to black score for every black stone
-    			scoreBlack++;
-    			
+    		//add a point to the black score for every black stone
+    		if (fields[i].equals(Color.BLACK)) {
+    			scoreBlack++;	
     		}
-    		if (fields[i].equals(Color.WHITE)) { // add a point to white 
-    			scoreWhite++;
-    			
+    		//add a point to the white score for every white stone
+    		if (fields[i].equals(Color.WHITE)) {  
+    			scoreWhite++;	
     		}
     	}
     	
     	for (int j = 0; j < fields.length; j++) {
     		ArrayList<Integer> group = new ArrayList<>();
+    		//find empty groups
     		if (checkFields.contains(j) && fields[j].equals(Color.EMPTY)) {
-    			getGroup(j, Color.EMPTY, group); //find empty groups
+    			getGroup(j, Color.EMPTY, group); 
     			
-    			
+    			//if empty group was owned by white assign points to white
     			if (isCaptured(Color.WHITE, group)) { 
-    				scoreWhite+= group.size();	
+    				scoreWhite += group.size();	
     				
-    			} else if (isCaptured(Color.BLACK, group)) {	//if it was owned by black
-    				scoreBlack+= group.size();	//assign points to black
+    			//if empty group was owned by black assign points to black
+    			} else if (isCaptured(Color.BLACK, group)) {
+    				scoreBlack += group.size();
     				
     			}
-    			
+    			//remove groups that you already checked from checkFields
     			for (int k = 0; k < group.size(); k++) {
     				checkFields.remove(group.get(k));
     			}
-    		}
-
-    		
+    		}	
     	}
     	
     	
@@ -464,8 +466,8 @@ public class Board {
     }
     
     /***
-     * update board fields with string
-     * @param s
+     * Update board fields with String.
+     * @param s - String representation of a board
      */
     public void update(String s) {
 		char[] c = s.toCharArray();
@@ -479,27 +481,30 @@ public class Board {
 				fields[i] = Color.WHITE;
 			}
 		}
-		
-		
-    	for (int k = 0; k < dim*dim; k++) {
-    		pastBoardStates[pastBoardStates.length-1][k] = fields[k];
+		//Since in the online game the client does not set moves, but
+		//only updates the board using this method, the past board 
+		//states need to be updated here too, so that an AI can check the
+		//validity of its own moves
+    	for (int k = 0; k < dim * dim; k++) {
+    		pastBoardStates[pastBoardStates.length - 1][k] = fields[k];
     	}
     }
     
     /***
-     * 
-     * @return fields
+     * Method to get the current fields.
+     * @return Color array containing the fields of the current board
      */
     public Color[] getFields() {
     	return fields;
     }
     
     /***
-     * 
-     * @param choice
-     * @return true when valid, otherwise false
+     * Method to check whether a move is valid.
+     * @param choice - index representing the potential set of a player
+     * @return true when potential set is valid, otherwise false
      */
     public boolean isValidMove(int choice, Color c) {
+    	//-1 represents a pass and -99 represents the command 'Exit'
     	if (choice == -1 || choice == -99) {
     		return true;
     	} else {
@@ -509,28 +514,36 @@ public class Board {
     }
     
     /***
-     * determines a random valid move 
-     * @param c - color that you would like to determine valid move for
-     * @param t - int indicating how much time the bot has to find a random valid move before a pass is returned
-     * @return
+     * Determines a random valid move. 
+     * @param c - Color that you would like to determine a valid move for
+     * @param t - Integer indicating how much time the bot has to find
+     * a random valid move before a pass is returned
+     * @return Integer representing a valid random move
      */
     public int determineRandomValidMove(Color c, int t) {
     	
-    	int[] fieldsIndexCopyPlusPass = new int[dim*dim+1];
+    	int[] fieldsIndexCopyPlusPass = new int[dim * dim + 1];
+    	//make a copy of the current board fields
     	for (int i = 0; i < fields.length; i++) {
     		fieldsIndexCopyPlusPass[i] = i;
     	}
-    	fieldsIndexCopyPlusPass[fieldsIndexCopyPlusPass.length-1] = -1;
+    	//Add a 'pass' to the possible moves too
+    	fieldsIndexCopyPlusPass[fieldsIndexCopyPlusPass.length - 1] = -1;
     	long startTime = System.currentTimeMillis();
     	long elapsedTime = 0;
+    	//choose a random field to set stone
     	int random = new Random().nextInt(fieldsIndexCopyPlusPass.length);
+    	//check whether given time already passed
     	while (elapsedTime < t) {
+    		//check validity of move and if valid return this index
     		if (isValidMove(random, c)) { 
     			return random;
     		}
+    		//otherwise choose a new random index
     		random = new Random().nextInt(fieldsIndexCopyPlusPass.length);
     		elapsedTime = System.currentTimeMillis() - startTime;
     	}
+    	//if you exceed thinking time (which currently will never happen), pass
     	return -1;
     	
     }
@@ -541,9 +554,7 @@ public class Board {
     private static final String DELIM = "     \r";
 	
     /**
-     * Returns a String representation of this board. In addition to the current
-     * situation, the String also shows the numbering of the fields.
-     *
+     * Returns a String representation of this board. 
      * @return the game situation as String
      */
 	
@@ -556,12 +567,12 @@ public class Board {
         for (int i = 0; i < dim; i++) {	
             String row = "";
             for (int j = 0; j < dim; j++) {
-            	if (index(i,j) < 10) {
-            		row = row + " " + getField(i, j).toString() + "  " + index(i,j);
-            	} else if (index(i,j) >= 10 && index(i,j) < 100 ) {
-            		row = row + " " + getField(i, j).toString() + " " + index(i,j);
+            	if (index(i, j) < 10) {
+            		row = row + " " + getField(i, j).toString() + "  " + index(i, j);
+            	} else if (index(i, j) >= 10 && index(i, j) < 100) {
+            		row = row + " " + getField(i, j).toString() + " " + index(i, j);
             	} else {
-            		row = row + " " + getField(i, j).toString() + "" + index(i,j);
+            		row = row + " " + getField(i, j).toString() + "" + index(i, j);
             	}
             		
                 if (j < dim - 1) {
@@ -573,15 +584,7 @@ public class Board {
             	s = s + "----------";
             }
             s = s + DELIM;
-        }
-        
-        
-        
-        
+        }    
         return s;
     }	
-	
-	
-	
-	
 }

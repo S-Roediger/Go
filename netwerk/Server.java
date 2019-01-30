@@ -10,32 +10,36 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-
-import go.Game;
-import go.Player;
-import javafx.util.Pair;
-
-// black makes first move, so player one always has to has black as color 
 
 
 public class Server {
 	
 	// -------------- fields ------------------- //
-	
-    private static final String USAGE
-            = "usage: " + Server.class.getName() + " <port>";
     
     private int port;
     private List<ClientHandler> threads;
     private HashMap<Integer, Lobby> gameLobbies; 
     private int lastGameID;
     private ServerSocket ssocket;
-    
 
-    /** Start een Server-applicatie op. */
+    
+    // ------------- Constructor ---------------- //
+    
+    /**
+     * Constructs a new Server object.
+     * @param portArg - Integer representing port number on which server will listen
+     */
+    public Server(int portArg) {
+    	this.port = portArg;
+        this.threads = new ArrayList<ClientHandler>();
+        this.gameLobbies = new HashMap<Integer, Lobby>();
+        this.lastGameID = 0;
+    }
+    
+    /**
+     * Main to start a server-application.
+     * @param args
+     */
     public static void main(String[] args) {
 
         System.out.println("Please enter a port number.");
@@ -48,30 +52,10 @@ public class Server {
 		}
 		
 		Server server = new Server(Integer.parseInt(antw));
-        server.run();
-        
+        server.run();     
     }
     
-
-
-    // ------------- Constructor ---------------- //
-    
-    
-    /** Constructs a new Server object */
-    public Server(int portArg) {
-    	this.port = portArg;
-        this.threads = new ArrayList<ClientHandler>();
-        this.gameLobbies = new HashMap<Integer, Lobby>();
-        this.lastGameID = 0;
-    }
-    
-    /**
-     * this is needed in order to test server
-     * @return
-     */
-    public ServerSocket getServerSocket() {
-    	return ssocket;
-    }
+    // ----------- Commands & Queries ------------ //
     
     /**
      * Listens to a port of this Server if there are any Clients that 
@@ -88,7 +72,8 @@ public class Server {
     				ssocket = new ServerSocket(port); 
     				correctPort = true;
     			} catch (BindException e) {
-    				System.out.println("You entered a portnumber that is already in use. Please enter another port number");
+    				System.out.println("You entered a portnumber that "
+    						+ "is already in use. Please enter another port number");
     		        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     				try {
     					this.port = Integer.parseInt(in.readLine());
@@ -97,13 +82,7 @@ public class Server {
     				}
     			}
     		}
-    		
-
-			//TODO Add appropriate error exception so that you can try again
 			while (true) {
-				
-				
-				//startGameInFullLobbies(); //voordat we hier een nieuw game beginnen
 				
 				Socket s = ssocket.accept();
 				
@@ -112,15 +91,17 @@ public class Server {
 				System.out.println("Added handler to threads");
 				ch.addLobbie(joinLobby(ch));
 				System.out.println("Added handler to lobby");
-				//first add handler to threads, then assign/create lobby object and then finally start ch
-				ch.start(); //ch moet eerst handshake kunnen sturen 
+				ch.start(); 
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
     }
     
-    
+    /**
+     * Method that checks all lobbies and starts a game if the lobby is
+     * full and config is set.
+     */
     public void startGameInFullLobbies() {
     	Collection<Integer> gameIds = gameLobbies.keySet();
     	for (int k:gameIds) {
@@ -131,16 +112,17 @@ public class Server {
     }
     
     /***
-     * Let a clientHandler join a lobby, when there is no lobby with a free spot, create a new one
+     * Lets a clientHandler join a lobby, when there is no lobby with a free spot
+     * it creates a new one.
      * @param ch - client handler that wants to join a lobby
      * @return lobby that was joined by ch in order to let ch know which lobby he/she joined
      */
     public synchronized Lobby joinLobby(ClientHandler ch) {
     	boolean joined = false;
-    	Lobby joinedLobby = null;;
+    	Lobby joinedLobby = null;
     	Collection<Integer> gameIds = gameLobbies.keySet();
     	for (int k:gameIds) {
-    		if(!this.gameLobbies.get(k).isFull()) {
+    		if (!this.gameLobbies.get(k).isFull()) {
     			joined = this.gameLobbies.get(k).addClient(ch);
     			joinedLobby = this.gameLobbies.get(k);
     		}
@@ -156,12 +138,15 @@ public class Server {
     	return joinedLobby;
     }
    
-    
+    /**
+     * Generates next gameID.
+     * @return Integer representing new game id
+     */
     public int generateGameID() {
     	return this.lastGameID++;
     }
     
-    public void print(String message){
+    public void print(String message) {
         System.out.println(message);
     } 
     
@@ -193,6 +178,11 @@ public class Server {
         threads.remove(handler);
     }
     
+    /**
+     * Shuts down the server socket connection.
+     * @param s - ServerSocket
+     * @throws IOException
+     */
     public void shutdown(ServerSocket s) throws IOException {
     	this.broadcast("The server is shutting down");
     	s.close();

@@ -5,39 +5,36 @@ import java.util.Scanner;
 
 public class HumanPlayer extends Player {
 
+	
+// ------------ Constructor ------------------- //
+	
 	public HumanPlayer(String name, Color color) {
 		super(name, color);
 		
 	}
 
+	
+// ------------- Commands --------------------- //
+	
 	 /**
 	 * Asks the user to input the field where to place the next color. This is
-	 * done using the standard input/output. \
-	 * 
-	 * @param board
-	 *            the game board
+	 * done using the standard input/output.
 	 * @return the player's chosen field
 	 */
 	@Override
 	public int determineMove() {
 		String prompt = "> " + getName() + " (" + getColor().toString() + ")"
-	               + ", what is your choice? (Enter the index of any free field or enter -1 to pass)";
-	      int choice = readInt(prompt);
-	     return choice;  
+	               + ", what is your choice? (Enter the index of any free "
+	               	+ "field or enter -1 to pass)";
+	    int choice = readInt(prompt);
+	    return choice;  
 	}
-	
-
-	// --------- Write prompt to ask for player input -------- // 
-	// Later niet nodig sinds wij de input door de client server connectie willen laten lopen
-	
-	
 	
 	/**
      * Writes a prompt to standard out and tries to read an int value from
      * standard in. This is repeated until an int value is entered.
      * 
-     * @param prompt
-     *            the question to prompt the user
+     * @param prompt - the question to prompt the user
      * @return the first int value which is entered by the user
      */
 	

@@ -19,9 +19,9 @@ public class GameState {
 		this.currentState = status;
 	}
 	
-	public synchronized void changeState(String currentState) {
+	public synchronized void changeState(String state) {
 		
-		switch (currentState) {
+		switch (state) {
 			case "CONNECTION+FIRST":
 				this.currentState = "CONNECTION+SECOND";
 				break;
@@ -30,8 +30,9 @@ public class GameState {
 				this.currentState = "GAMESTART";
 				break;
 				
-			case"GAMESTART":		//Dit kan misschien gewoon weg, tijdens het spel hoef ik dit niet
+			case"GAMESTART":		
 				this.currentState = "MOVE+FIRST";
+				break;
 				
 			case "MOVE+FIRST":
 				this.currentState = "MOVE+SECOND";

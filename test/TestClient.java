@@ -8,16 +8,12 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import netwerk.ClientInputHandler;
-
 public class TestClient {
 
 	private String clientName;
 	private Socket sock;
 	private BufferedReader in;
 	private BufferedWriter out;
-	private ClientInputHandler cih;
-	private int computerMoveTime;
 
 /**
  * Constructs a Client-object and tries to make a socket connection.
@@ -35,7 +31,8 @@ public class TestClient {
 	
 	
 	/**
-	 * Reads the messages in the socket connection. Each message will be checked for action in the clientinputHandler.
+	 * Reads the messages in the socket connection. 
+	 * Each message will be checked for action in the clientinputHandler.
 	 * @return 
 	 * 
 	 */
@@ -79,7 +76,8 @@ public class TestClient {
 	 * @throws IOException
 	 */
 	public void shutdown() {
-		print("It seems that the server has disconnected. The socket connection will be closed now...");
+		print("It seems that the server has disconnected."
+				+ " The socket connection will be closed now...");
 		try {
 			sock.close();
 		} catch (IOException e) {
@@ -88,7 +86,7 @@ public class TestClient {
 		}
 	}
 
-	/** returns the client name */
+	/** Returns the client name. */
 	public String getClientName() {
 		return clientName;
 	}
@@ -98,7 +96,7 @@ public class TestClient {
 	}
 
 	/***
-	 * This receives arguments and reads from inputstream
+	 * This method reads from input stream and splits the read String.
 	 * 
 	 * @return
 	 */
@@ -121,7 +119,7 @@ public class TestClient {
 	}
 
 	/***
-	 * parse String using semicolon
+	 * Parses a String using semicolon.
 	 * 
 	 * @param a
 	 * @return
