@@ -15,6 +15,7 @@ public class Board {
 	private int dim; 
 	private int pass;
 	private Color[][] pastBoardStates;
+	private ArrayList<String> pastBoardStatesStringList;
 	private ArrayList<Color> currentNeighColor;
 	private ArrayList<Integer> currentNeighIndex;
 	private ArrayList<Integer> checkedStonesGetGroup;
@@ -38,11 +39,14 @@ public class Board {
 			fields[i] = Color.EMPTY;
 		}
 		pass = 0;
-		pastBoardStates = new Color[dim * dim][dim * dim];
-		pastBoardStates[0] = fields; 
+		pastBoardStatesStringList = new ArrayList<>();
+		//pastBoardStates = new Color[dim * dim][dim * dim];
+		//pastBoardStates[0] = fields; 
 		currentNeighColor = new ArrayList<Color>();
 		currentNeighIndex = new ArrayList<Integer>();
 		checkedStonesGetGroup = new ArrayList<Integer>();
+		pastBoardStatesStringList.add(getBoardString());
+		
 	}
 	
 	
@@ -69,7 +73,18 @@ public class Board {
 		pastBoardStates[0] = fields; 
 	}
 	
-	
+	/**
+	 * Method to obtain a String representation of the current board.
+	 * @return a String representing the fields of the current board
+	 */
+	public synchronized String getBoardString() {
+		Color[] fieldsCopy = this.getFields();
+		String a = "";
+		for (int i = 0; i < fieldsCopy.length; i++) {
+			a += Color.getNr(fieldsCopy[i]);
+		}
+		return a;
+	}
 	
 // --------------------- Commands & Queries ------------------- //
 	
@@ -164,6 +179,61 @@ public class Board {
     	pass = 0;
     }
 
+    
+    public boolean checkHistory(int set, Color c) {
+    	
+    	Board b1 = new Board(this.dim, this.getBoardString());
+    	b1.setField(set, c);
+    	ArrayList<Integer> group = new ArrayList<>();
+    	b1.getGroup(set, c, group);
+    	b1.handleCapture(c, set);
+    	String testBoard = b1.getBoardString();
+    	
+    	if (this.pastBoardStatesStringList.contains(testBoard)) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    
+	/**
+	 * Handles captures.
+	 * @param c - Color of potentially captured party
+	 * @param lastSet - index representing last set
+	 */
+	public void handleCapture(Color c, int lastSet) {
+		
+		
+		//Only look at direct neighbours of the last set
+		ArrayList<ArrayList<Integer>> groepen = new ArrayList<>();
+		ArrayList<Integer> fieldsToBeChecked = new ArrayList<Integer>();
+		
+		//get neighbours from last set
+		for (int j = 0; j < this.getCurrentNeighColor(lastSet).size(); j++) {
+			//see whether they have the color of your opponent
+			if (this.getCurrentNeighColor(lastSet).get(j).equals(c)) {	
+				//add these stones to the fieldsToBeChecked
+				fieldsToBeChecked.add(this.getCurrentNeighIndex(lastSet).get(j));
+			}
+		}	
+		
+		for (int i = 0; i < fieldsToBeChecked.size(); i++) { 
+			//find the groups for the fields to be checked
+			ArrayList<Integer> r = new ArrayList<Integer>();
+			this.getGroup(fieldsToBeChecked.get(i), c, r);
+			groepen.add(r);
+				
+		}
+		
+		for (ArrayList<Integer> a:groepen) {
+			if (this.isCaptured(Color.EMPTY, a)) {
+				this.remove(a);
+			}
+		}
+	}
+    
+    
     /***
      * Method to check whether a particular set with a particular color would recreate
      * a previous board state.
@@ -213,9 +283,10 @@ public class Board {
      */
     public void setField(int i, Color c) {
     	fields[i] = c;
-    	for (int k = 0; k < dim * dim; k++) {
-    		pastBoardStates[pastBoardStates.length - 1][k] = fields[k];
-    	}
+    	this.pastBoardStatesStringList.add(getBoardString());
+    	//for (int k = 0; k < dim * dim; k++) {
+    	//	pastBoardStates[pastBoardStates.length - 1][k] = fields[k];
+    	//}
     }
     
     
@@ -508,14 +579,14 @@ public class Board {
     	if (choice == -1 || choice == -99) {
     		return true;
     	} else {
-    		return isField(choice) && isEmptyField(choice) && !checkPreviousBoardState(choice, c);
+    		return isField(choice) && isEmptyField(choice) && !this.checkHistory(choice, c);//&& !checkPreviousBoardState(choice, c);
     	}
     	
     }
     
     /***
      * Determines a random valid move. 
-     * @param c - Color that you would like to determine a valid move for
+     * @param c - Color that you would like to determine a random valid move for
      * @param t - Integer indicating how much time the bot has to find
      * a random valid move before a pass is returned
      * @return Integer representing a valid random move
@@ -546,6 +617,38 @@ public class Board {
     	//if you exceed thinking time (which currently will never happen), pass
     	return -1;
     	
+    }
+    
+    
+    /***
+     * Determines a smart valid move.
+     * @param c - Color that you would like to determine a smart valid move for
+     * @param t - Integer indicating how much time the bot has to find
+     * a smart valid move before a pass is returned
+     * @return Integer representing a valid smart move
+     */
+    public int determineSmartValidMove(Color c, int t) {
+    	int[] fieldsIndexCopy = new int[dim * dim];
+    	//make a copy of the current board fields
+    	for (int i = 0; i < fields.length; i++) {
+    		fieldsIndexCopy[i] = i;
+    	}
+    	
+    	long startTime = System.currentTimeMillis();
+    	long elapsedTime = 0;
+    	
+    	//loop de fields af
+    	for (int j = 0; j < fields.length; j++) {
+    		elapsedTime = System.currentTimeMillis() - startTime;
+    		if (fields[j].equals(Color.EMPTY) && isValidMove(fieldsIndexCopy[j], c)) {
+    			return fieldsIndexCopy[j];
+    		} else if (elapsedTime < t) {
+    			return -1;
+    		}
+    	}
+    	
+    	
+    	return -1;
     }
    
     

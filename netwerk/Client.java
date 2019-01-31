@@ -24,7 +24,7 @@ public class Client extends Thread {
 		
 		//In case of computer player, ask for the maximum computation time it is given
 		int moveTime = 0;
-		if (clientName.equals("ComputerPlayer")) {
+		if (clientName.equals("ComputerPlayer") || clientName.equals("SmartComputerPlayer")) {
 			moveTime = Integer.parseInt(readString("You indicated that you want to play"
 						+ " with a computer player. \r"
 							+ "Please enter the maximum 'thinking time' "

@@ -104,9 +104,17 @@ public class ClientInputHandler {
 				if (currentGameState[0].equals("PLAYING")
 						&& Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
 	
-					if (this.client.getClientName().contains("ComputerPlayer")) {
+					if (this.client.getClientName().equals("ComputerPlayer") || 
+							this.client.getClientName().equals("ComputerPlayer1")) {
 						return "MOVE+" + gameID + "+" + client.getClientName() + "+"
-								+ board.determineRandomValidMove(color, 3000);
+								+ board.determineRandomValidMove(color, 
+										client.getComputerMoveTime());
+					
+					} else if (this.client.getClientName().equals("SmartComputerPlayer") || 
+							this.client.getClientName().equals("SmartComputerPlayer1")) {
+						return "MOVE+" + gameID + "+" + client.getClientName() + "+"
+								+ board.determineSmartValidMove(color, 
+										client.getComputerMoveTime());
 					} else {
 						System.out.println("Please enter a move (index)"
 								+ " or pass with '-1' \r Enter 'EXIT' to exit the game");
@@ -137,9 +145,17 @@ public class ClientInputHandler {
 				if (currentGameState[0].equals("PLAYING")
 						&& Integer.parseInt(currentGameState[1]) == (Color.getNr(color))) {
 	
-					if (this.client.getClientName().contains("ComputerPlayer")) {
+					if (this.client.getClientName().equals("ComputerPlayer") || 
+							this.client.getClientName().equals("ComputerPlayer1")) {
 						return "MOVE+" + gameID + "+" + client.getClientName() + "+"
-								+ board.determineRandomValidMove(color, 3000);
+								+ board.determineRandomValidMove(color, 
+										client.getComputerMoveTime());
+					
+					} else if (this.client.getClientName().equals("SmartComputerPlayer") || 
+							this.client.getClientName().equals("SmartComputerPlayer1")) {
+						return "MOVE+" + gameID + "+" + client.getClientName() + "+"
+								+ board.determineSmartValidMove(color, 
+										client.getComputerMoveTime());
 					} else {
 						System.out.println("Please enter a move (index) or"
 								+ " pass with '-1' \r Enter 'EXIT' to exit the game");
